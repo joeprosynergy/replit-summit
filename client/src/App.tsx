@@ -42,6 +42,7 @@ const Admin = lazy(() => import("./pages/Admin"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const AdminCloudinaryUpload = lazy(() => import("./pages/AdminCloudinaryUpload"));
 const AssetAudit = lazy(() => import("./pages/AssetAudit"));
+const DynamicPage = lazy(() => import("./pages/DynamicPage"));
 
 const App = () => (
   <HelmetProvider>
@@ -125,8 +126,12 @@ const App = () => (
                   </Suspense>
                 }
               />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          {/* Dynamic page route for duplicated pages */}
+          <Route path="/*" element={
+            <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}>
+              <DynamicPage />
+            </Suspense>
+          } />
           </Routes>
         </BrowserRouter>
       </AdminAuthProvider>
