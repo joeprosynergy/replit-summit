@@ -90,11 +90,14 @@ export function usePageManagement(currentSlug: string) {
         .eq('page_slug', currentSlug);
 
       if (sectionData && sectionData.length > 0) {
-        const sectionPayloads = sectionData.map((section: any) => ({
-          page_slug: targetSlug,
-          section_name: section.section_name,
-          content: section.content_json ? JSON.parse(JSON.stringify(section.content_json)) : section.content,
-        }));
+        const sectionPayloads = sectionData.map((section: any) => {
+          const contentToCopy = section.content || section.content_json;
+          return {
+            page_slug: targetSlug,
+            section_name: section.section_name,
+            content: contentToCopy ? JSON.parse(JSON.stringify(contentToCopy)) : null,
+          };
+        });
 
         const { error: sectionInsertError } = await (client as any)
           .from('section_content')

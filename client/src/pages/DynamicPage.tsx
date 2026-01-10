@@ -6,23 +6,27 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NotFound from './NotFound';
 
-interface PageContent {
-  title?: string;
-  subtitle?: string;
-  description?: string;
+interface PageContentData {
+  heading?: string;
+  tagline?: string;
+  subheading?: string;
+  cta_heading?: string;
+  cta_description?: string;
+  cta_button?: string;
   [key: string]: any;
 }
 
-const defaultContent: PageContent = {
-  title: 'Page Title',
-  subtitle: 'Page Subtitle',
-  description: 'Page description goes here.',
-};
+interface SectionContentData {
+  [key: string]: any;
+}
+
+const defaultContent: SectionContentData = {};
 
 const DynamicPage = () => {
   const { '*': fullPath } = useParams();
   const slug = fullPath || '';
   const [exists, setExists] = useState<boolean | null>(null);
+  const [pageData, setPageData] = useState<PageContentData | null>(null);
 
   useEffect(() => {
     const checkPageExists = async () => {
@@ -34,14 +38,15 @@ const DynamicPage = () => {
       }
 
       try {
-        // Check page_content table (where Admin finds duplicated pages)
-        const { data: pageData, error: pageError } = await (client as any)
+        // Check page_content table and load content
+        const { data: pageResult, error: pageError } = await (client as any)
           .from('page_content')
-          .select('id')
+          .select('*')
           .eq('slug', slug)
           .limit(1);
 
-        if (!pageError && pageData && pageData.length > 0) {
+        if (!pageError && pageResult && pageResult.length > 0) {
+          setPageData(pageResult[0]);
           setExists(true);
           return;
         }
@@ -81,30 +86,47 @@ const DynamicPage = () => {
 
   return (
     <EditablePageWrapper slug={slug} defaultContent={defaultContent}>
-      {({ content: pageContent }) => (
+      {({ content: sectionContent }) => (
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-grow">
             <section className="py-16 bg-gradient-to-b from-primary/10 to-background">
               <div className="container mx-auto px-4 text-center">
                 <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                  {pageContent.title}
+                  {pageData?.heading || sectionContent.heading || sectionContent.title || 'Page Title'}
                 </h1>
-                {pageContent.subtitle && (
+                {(pageData?.tagline || sectionContent.tagline || sectionContent.subtitle) && (
                   <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                    {pageContent.subtitle}
+                    {pageData?.tagline || sectionContent.tagline || sectionContent.subtitle}
                   </p>
                 )}
               </div>
             </section>
             
-            <section className="py-12">
-              <div className="container mx-auto px-4">
-                <div className="prose prose-lg max-w-4xl mx-auto">
-                  <p>{pageContent.description}</p>
+            {(pageData?.subheading || sectionContent.subheading || sectionContent.description) && (
+              <section className="py-12">
+                <div className="container mx-auto px-4">
+                  <div className="prose prose-lg max-w-4xl mx-auto">
+                    <p>{pageData?.subheading || sectionContent.subheading || sectionContent.description}</p>
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
+
+            {(pageData?.cta_heading || sectionContent.cta_heading) && (
+              <section className="py-12 bg-primary/5">
+                <div className="container mx-auto px-4 text-center">
+                  <h2 className="text-2xl font-bold mb-4">
+                    {pageData?.cta_heading || sectionContent.cta_heading}
+                  </h2>
+                  {(pageData?.cta_description || sectionContent.cta_description) && (
+                    <p className="text-muted-foreground mb-6">
+                      {pageData?.cta_description || sectionContent.cta_description}
+                    </p>
+                  )}
+                </div>
+              </section>
+            )}
           </main>
           <Footer />
         </div>
