@@ -79,6 +79,16 @@ The application includes a lightweight, secure CMS that stores content in Supaba
 - Both tables have RLS policies for public read, authenticated write
 
 ## Recent Changes
+- **2026-01-10**: Made BasicStorage, DeluxeStorageCabins, and GaragesCarports overview pages fully editable
+  - All three pages follow same CMS editing pattern as other overview pages
+  - Uses useEditablePageContent for page-level meta content
+  - Uses useSectionContent for models, quick-nav, and CTA sections
+  - Quick Nav section with editable title and items (name, image)
+  - Model sections with editable headers, taglines, features, main image, gallery images
+  - Model buttons with editable links (View Details, Design This Shed / Browse Inventory)
+  - CTA section with editable heading, description, phone button, secondary button
+  - View mode shows clickable links; edit mode shows inline editable components
+  - Local state management with useEffect syncing from content hooks
 - **2026-01-10**: Made StylesModern, StylesUtility, and StylesBarn pages fully editable
   - All three pages follow same CMS editing pattern as Styles.tsx reference page
   - Uses useEditablePageContent for page-level content (heading, tagline, subheading, CTA, meta)
