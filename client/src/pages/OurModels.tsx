@@ -85,7 +85,7 @@ const defaultCategories: CategoriesContent = {
   ]
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Structure Types",
   tagline: "Hand-Built to Last",
   subheading: "Choose one of our popular models or customize your own",

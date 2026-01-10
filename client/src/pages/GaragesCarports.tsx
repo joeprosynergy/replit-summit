@@ -133,7 +133,7 @@ const defaultCta: CtaContent = {
   secondaryButtonOpenInNewTab: false,
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Garages & Carports",
   tagline: "",
   subheading: "",

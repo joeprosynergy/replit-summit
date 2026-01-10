@@ -246,7 +246,7 @@ interface BudgetProUtilityContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: BudgetProUtilityContent = {
+export const defaultContent: BudgetProUtilityContent = {
   metaTitle: 'Budget Pro - Utility Shed | Summit Portable Buildings',
   metaDescription: 'The Budget Pro Utility Shed offers maximum headroom with 7 foot 9 inch walls at an affordable price. Features double doors with T-handle lock. Sizes 8x8 to 14x40. Free delivery within 50 miles.',
   title: 'BUDGET PRO -',

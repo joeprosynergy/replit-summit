@@ -97,7 +97,7 @@ const defaultSectionHeaders: SectionHeaders = {
   specialtyHeader: 'Specialty Structures',
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Building Styles",
   tagline: "Find Your Perfect Style",
   subheading: "Select a roof style to explore available options",

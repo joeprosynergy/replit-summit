@@ -43,7 +43,7 @@ const defaultNavContent: NavContent = {
   generatingText: "Generating...",
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Summit Buyers Guide",
   tagline: "",
   subheading: "",

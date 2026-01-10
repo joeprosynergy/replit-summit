@@ -128,7 +128,7 @@ const defaultCta: CtaContent = {
   secondaryButtonOpenInNewTab: false,
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Deluxe Storage & Cabins",
   tagline: "",
   subheading: "",

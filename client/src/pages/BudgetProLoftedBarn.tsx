@@ -251,7 +251,7 @@ interface BudgetProLoftedBarnContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: BudgetProLoftedBarnContent = {
+export const defaultContent: BudgetProLoftedBarnContent = {
   metaTitle: 'Budget Pro - Lofted Barn | Summit Portable Buildings',
   metaDescription: 'The Budget Pro Lofted Barn offers classic barn styling at an affordable price. Features 1 loft for extra storage, double doors with T-handle lock. Sizes 8×8 to 14×40. Free delivery within 50 miles.',
   title: 'BUDGET PRO -',

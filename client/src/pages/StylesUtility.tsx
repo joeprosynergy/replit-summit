@@ -145,7 +145,7 @@ const defaultCtaSettings: CtaSettings = {
   buttonOpenInNewTab: true,
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Utility Style",
   tagline: "← Back to Styles",
   subheading: "Traditional A-Frame Roof — Classic design with timeless appeal",

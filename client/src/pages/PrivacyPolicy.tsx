@@ -321,7 +321,7 @@ const defaultContact: ContactContent = {
   websiteUrl: "https://summitbuildings.com",
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Privacy Policy",
   tagline: "",
   subheading: "",

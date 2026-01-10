@@ -110,7 +110,7 @@ const defaultCta: CtaContent = {
   button2OpenInNewTab: false,
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: 'Gallery',
   tagline: '',
   subheading: '',

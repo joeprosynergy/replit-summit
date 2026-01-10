@@ -121,7 +121,7 @@ const defaultCtaSettings: CtaSettings = {
   buttonOpenInNewTab: true,
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Barn Style",
   tagline: "← Back to Styles",
   subheading: "Gambrel Roof — Maximum overhead storage with iconic barn appeal",

@@ -164,7 +164,7 @@ interface AnimalSheltersContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: AnimalSheltersContent = {
+export const defaultContent: AnimalSheltersContent = {
   metaTitle: 'Animal Shelters, Dog Kennels & Chicken Coops | Summit Portable Buildings',
   metaDescription: 'Quality animal housing solutions from Summit Buildings. Dog kennels, chicken coops, and animal shelters built with durable materials for comfort, safety, and security.',
   title: 'ANIMAL',

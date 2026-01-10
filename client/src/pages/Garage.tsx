@@ -251,7 +251,7 @@ interface GarageContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: GarageContent = {
+export const defaultContent: GarageContent = {
   metaTitle: 'Garage | Summit Portable Buildings',
   metaDescription: 'Summit Garages are built to handle the weight of any average size vehicle or small tractor. Features 9\'x7\' insulated overhead door, steel walk-in door, and floor joists spaced 12 inches on center. Protect your vehicle from hail damage. Free delivery within 50 miles.',
   title: '',

@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { LogOut, Settings, Users, FileText, ShieldX, ChevronDown, RefreshCw, Copy } from "lucide-react";
+import { LogOut, Settings, Users, FileText, ShieldX, ChevronDown, RefreshCw, Copy, Database, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { getBackendClient, isBackendAvailable } from "@/lib/backendClient";
+import { migrateAllContent, MigrationProgress, MigrationResult } from "@/lib/contentMigration";
+import { toast } from "sonner";
 
 // Helper to extract hostname for debug display
 function getBackendHost(): string {
@@ -41,6 +43,28 @@ const Admin = () => {
   const [debugOpen, setDebugOpen] = useState(false);
   const [duplicatedPages, setDuplicatedPages] = useState<string[]>([]);
   const [loadingPages, setLoadingPages] = useState(true);
+  const [isMigrating, setIsMigrating] = useState(false);
+  const [migrationProgress, setMigrationProgress] = useState<MigrationProgress | null>(null);
+  const [migrationResults, setMigrationResults] = useState<MigrationResult[] | null>(null);
+
+  const handleMigrateContent = async () => {
+    setIsMigrating(true);
+    setMigrationProgress(null);
+    setMigrationResults(null);
+    
+    try {
+      const results = await migrateAllContent((progress) => {
+        setMigrationProgress(progress);
+      });
+      setMigrationResults(results);
+      const successCount = results.filter(r => r.success).length;
+      toast.success(`Migration complete: ${successCount}/${results.length} pages updated`);
+    } catch (err: any) {
+      toast.error(`Migration failed: ${err.message || 'Unknown error'}`);
+    } finally {
+      setIsMigrating(false);
+    }
+  };
 
   useEffect(() => {
     const fetchDuplicatedPages = async () => {
@@ -371,6 +395,58 @@ const Admin = () => {
                   Asset Audit
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Database Migration Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                Content Migration
+              </CardTitle>
+              <CardDescription>
+                One-time action to push all website default content to the database. This ensures all pages have their content stored in Supabase for editing and duplication.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button 
+                onClick={handleMigrateContent} 
+                disabled={isMigrating}
+                className="w-full sm:w-auto"
+                data-testid="button-migrate-content"
+              >
+                {isMigrating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Migrating... {migrationProgress ? `(${migrationProgress.current}/${migrationProgress.total})` : ''}
+                  </>
+                ) : (
+                  <>
+                    <Database className="mr-2 h-4 w-4" />
+                    Populate Database with All Content
+                  </>
+                )}
+              </Button>
+
+              {migrationResults && (
+                <div className="mt-4 space-y-2">
+                  <h4 className="text-sm font-medium">Migration Results:</h4>
+                  <div className="max-h-64 overflow-y-auto space-y-1 text-sm">
+                    {migrationResults.map((result, idx) => (
+                      <div key={idx} className="flex items-center gap-2 py-1">
+                        {result.success ? (
+                          <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                        )}
+                        <span className="font-mono text-xs">{result.slug}</span>
+                        <span className="text-muted-foreground text-xs">- {result.message}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 

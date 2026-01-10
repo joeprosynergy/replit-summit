@@ -139,7 +139,7 @@ interface CarportsContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: CarportsContent = {
+export const defaultContent: CarportsContent = {
   metaTitle: 'Carports & RV Covers | Summit Portable Buildings',
   metaDescription: 'Steel carports and RV covers provide the best protection against cold, rain, sun, and wind – even tornadoes and hurricanes. Available for commercial, industrial, or residential use.',
   title: 'CARPORTS &',

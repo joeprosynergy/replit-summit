@@ -193,7 +193,7 @@ interface BarnCabinContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: BarnCabinContent = {
+export const defaultContent: BarnCabinContent = {
   metaTitle: 'Lofted Cabin | Barn Style | Summit Portable Buildings',
   metaDescription: 'The Lofted Cabin features a classic gambrel roof design with two lofts for maximum storage. Perfect for lake lots, hunting cabins, or tiny homes. Free delivery within 50 miles.',
   title: '',

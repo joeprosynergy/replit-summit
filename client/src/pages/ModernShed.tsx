@@ -177,7 +177,7 @@ interface ModernShedContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: ModernShedContent = {
+export const defaultContent: ModernShedContent = {
   metaTitle: 'Modern Shed | Summit Portable Buildings',
   metaDescription: 'Discover our Modern Shed with single slope roof design. Features LP SmartSide siding, 6-inch overhangs, and contemporary aesthetics. Perfect for offices, studios, or storage.',
   title: 'MODERN',

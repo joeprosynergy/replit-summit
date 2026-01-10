@@ -171,7 +171,7 @@ const defaultCta: CtaContent = {
   buttonOpenInNewTab: false,
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "About Us",
   tagline: "",
   subheading: "",

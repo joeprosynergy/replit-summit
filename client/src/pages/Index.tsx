@@ -162,7 +162,7 @@ interface ContactContent {
 }
 
 // Default content
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Get the Storage Space You Need Without the Hassle",
   tagline: "Summit Portable Buildings",
   subheading: "Custom storage buildings designed for your property, built by craftsmen, delivered to your door.",

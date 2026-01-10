@@ -139,7 +139,7 @@ interface EconomyShedContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: EconomyShedContent = {
+export const defaultContent: EconomyShedContent = {
   metaTitle: 'Economy Shed | Summit Portable Buildings',
   metaDescription: 'The Economy Shed is our most economical storage building available. Lowest cost per square foot of floor space. Available in standard or lofted configurations with metal siding. Free delivery within 50 miles.',
   title: 'SHED',

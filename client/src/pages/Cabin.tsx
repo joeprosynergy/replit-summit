@@ -234,7 +234,7 @@ interface CabinContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: CabinContent = {
+export const defaultContent: CabinContent = {
   metaTitle: 'Summit Cabin | Summit Portable Buildings',
   metaDescription: 'The Summit Cabin is perfect for your lake lot, hunting cabin, or tiny home. Features 7/12 pitch roof, 6\' treated wood porch, LED lighting, electrical package, and double pane windows. Starting at $29,717.89. Free delivery within 50 miles.',
   title: 'SUMMIT',

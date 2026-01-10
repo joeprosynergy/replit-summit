@@ -146,7 +146,7 @@ interface GreenhouseContent {
   [key: string]: string | boolean;
 }
 
-const defaultContent: GreenhouseContent = {
+export const defaultContent: GreenhouseContent = {
   metaTitle: 'Greenhouse | Summit Portable Buildings',
   metaDescription: 'Summit Buildings Greenhouses feature treated decking floors, exhaust fans, thermostat controllers, shelving, potting benches, and electrical packages. Perfect for year-round growing.',
   title: '',

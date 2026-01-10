@@ -71,7 +71,7 @@ const defaultSectionHeaders: SectionHeaders = {
   sectionTitle: "Choose Your Option",
 };
 
-const defaultContent: PageContent = {
+export const defaultContent: PageContent = {
   heading: "Modern Style",
   tagline: "← Back to Styles",
   subheading: "Single Slope Roof — Contemporary design with clean, sleek lines",
