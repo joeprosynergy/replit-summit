@@ -93,7 +93,7 @@ export function usePageManagement(currentSlug: string) {
         const sectionPayloads = sectionData.map((section: any) => ({
           page_slug: targetSlug,
           section_name: section.section_name,
-          content: section.content,
+          content: section.content_json ? JSON.parse(JSON.stringify(section.content_json)) : section.content,
         }));
 
         const { error: sectionInsertError } = await (client as any)
