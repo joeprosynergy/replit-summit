@@ -34,6 +34,12 @@ interface ValuesContent {
   values: ValueItem[];
 }
 
+interface ValuesSectionContent {
+  tagline: string;
+  heading: string;
+  subheading: string;
+}
+
 interface FeaturesContent {
   features: string[];
 }
@@ -85,6 +91,12 @@ interface CtaContent {
   buttonLink: string;
   buttonOpenInNewTab: boolean;
 }
+
+const defaultValuesSection: ValuesSectionContent = {
+  tagline: "What We Stand For",
+  heading: "Our Values",
+  subheading: "The principles that guide everything we do",
+};
 
 const defaultValues: ValuesContent = {
   values: [
@@ -186,6 +198,7 @@ const AboutUs = () => {
   const { content: heroContent, isLoading: isHeroLoading, isSaving: isHeroSaving, hasChanges: hasHeroChanges, updateField: updateHeroField, save: saveHero, reset: resetHero } = useSectionContent('about-us', 'hero', defaultHero as any) as { content: HeroContent; isLoading: boolean; isSaving: boolean; hasChanges: boolean; updateField: any; save: () => Promise<boolean>; reset: () => void };
   const { content: missionContent, isLoading: isMissionLoading, isSaving: isMissionSaving, hasChanges: hasMissionChanges, updateField: updateMissionField, save: saveMission, reset: resetMission } = useSectionContent('about-us', 'mission', defaultMission as any) as { content: MissionContent; isLoading: boolean; isSaving: boolean; hasChanges: boolean; updateField: any; save: () => Promise<boolean>; reset: () => void };
   const { content: familyOwnedContent, isLoading: isFamilyOwnedLoading, isSaving: isFamilyOwnedSaving, hasChanges: hasFamilyOwnedChanges, updateField: updateFamilyOwnedField, save: saveFamilyOwned, reset: resetFamilyOwned } = useSectionContent('about-us', 'family-owned', defaultFamilyOwned as any) as { content: FamilyOwnedContent; isLoading: boolean; isSaving: boolean; hasChanges: boolean; updateField: any; save: () => Promise<boolean>; reset: () => void };
+  const { content: valuesSectionContent, isLoading: isValuesSectionLoading, isSaving: isValuesSectionSaving, hasChanges: hasValuesSectionChanges, updateField: updateValuesSectionField, save: saveValuesSection, reset: resetValuesSection } = useSectionContent('about-us', 'values-section', defaultValuesSection as any) as { content: ValuesSectionContent; isLoading: boolean; isSaving: boolean; hasChanges: boolean; updateField: any; save: () => Promise<boolean>; reset: () => void };
   const { content: valuesContent, isLoading: isValuesLoading, isSaving: isValuesSaving, hasChanges: hasValuesChanges, updateField: updateValuesField, save: saveValues, reset: resetValues } = useSectionContent('about-us', 'values', defaultValues as any) as { content: ValuesContent; isLoading: boolean; isSaving: boolean; hasChanges: boolean; updateField: any; save: () => Promise<boolean>; reset: () => void };
   const { content: craftsmenContent, isLoading: isCraftsmenLoading, isSaving: isCraftsmenSaving, hasChanges: hasCraftsmenChanges, updateField: updateCraftsmenField, save: saveCraftsmen, reset: resetCraftsmen } = useSectionContent('about-us', 'craftsmen', defaultCraftsmen as any) as { content: CraftsmenContent; isLoading: boolean; isSaving: boolean; hasChanges: boolean; updateField: any; save: () => Promise<boolean>; reset: () => void };
   const { content: featuresContent, isLoading: isFeaturesLoading, isSaving: isFeaturesSaving, hasChanges: hasFeaturesChanges, updateField: updateFeaturesField, save: saveFeatures, reset: resetFeatures } = useSectionContent('about-us', 'features', defaultFeatures as any) as { content: FeaturesContent; isLoading: boolean; isSaving: boolean; hasChanges: boolean; updateField: any; save: () => Promise<boolean>; reset: () => void };
@@ -196,6 +209,7 @@ const AboutUs = () => {
   const [localHero, setLocalHero] = useState<HeroContent>(defaultHero);
   const [localMission, setLocalMission] = useState<MissionContent>(defaultMission);
   const [localFamilyOwned, setLocalFamilyOwned] = useState<FamilyOwnedContent>(defaultFamilyOwned);
+  const [localValuesSection, setLocalValuesSection] = useState<ValuesSectionContent>(defaultValuesSection);
   const [localValues, setLocalValues] = useState<ValueItem[]>(defaultValues.values);
   const [localCraftsmen, setLocalCraftsmen] = useState<CraftsmenContent>(defaultCraftsmen);
   const [localFeatures, setLocalFeatures] = useState<string[]>(defaultFeatures.features);
@@ -206,6 +220,7 @@ const AboutUs = () => {
   useEffect(() => { if (heroContent) setLocalHero(heroContent); }, [heroContent]);
   useEffect(() => { if (missionContent) setLocalMission(missionContent); }, [missionContent]);
   useEffect(() => { if (familyOwnedContent) setLocalFamilyOwned(familyOwnedContent); }, [familyOwnedContent]);
+  useEffect(() => { if (valuesSectionContent) setLocalValuesSection(valuesSectionContent); }, [valuesSectionContent]);
   useEffect(() => { if (valuesContent?.values) setLocalValues(valuesContent.values); }, [valuesContent]);
   useEffect(() => { if (craftsmenContent) setLocalCraftsmen(craftsmenContent); }, [craftsmenContent]);
   useEffect(() => { if (featuresContent?.features) setLocalFeatures(featuresContent.features); }, [featuresContent]);
@@ -229,17 +244,18 @@ const AboutUs = () => {
 
   const handleSave = async () => {
     await Promise.all([
-      savePage(), saveHero(), saveMission(), saveFamilyOwned(), saveValues(),
+      savePage(), saveHero(), saveMission(), saveFamilyOwned(), saveValuesSection(), saveValues(),
       saveCraftsmen(), saveFeatures(), saveServiceAreasSection(), saveServiceAreas(), saveCta()
     ]);
   };
 
   const handleReset = () => {
-    resetPage(); resetHero(); resetMission(); resetFamilyOwned(); resetValues();
+    resetPage(); resetHero(); resetMission(); resetFamilyOwned(); resetValuesSection(); resetValues();
     resetCraftsmen(); resetFeatures(); resetServiceAreasSection(); resetServiceAreas(); resetCta();
     if (heroContent) setLocalHero(heroContent);
     if (missionContent) setLocalMission(missionContent);
     if (familyOwnedContent) setLocalFamilyOwned(familyOwnedContent);
+    if (valuesSectionContent) setLocalValuesSection(valuesSectionContent);
     if (valuesContent?.values) setLocalValues(valuesContent.values);
     if (craftsmenContent) setLocalCraftsmen(craftsmenContent);
     if (featuresContent?.features) setLocalFeatures(featuresContent.features);
@@ -248,9 +264,9 @@ const AboutUs = () => {
     if (ctaContent) setLocalCta(ctaContent);
   };
 
-  const isLoading = isPageLoading || isHeroLoading || isMissionLoading || isFamilyOwnedLoading || isValuesLoading || isCraftsmenLoading || isFeaturesLoading || isServiceAreasSectionLoading || isServiceAreasLoading || isCtaLoading;
-  const isSaving = isPageSaving || isHeroSaving || isMissionSaving || isFamilyOwnedSaving || isValuesSaving || isCraftsmenSaving || isFeaturesSaving || isServiceAreasSectionSaving || isServiceAreasSaving || isCtaSaving;
-  const hasChanges = hasPageChanges || hasHeroChanges || hasMissionChanges || hasFamilyOwnedChanges || hasValuesChanges || hasCraftsmenChanges || hasFeaturesChanges || hasServiceAreasSectionChanges || hasServiceAreasChanges || hasCtaChanges;
+  const isLoading = isPageLoading || isHeroLoading || isMissionLoading || isFamilyOwnedLoading || isValuesSectionLoading || isValuesLoading || isCraftsmenLoading || isFeaturesLoading || isServiceAreasSectionLoading || isServiceAreasLoading || isCtaLoading;
+  const isSaving = isPageSaving || isHeroSaving || isMissionSaving || isFamilyOwnedSaving || isValuesSectionSaving || isValuesSaving || isCraftsmenSaving || isFeaturesSaving || isServiceAreasSectionSaving || isServiceAreasSaving || isCtaSaving;
+  const hasChanges = hasPageChanges || hasHeroChanges || hasMissionChanges || hasFamilyOwnedChanges || hasValuesSectionChanges || hasValuesChanges || hasCraftsmenChanges || hasFeaturesChanges || hasServiceAreasSectionChanges || hasServiceAreasChanges || hasCtaChanges;
 
   if (isLoading) return null;
 
@@ -327,9 +343,9 @@ const AboutUs = () => {
           <section className="section-padding bg-background">
             <div className="container-custom">
               <div className="text-center mb-16">
-                <p className="text-secondary font-heading uppercase tracking-widest mb-4">What We Stand For</p>
-                <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">Our Values</h2>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">The principles that guide everything we do</p>
+                <InlineEditable value={localValuesSection.tagline} fieldName="Values tagline" onChange={(v) => { setLocalValuesSection({ ...localValuesSection, tagline: v }); updateValuesSectionField('tagline', v); }} isEditMode={isEditMode} className="text-secondary font-heading uppercase tracking-widest mb-4" as="p" />
+                <InlineEditable value={localValuesSection.heading} fieldName="Values heading" onChange={(v) => { setLocalValuesSection({ ...localValuesSection, heading: v }); updateValuesSectionField('heading', v); }} isEditMode={isEditMode} className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4" as="h2" />
+                <InlineEditable value={localValuesSection.subheading} fieldName="Values subheading" onChange={(v) => { setLocalValuesSection({ ...localValuesSection, subheading: v }); updateValuesSectionField('subheading', v); }} isEditMode={isEditMode} className="text-lg text-muted-foreground max-w-2xl mx-auto" as="p" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {localValues.map((value, index) => {
