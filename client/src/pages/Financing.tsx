@@ -12,6 +12,7 @@ import { useSectionContent } from '@/hooks/useSectionContent';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { usePageManagement } from '@/hooks/usePageManagement';
 
 interface HeroContent {
   badge: string;
@@ -92,6 +93,9 @@ interface CtaContent {
   button1Text: string;
   button1Link: string;
   button1OpenInNewTab: boolean;
+  button2Text: string;
+  button2Link: string;
+  button2OpenInNewTab: boolean;
   button3Text: string;
   button3Link: string;
   button3OpenInNewTab: boolean;
@@ -196,6 +200,9 @@ const defaultCta: CtaContent = {
   button1Text: 'Build Your Own',
   button1Link: 'https://summitbuildings.shedpro.co/',
   button1OpenInNewTab: true,
+  button2Text: 'Browse Our Inventory',
+  button2Link: '/inventory',
+  button2OpenInNewTab: false,
   button3Text: 'Contact Us',
   button3Link: '/contact-us',
   button3OpenInNewTab: false,
@@ -214,6 +221,7 @@ const defaultContent: PageContent = {
 
 const Financing = () => {
   const { isAdmin } = useAdminAuth();
+  const { showDuplicateDialog, showDeleteDialog, newSlug, isDuplicating, isDeleting, setNewSlug, setShowDuplicateDialog, setShowDeleteDialog, duplicatePage, deletePage } = usePageManagement('financing');
 
   const { content, isLoading: isPageLoading, isSaving: isPageSaving, isEditMode, hasChanges: hasPageChanges, save: savePage, reset: resetPage, startEditing } = useEditablePageContent('financing', defaultContent);
   const { content: heroContent, isLoading: isHeroLoading, isSaving: isHeroSaving, hasChanges: hasHeroChanges, updateField: updateHeroField, save: saveHero, reset: resetHero } = useSectionContent('financing', 'hero', defaultHero as any) as { content: HeroContent; isLoading: boolean; isSaving: boolean; hasChanges: boolean; updateField: any; save: () => Promise<boolean>; reset: () => void };
@@ -298,6 +306,17 @@ const Financing = () => {
         onToggleEdit={startEditing}
         onSave={handleSave}
         onCancel={handleReset}
+        pageSlug="financing"
+        showDuplicateDialog={showDuplicateDialog}
+        showDeleteDialog={showDeleteDialog}
+        newSlug={newSlug}
+        isDuplicating={isDuplicating}
+        isDeleting={isDeleting}
+        onSetNewSlug={setNewSlug}
+        onSetShowDuplicateDialog={setShowDuplicateDialog}
+        onSetShowDeleteDialog={setShowDeleteDialog}
+        onDuplicatePage={duplicatePage}
+        onDeletePage={deletePage}
       />
       
       <main className="pt-20">
@@ -595,9 +614,17 @@ const Financing = () => {
                   >
                     <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">{localCta.button1Text}</Button>
                   </InlineEditableButton>
-                  <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90" asChild>
-                    <InventoryLink>Browse Our Inventory</InventoryLink>
-                  </Button>
+                  <InlineEditableButton
+                    text={localCta.button2Text}
+                    href={localCta.button2Link}
+                    onTextChange={(v) => { setLocalCta({ ...localCta, button2Text: v }); updateCtaField('button2Text', v); }}
+                    onHrefChange={(v) => { setLocalCta({ ...localCta, button2Link: v }); updateCtaField('button2Link', v); }}
+                    isEditMode={isEditMode}
+                    isExternal={localCta.button2OpenInNewTab}
+                    onExternalChange={(v) => { setLocalCta({ ...localCta, button2OpenInNewTab: v }); updateCtaField('button2OpenInNewTab', v); }}
+                  >
+                    <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">{localCta.button2Text}</Button>
+                  </InlineEditableButton>
                   <InlineEditableButton
                     text={localCta.button3Text}
                     href={localCta.button3Link}
@@ -618,7 +645,9 @@ const Financing = () => {
                     </a>
                   </Button>
                   <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90" asChild>
-                    <InventoryLink>Browse Our Inventory</InventoryLink>
+                    <a href={localCta.button2Link} target={localCta.button2OpenInNewTab ? '_blank' : undefined} rel={localCta.button2OpenInNewTab ? 'noopener noreferrer' : undefined}>
+                      {localCta.button2Text}
+                    </a>
                   </Button>
                   <Button variant="outline" size="lg" asChild>
                     <a href={localCta.button3Link} target={localCta.button3OpenInNewTab ? '_blank' : undefined} rel={localCta.button3OpenInNewTab ? 'noopener noreferrer' : undefined}>{localCta.button3Text}</a>

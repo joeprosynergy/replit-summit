@@ -7,6 +7,7 @@ import { useEditablePageContent, PageContent } from '@/hooks/useEditablePageCont
 import { useSectionContent } from '@/hooks/useSectionContent';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { usePageManagement } from '@/hooks/usePageManagement';
 
 interface IntroContent {
   lastUpdated: string;
@@ -333,6 +334,7 @@ const defaultContent: PageContent = {
 
 const PrivacyPolicy = () => {
   const { isAdmin } = useAdminAuth();
+  const { showDuplicateDialog, showDeleteDialog, newSlug, isDuplicating, isDeleting, setNewSlug, setShowDuplicateDialog, setShowDeleteDialog, duplicatePage, deletePage } = usePageManagement('privacy-policy');
 
   const { content, isLoading: isPageLoading, isSaving: isPageSaving, isEditMode, hasChanges: hasPageChanges, updateField, save: savePage, reset: resetPage, startEditing } = useEditablePageContent('privacy-policy', defaultContent);
 
@@ -441,6 +443,17 @@ const PrivacyPolicy = () => {
           onToggleEdit={startEditing}
           onSave={handleSave}
           onCancel={handleReset}
+          pageSlug="privacy-policy"
+          showDuplicateDialog={showDuplicateDialog}
+          showDeleteDialog={showDeleteDialog}
+          newSlug={newSlug}
+          isDuplicating={isDuplicating}
+          isDeleting={isDeleting}
+          onSetNewSlug={setNewSlug}
+          onSetShowDuplicateDialog={setShowDuplicateDialog}
+          onSetShowDeleteDialog={setShowDeleteDialog}
+          onDuplicatePage={duplicatePage}
+          onDeletePage={deletePage}
         />
 
         <main className="pt-24 pb-16">

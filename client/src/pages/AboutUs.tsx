@@ -20,6 +20,7 @@ import { useSectionContent } from '@/hooks/useSectionContent';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { usePageManagement } from '@/hooks/usePageManagement';
 
 const iconMap: Record<string, any> = { Heart, Star, Shield, Users, HandHeart };
 
@@ -183,6 +184,7 @@ const defaultContent: PageContent = {
 
 const AboutUs = () => {
   const { isAdmin } = useAdminAuth();
+  const { showDuplicateDialog, showDeleteDialog, newSlug, isDuplicating, isDeleting, setNewSlug, setShowDuplicateDialog, setShowDeleteDialog, duplicatePage, deletePage } = usePageManagement('about-us');
 
   const {
     content,
@@ -291,6 +293,17 @@ const AboutUs = () => {
           onToggleEdit={startEditing}
           onSave={handleSave}
           onCancel={handleReset}
+          pageSlug="about-us"
+          showDuplicateDialog={showDuplicateDialog}
+          showDeleteDialog={showDeleteDialog}
+          newSlug={newSlug}
+          isDuplicating={isDuplicating}
+          isDeleting={isDeleting}
+          onSetNewSlug={setNewSlug}
+          onSetShowDuplicateDialog={setShowDuplicateDialog}
+          onSetShowDeleteDialog={setShowDeleteDialog}
+          onDuplicatePage={duplicatePage}
+          onDeletePage={deletePage}
         />
         
         <main>
