@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import html2pdf from "html2pdf.js";
 import { Download, Loader2 } from "lucide-react";
@@ -14,24 +14,110 @@ import {
   Step4Page,
   Step5ContactPage,
 } from "@/components/buyers-guide/BuyersGuidePages";
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useEditablePageContent, PageContent } from '@/hooks/useEditablePageContent';
+import { useSectionContent } from '@/hooks/useSectionContent';
+import { InlineEditable } from '@/components/admin/InlineEditable';
+import { AdminEditMode } from '@/components/admin/AdminEditMode';
+
+interface NavContent {
+  coverLabel: string;
+  step1Label: string;
+  step2Label: string;
+  step3Label: string;
+  step4Label: string;
+  step5Label: string;
+  downloadButtonText: string;
+  generatingText: string;
+}
+
+const defaultNavContent: NavContent = {
+  coverLabel: "Cover",
+  step1Label: "Step 1",
+  step2Label: "Step 2",
+  step3Label: "Step 3",
+  step4Label: "Step 4",
+  step5Label: "Step 5 & Contact",
+  downloadButtonText: "Download PDF",
+  generatingText: "Generating...",
+};
+
+const defaultContent: PageContent = {
+  heading: "Summit Buyers Guide",
+  tagline: "",
+  subheading: "",
+  ctaHeading: "",
+  ctaDescription: "",
+  ctaButton: "",
+  metaTitle: "Summit Buyers Guide | Summit Portable Buildings",
+  metaDescription: "Your 5-step roadmap to the perfect storage building. Learn how to choose the right size, materials, prepare your site, and more.",
+};
 
 const BuyersGuide = () => {
+  const { isAdmin } = useAdminAuth();
   const [activePage, setActivePage] = useState(1);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
+  const {
+    content,
+    isLoading: isPageLoading,
+    isSaving: isPageSaving,
+    isEditMode,
+    hasChanges: hasPageChanges,
+    updateField,
+    save: savePage,
+    reset: resetPage,
+    startEditing,
+  } = useEditablePageContent('buyers-guide', defaultContent);
+
+  const {
+    content: navContent,
+    isLoading: isNavLoading,
+    isSaving: isNavSaving,
+    hasChanges: hasNavChanges,
+    updateField: updateNavField,
+    save: saveNav,
+    reset: resetNav,
+  } = useSectionContent('buyers-guide', 'navigation', defaultNavContent as any) as {
+    content: NavContent;
+    isLoading: boolean;
+    isSaving: boolean;
+    hasChanges: boolean;
+    updateField: any;
+    save: () => Promise<boolean>;
+    reset: () => void;
+  };
+
+  const [localNav, setLocalNav] = useState<NavContent>(defaultNavContent);
+
+  useEffect(() => { if (navContent) setLocalNav(navContent); }, [navContent]);
+
+  const handleSave = async () => {
+    await Promise.all([savePage(), saveNav()]);
+  };
+
+  const handleReset = () => {
+    resetPage();
+    resetNav();
+    if (navContent) setLocalNav(navContent);
+  };
+
+  const isLoading = isPageLoading || isNavLoading;
+  const isSaving = isPageSaving || isNavSaving;
+  const hasChanges = hasPageChanges || hasNavChanges;
+
   const navButtons = [
-    { page: 1, label: "Cover", mobileLabel: "Cover" },
-    { page: 2, label: "Step 1", mobileLabel: "1" },
-    { page: 3, label: "Step 2", mobileLabel: "2" },
-    { page: 4, label: "Step 3", mobileLabel: "3" },
-    { page: 5, label: "Step 4", mobileLabel: "4" },
-    { page: 6, label: "Step 5 & Contact", mobileLabel: "5" },
+    { page: 1, label: localNav.coverLabel, mobileLabel: "Cover" },
+    { page: 2, label: localNav.step1Label, mobileLabel: "1" },
+    { page: 3, label: localNav.step2Label, mobileLabel: "2" },
+    { page: 4, label: localNav.step3Label, mobileLabel: "3" },
+    { page: 5, label: localNav.step4Label, mobileLabel: "4" },
+    { page: 6, label: localNav.step5Label, mobileLabel: "5" },
   ];
 
   const handleDownloadPDF = async () => {
     setIsGeneratingPDF(true);
 
-    // Wait for the hidden PDF DOM to mount.
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 250));
 
@@ -66,18 +152,27 @@ const BuyersGuide = () => {
     }
   };
 
+  if (isLoading) return null;
+
   return (
     <>
       <Helmet>
-        <title>Summit Buyers Guide | Summit Portable Buildings</title>
-        <meta
-          name="description"
-          content="Your 5-step roadmap to the perfect storage building. Learn how to choose the right size, materials, prepare your site, and more."
-        />
+        <title>{content.metaTitle}</title>
+        <meta name="description" content={content.metaDescription} />
         <link rel="canonical" href="https://summitbuildings.com/buyers-guide" />
       </Helmet>
 
       <Header />
+
+      <AdminEditMode
+        isAdmin={isAdmin}
+        isEditMode={isEditMode}
+        hasChanges={hasChanges}
+        isSaving={isSaving}
+        onToggleEdit={startEditing}
+        onSave={handleSave}
+        onCancel={handleReset}
+      />
 
       <main className="bg-muted min-h-screen pt-20">
         <div className="flex flex-col items-center py-10 px-4">
@@ -95,7 +190,27 @@ const BuyersGuide = () => {
                   }`}
                 >
                   <span className="md:hidden">{btn.mobileLabel}</span>
-                  <span className="hidden md:inline">{btn.label}</span>
+                  <span className="hidden md:inline">
+                    {isEditMode ? (
+                      <InlineEditable
+                        value={btn.label}
+                        fieldName={`Nav button ${btn.page}`}
+                        onChange={(v) => {
+                          const fieldMap: Record<number, keyof NavContent> = {
+                            1: 'coverLabel', 2: 'step1Label', 3: 'step2Label',
+                            4: 'step3Label', 5: 'step4Label', 6: 'step5Label'
+                          };
+                          const fieldKey = fieldMap[btn.page];
+                          setLocalNav({ ...localNav, [fieldKey]: v });
+                          updateNavField(fieldKey, v);
+                        }}
+                        isEditMode={isEditMode}
+                        as="span"
+                      />
+                    ) : (
+                      btn.label
+                    )}
+                  </span>
                 </button>
               ))}
             </div>
@@ -114,9 +229,16 @@ const BuyersGuide = () => {
               ) : (
                 <Download className="w-4 h-4" />
               )}
-              {isGeneratingPDF ? "Generating..." : "Download PDF"}
+              {isGeneratingPDF ? localNav.generatingText : localNav.downloadButtonText}
             </Button>
           </nav>
+
+          {/* Edit mode note */}
+          {isEditMode && (
+            <div className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 px-4 py-2 rounded-lg mb-6 text-sm text-center max-w-2xl">
+              Note: The Buyer's Guide pages contain specialized PDF export layouts. You can edit the navigation labels and meta content above. The guide page content is fixed for PDF generation consistency.
+            </div>
+          )}
 
           {/* On-screen content (single page at a time) */}
           <div id="buyers-guide-content" className="w-full flex flex-col items-center">

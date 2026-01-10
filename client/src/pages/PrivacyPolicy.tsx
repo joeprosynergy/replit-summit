@@ -1,47 +1,151 @@
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useEditablePageContent, PageContent } from '@/hooks/useEditablePageContent';
+import { useSectionContent } from '@/hooks/useSectionContent';
+import { InlineEditable } from '@/components/admin/InlineEditable';
+import { AdminEditMode } from '@/components/admin/AdminEditMode';
+
+interface PrivacyContent {
+  lastUpdated: string;
+  intro1: string;
+  intro2: string;
+  interpretationTitle: string;
+  interpretationText: string;
+  definitionsTitle: string;
+  definitionsIntro: string;
+  companyDefinition: string;
+  contactEmail: string;
+}
+
+const defaultPrivacyContent: PrivacyContent = {
+  lastUpdated: "October 05, 2023",
+  intro1: "This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You.",
+  intro2: "We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.",
+  interpretationTitle: "Interpretation and Definitions",
+  interpretationText: "The words of which the initial letter is capitalized have meanings defined under the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in plural.",
+  definitionsTitle: "Definitions",
+  definitionsIntro: "For the purposes of this Privacy Policy:",
+  companyDefinition: "Summit Portable Buildings, 7336 MO-32, Farmington, MO 63640",
+  contactEmail: "ervin@summitbuildings.com",
+};
+
+const defaultContent: PageContent = {
+  heading: "Privacy Policy",
+  tagline: "",
+  subheading: "",
+  ctaHeading: "",
+  ctaDescription: "",
+  ctaButton: "",
+  metaTitle: "Privacy Policy | Summit Portable Buildings",
+  metaDescription: "Privacy Policy for Summit Portable Buildings. Learn how we collect, use, and protect your personal information.",
+};
 
 const PrivacyPolicy = () => {
+  const { isAdmin } = useAdminAuth();
+
+  const {
+    content,
+    isLoading: isPageLoading,
+    isSaving: isPageSaving,
+    isEditMode,
+    hasChanges: hasPageChanges,
+    updateField,
+    save: savePage,
+    reset: resetPage,
+    startEditing,
+  } = useEditablePageContent('privacy-policy', defaultContent);
+
+  const {
+    content: privacyContent,
+    isLoading: isPrivacyLoading,
+    isSaving: isPrivacySaving,
+    hasChanges: hasPrivacyChanges,
+    updateField: updatePrivacyField,
+    save: savePrivacy,
+    reset: resetPrivacy,
+  } = useSectionContent('privacy-policy', 'content', defaultPrivacyContent as any) as {
+    content: PrivacyContent;
+    isLoading: boolean;
+    isSaving: boolean;
+    hasChanges: boolean;
+    updateField: any;
+    save: () => Promise<boolean>;
+    reset: () => void;
+  };
+
+  const [localPrivacy, setLocalPrivacy] = useState<PrivacyContent>(defaultPrivacyContent);
+
+  useEffect(() => { if (privacyContent) setLocalPrivacy(privacyContent); }, [privacyContent]);
+
+  const handleSave = async () => {
+    await Promise.all([savePage(), savePrivacy()]);
+  };
+
+  const handleReset = () => {
+    resetPage();
+    resetPrivacy();
+    if (privacyContent) setLocalPrivacy(privacyContent);
+  };
+
+  const isLoading = isPageLoading || isPrivacyLoading;
+  const isSaving = isPageSaving || isPrivacySaving;
+  const hasChanges = hasPageChanges || hasPrivacyChanges;
+
+  if (isLoading) return null;
+
   return (
     <>
       <Helmet>
-        <title>Privacy Policy | Summit Portable Buildings</title>
-        <meta
-          name="description"
-          content="Privacy Policy for Summit Portable Buildings. Learn how we collect, use, and protect your personal information."
-        />
+        <title>{content.metaTitle}</title>
+        <meta name="description" content={content.metaDescription} />
         <link rel="canonical" href="https://summitbuildings.com/privacy-policy" />
       </Helmet>
 
       <div className="min-h-screen">
         <Header />
+
+        <AdminEditMode
+          isAdmin={isAdmin}
+          isEditMode={isEditMode}
+          hasChanges={hasChanges}
+          isSaving={isSaving}
+          onToggleEdit={startEditing}
+          onSave={handleSave}
+          onCancel={handleReset}
+        />
+
         <main className="pt-24 pb-16">
           <div className="container-custom max-w-4xl">
-            <h1 className="font-heading text-3xl md:text-4xl text-foreground mb-2">Privacy Policy</h1>
-            <p className="text-muted-foreground mb-8">Last updated: October 05, 2023</p>
+            <InlineEditable
+              value={content.heading}
+              fieldName="Page title"
+              onChange={(v) => updateField('heading', v)}
+              isEditMode={isEditMode}
+              className="font-heading text-3xl md:text-4xl text-foreground mb-2"
+              as="h1"
+            />
+            <p className="text-muted-foreground mb-8">
+              Last updated: <InlineEditable value={localPrivacy.lastUpdated} fieldName="Last updated date" onChange={(v) => { setLocalPrivacy({ ...localPrivacy, lastUpdated: v }); updatePrivacyField('lastUpdated', v); }} isEditMode={isEditMode} as="span" />
+            </p>
             
             <div className="prose prose-slate max-w-none space-y-6">
-              <p>
-                This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You.
-              </p>
-              <p>
-                We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.
-              </p>
+              <InlineEditable value={localPrivacy.intro1} fieldName="Intro paragraph 1" onChange={(v) => { setLocalPrivacy({ ...localPrivacy, intro1: v }); updatePrivacyField('intro1', v); }} isEditMode={isEditMode} as="p" />
+              <InlineEditable value={localPrivacy.intro2} fieldName="Intro paragraph 2" onChange={(v) => { setLocalPrivacy({ ...localPrivacy, intro2: v }); updatePrivacyField('intro2', v); }} isEditMode={isEditMode} as="p" />
 
-              <h2 className="font-heading text-2xl text-foreground mt-8 mb-4">Interpretation and Definitions</h2>
+              <InlineEditable value={localPrivacy.interpretationTitle} fieldName="Interpretation title" onChange={(v) => { setLocalPrivacy({ ...localPrivacy, interpretationTitle: v }); updatePrivacyField('interpretationTitle', v); }} isEditMode={isEditMode} className="font-heading text-2xl text-foreground mt-8 mb-4" as="h2" />
               
               <h3 className="font-heading text-xl text-foreground mt-6 mb-3">Interpretation</h3>
-              <p>
-                The words of which the initial letter is capitalized have meanings defined under the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in plural.
-              </p>
+              <InlineEditable value={localPrivacy.interpretationText} fieldName="Interpretation text" onChange={(v) => { setLocalPrivacy({ ...localPrivacy, interpretationText: v }); updatePrivacyField('interpretationText', v); }} isEditMode={isEditMode} as="p" />
 
               <h3 className="font-heading text-xl text-foreground mt-6 mb-3">Definitions</h3>
-              <p>For the purposes of this Privacy Policy:</p>
+              <InlineEditable value={localPrivacy.definitionsIntro} fieldName="Definitions intro" onChange={(v) => { setLocalPrivacy({ ...localPrivacy, definitionsIntro: v }); updatePrivacyField('definitionsIntro', v); }} isEditMode={isEditMode} as="p" />
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Account</strong> means a unique account created for You to access our Service or parts of our Service.</li>
                 <li><strong>Affiliate</strong> means an entity that controls, is controlled by or is under common control with a party, where "control" means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.</li>
-                <li><strong>Company</strong> (referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to Summit Portable Buildings, 7336 MO-32, Farmington, MO 63640.</li>
+                <li><strong>Company</strong> (referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to <InlineEditable value={localPrivacy.companyDefinition} fieldName="Company definition" onChange={(v) => { setLocalPrivacy({ ...localPrivacy, companyDefinition: v }); updatePrivacyField('companyDefinition', v); }} isEditMode={isEditMode} as="span" />.</li>
                 <li><strong>Cookies</strong> are small files that are placed on Your computer, mobile device or any other device by a website, containing the details of Your browsing history on that website among its many uses.</li>
                 <li><strong>Country</strong> refers to: Missouri, United States</li>
                 <li><strong>Device</strong> means any device that can access the Service such as a computer, a cellphone or a digital tablet.</li>
@@ -262,7 +366,7 @@ const PrivacyPolicy = () => {
               <h2 className="font-heading text-2xl text-foreground mt-8 mb-4">Contact Us</h2>
               <p>If you have any questions about this Privacy Policy, You can contact us:</p>
               <ul className="list-disc pl-6">
-                <li>By email: <a href="mailto:ervin@summitbuildings.com" className="text-secondary hover:underline">ervin@summitbuildings.com</a></li>
+                <li>By email: <a href={`mailto:${localPrivacy.contactEmail}`} className="text-secondary hover:underline"><InlineEditable value={localPrivacy.contactEmail} fieldName="Contact email" onChange={(v) => { setLocalPrivacy({ ...localPrivacy, contactEmail: v }); updatePrivacyField('contactEmail', v); }} isEditMode={isEditMode} as="span" /></a></li>
               </ul>
             </div>
           </div>
