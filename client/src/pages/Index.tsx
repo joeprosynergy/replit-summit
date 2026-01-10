@@ -825,33 +825,58 @@ const Index = () => {
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
                     {localProducts.styles.map((style, index) => (
                       <div key={style.id} className="text-center">
-                        <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                          <InlineEditableImage
-                            src={style.image}
-                            alt={style.name}
-                            onImageChange={(url) => updateProductStyle(index, 'image', url)}
-                            isEditMode={isEditMode}
-                            imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-cover"
-                          />
-                        </div>
-                        <InlineEditableLink
-                          text={style.name}
-                          href={style.link}
-                          onTextChange={(text) => updateProductStyle(index, 'name', text)}
-                          onHrefChange={(href) => updateProductStyle(index, 'link', href)}
-                          isEditMode={isEditMode}
-                          isExternal={style.openInNewTab}
-                          onExternalChange={(ext) => updateProductStyle(index, 'openInNewTab', ext)}
-                          className="font-heading font-bold text-lg text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
-                        />
-                        <InlineEditable
-                          value={style.subtitle}
-                          fieldName={`${style.name} subtitle`}
-                          onChange={(v) => updateProductStyle(index, 'subtitle', v)}
-                          isEditMode={isEditMode}
-                          className="text-muted-foreground text-sm mt-1"
-                          as="p"
-                        />
+                        {isEditMode ? (
+                          <>
+                            <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                              <InlineEditableImage
+                                src={style.image}
+                                alt={style.name}
+                                onImageChange={(url) => updateProductStyle(index, 'image', url)}
+                                isEditMode={isEditMode}
+                                imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-cover"
+                              />
+                            </div>
+                            <InlineEditableLink
+                              text={style.name}
+                              href={style.link}
+                              onTextChange={(text) => updateProductStyle(index, 'name', text)}
+                              onHrefChange={(href) => updateProductStyle(index, 'link', href)}
+                              isEditMode={isEditMode}
+                              isExternal={style.openInNewTab}
+                              onExternalChange={(ext) => updateProductStyle(index, 'openInNewTab', ext)}
+                              className="font-heading font-bold text-lg text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
+                            />
+                            <InlineEditable
+                              value={style.subtitle}
+                              fieldName={`${style.name} subtitle`}
+                              onChange={(v) => updateProductStyle(index, 'subtitle', v)}
+                              isEditMode={isEditMode}
+                              className="text-muted-foreground text-sm mt-1"
+                              as="p"
+                            />
+                          </>
+                        ) : (
+                          <Link 
+                            to={style.link} 
+                            target={style.openInNewTab ? '_blank' : undefined}
+                            rel={style.openInNewTab ? 'noopener noreferrer' : undefined}
+                            className="block cursor-pointer group"
+                          >
+                            <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                              <img
+                                src={style.image}
+                                alt={style.name}
+                                className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
+                              />
+                            </div>
+                            <h4 className="font-heading font-bold text-lg text-foreground group-hover:text-secondary transition-colors uppercase tracking-wide">
+                              {style.name}
+                            </h4>
+                            <p className="text-muted-foreground text-sm mt-1">
+                              {style.subtitle}
+                            </p>
+                          </Link>
+                        )}
                       </div>
                     ))}
                   </div>
