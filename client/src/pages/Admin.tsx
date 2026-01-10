@@ -1,4 +1,4 @@
-import { useLocation, Redirect } from "wouter";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +34,7 @@ const STATIC_PAGE_SLUGS = [
 ];
 
 const Admin = () => {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const { user, isAdmin, isLoading, error, recheckAdmin } = useAdminAuth();
   const client = getBackendClient();
   const [isRechecking, setIsRechecking] = useState(false);
@@ -64,8 +64,6 @@ const Admin = () => {
     };
     fetchDuplicatedPages();
   }, [client]);
-
-  const navigate = (path: string) => setLocation(path);
 
   const handleLogout = async () => {
     if (client) {
@@ -107,7 +105,7 @@ const Admin = () => {
   }
 
   if (!user) {
-    return <Redirect to="/admin/login" />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   if (!isAdmin) {
