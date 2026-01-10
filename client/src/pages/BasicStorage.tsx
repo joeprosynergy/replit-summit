@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, X, Plus } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -254,6 +254,26 @@ const BasicStorage = () => {
     updateModelsField('models', updated);
   };
 
+  const addModelGalleryImage = (modelIndex: number) => {
+    const updated = [...localModels];
+    const gallery = [...updated[modelIndex].gallery];
+    if (gallery.length < 6) {
+      gallery.push('/placeholder.svg');
+      updated[modelIndex] = { ...updated[modelIndex], gallery };
+      setLocalModels(updated);
+      updateModelsField('models', updated);
+    }
+  };
+
+  const deleteModelGalleryImage = (modelIndex: number, galleryIndex: number) => {
+    const updated = [...localModels];
+    const gallery = [...updated[modelIndex].gallery];
+    gallery.splice(galleryIndex, 1);
+    updated[modelIndex] = { ...updated[modelIndex], gallery };
+    setLocalModels(updated);
+    updateModelsField('models', updated);
+  };
+
   const updateQuickNavItem = (index: number, field: keyof QuickNavItem, value: string) => {
     const updated = { ...localQuickNav, items: [...localQuickNav.items] };
     updated.items[index] = { ...updated.items[index], [field]: value };
@@ -480,23 +500,41 @@ const BasicStorage = () => {
                           />
                         )}
                       </div>
-                      {/* Gallery thumbnails */}
-                      <div className={`grid gap-2 ${model.gallery.length <= 4 ? 'grid-cols-4' : 'grid-cols-6'}`}>
-                        {model.gallery.map((img, i) => (
-                          <div key={i} className="aspect-square rounded overflow-hidden bg-muted">
+                      {/* Gallery thumbnails - up to 6 small images */}
+                      <div className="grid grid-cols-6 gap-2">
+                        {model.gallery.slice(0, 6).map((img, i) => (
+                          <div key={i} className="aspect-square rounded overflow-hidden bg-muted relative group">
                             {isEditMode ? (
-                              <InlineEditableImage
-                                src={img}
-                                alt={`${model.name} gallery ${i + 1}`}
-                                onImageChange={(url) => updateModelGallery(index, i, url)}
-                                isEditMode={isEditMode}
-                                imageClassName="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                              />
+                              <>
+                                <InlineEditableImage
+                                  src={img}
+                                  alt={`${model.name} gallery ${i + 1}`}
+                                  onImageChange={(url) => updateModelGallery(index, i, url)}
+                                  isEditMode={isEditMode}
+                                  imageClassName="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                                />
+                                <button
+                                  onClick={() => deleteModelGalleryImage(index, i)}
+                                  className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  title="Delete image"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </>
                             ) : (
                               <img src={img} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer" />
                             )}
                           </div>
                         ))}
+                        {isEditMode && model.gallery.length < 6 && (
+                          <button
+                            onClick={() => addModelGalleryImage(index)}
+                            className="aspect-square rounded overflow-hidden bg-muted flex items-center justify-center border-2 border-dashed border-muted-foreground/30 hover:border-muted-foreground/50 transition-colors"
+                            title="Add gallery image"
+                          >
+                            <Plus className="w-6 h-6 text-muted-foreground/50" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
