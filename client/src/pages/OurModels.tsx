@@ -312,27 +312,47 @@ const OurModels = () => {
                     }`}>
                       {category.models.map((model, modelIndex) => (
                         <div key={`${category.id}-${modelIndex}`} className="text-center">
-                          {/* Image */}
-                          <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                            <InlineEditableImage
-                              src={model.image}
-                              alt={model.name}
-                              onImageChange={(url) => updateModel(categoryIndex, modelIndex, 'image', url)}
-                              isEditMode={isEditMode}
-                              imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-cover"
-                            />
-                          </div>
-                          {/* Model Name & Link */}
-                          <InlineEditableLink
-                            text={model.name}
-                            href={model.link}
-                            onTextChange={(text) => updateModel(categoryIndex, modelIndex, 'name', text)}
-                            onHrefChange={(href) => updateModel(categoryIndex, modelIndex, 'link', href)}
-                            isEditMode={isEditMode}
-                            isExternal={model.openInNewTab}
-                            onExternalChange={(ext) => updateModel(categoryIndex, modelIndex, 'openInNewTab', ext)}
-                            className="font-heading font-bold text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
-                          />
+                          {isEditMode ? (
+                            <>
+                              <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                                <InlineEditableImage
+                                  src={model.image}
+                                  alt={model.name}
+                                  onImageChange={(url) => updateModel(categoryIndex, modelIndex, 'image', url)}
+                                  isEditMode={isEditMode}
+                                  imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-cover"
+                                />
+                              </div>
+                              <InlineEditableLink
+                                text={model.name}
+                                href={model.link}
+                                onTextChange={(text) => updateModel(categoryIndex, modelIndex, 'name', text)}
+                                onHrefChange={(href) => updateModel(categoryIndex, modelIndex, 'link', href)}
+                                isEditMode={isEditMode}
+                                isExternal={model.openInNewTab}
+                                onExternalChange={(ext) => updateModel(categoryIndex, modelIndex, 'openInNewTab', ext)}
+                                className="font-heading font-bold text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
+                              />
+                            </>
+                          ) : (
+                            <Link
+                              to={model.link}
+                              target={model.openInNewTab ? '_blank' : undefined}
+                              rel={model.openInNewTab ? 'noopener noreferrer' : undefined}
+                              className="block group cursor-pointer"
+                            >
+                              <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                                <img
+                                  src={model.image}
+                                  alt={model.name}
+                                  className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
+                                />
+                              </div>
+                              <h3 className="font-heading font-bold text-foreground group-hover:text-secondary transition-colors uppercase tracking-wide">
+                                {model.name}
+                              </h3>
+                            </Link>
+                          )}
                         </div>
                       ))}
                     </div>

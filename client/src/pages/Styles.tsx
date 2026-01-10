@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Link } from 'react-router-dom';
 import { cloudinaryImages } from '@/lib/cloudinary';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useEditablePageContent, PageContent } from '@/hooks/useEditablePageContent';
@@ -371,33 +372,58 @@ const Styles = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
                   {localRoofStyles.map((style, index) => (
                     <div key={style.id} className="text-center">
-                      <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                        <InlineEditableImage
-                          src={style.image}
-                          alt={style.name}
-                          onImageChange={(url) => updateRoofStyle(index, 'image', url)}
-                          isEditMode={isEditMode}
-                          imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-cover"
-                        />
-                      </div>
-                      <InlineEditableLink
-                        text={style.name}
-                        href={style.link}
-                        onTextChange={(text) => updateRoofStyle(index, 'name', text)}
-                        onHrefChange={(href) => updateRoofStyle(index, 'link', href)}
-                        isEditMode={isEditMode}
-                        isExternal={style.openInNewTab}
-                        onExternalChange={(ext) => updateRoofStyle(index, 'openInNewTab', ext)}
-                        className="font-heading font-bold text-xl text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
-                      />
-                      <InlineEditable
-                        value={style.subtitle}
-                        fieldName={`roof-style-${style.id}-subtitle`}
-                        onChange={(v) => updateRoofStyle(index, 'subtitle', v)}
-                        isEditMode={isEditMode}
-                        className="text-muted-foreground text-sm mt-1"
-                        as="p"
-                      />
+                      {isEditMode ? (
+                        <>
+                          <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                            <InlineEditableImage
+                              src={style.image}
+                              alt={style.name}
+                              onImageChange={(url) => updateRoofStyle(index, 'image', url)}
+                              isEditMode={isEditMode}
+                              imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-cover"
+                            />
+                          </div>
+                          <InlineEditableLink
+                            text={style.name}
+                            href={style.link}
+                            onTextChange={(text) => updateRoofStyle(index, 'name', text)}
+                            onHrefChange={(href) => updateRoofStyle(index, 'link', href)}
+                            isEditMode={isEditMode}
+                            isExternal={style.openInNewTab}
+                            onExternalChange={(ext) => updateRoofStyle(index, 'openInNewTab', ext)}
+                            className="font-heading font-bold text-xl text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
+                          />
+                          <InlineEditable
+                            value={style.subtitle}
+                            fieldName={`roof-style-${style.id}-subtitle`}
+                            onChange={(v) => updateRoofStyle(index, 'subtitle', v)}
+                            isEditMode={isEditMode}
+                            className="text-muted-foreground text-sm mt-1"
+                            as="p"
+                          />
+                        </>
+                      ) : (
+                        <Link
+                          to={style.link}
+                          target={style.openInNewTab ? '_blank' : undefined}
+                          rel={style.openInNewTab ? 'noopener noreferrer' : undefined}
+                          className="block group cursor-pointer"
+                        >
+                          <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                            <img
+                              src={style.image}
+                              alt={style.name}
+                              className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
+                            />
+                          </div>
+                          <h3 className="font-heading font-bold text-xl text-foreground group-hover:text-secondary transition-colors uppercase tracking-wide">
+                            {style.name}
+                          </h3>
+                          <p className="text-muted-foreground text-sm mt-1">
+                            {style.subtitle}
+                          </p>
+                        </Link>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -425,33 +451,58 @@ const Styles = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
                   {localSpecialtyStyles.map((style, index) => (
                     <div key={style.id} className="text-center">
-                      <div className="aspect-[4/3] mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                        <InlineEditableImage
-                          src={style.image}
-                          alt={style.name}
-                          onImageChange={(url) => updateSpecialtyStyle(index, 'image', url)}
-                          isEditMode={isEditMode}
-                          imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-contain"
-                        />
-                      </div>
-                      <InlineEditableLink
-                        text={style.name}
-                        href={style.link}
-                        onTextChange={(text) => updateSpecialtyStyle(index, 'name', text)}
-                        onHrefChange={(href) => updateSpecialtyStyle(index, 'link', href)}
-                        isEditMode={isEditMode}
-                        isExternal={style.openInNewTab}
-                        onExternalChange={(ext) => updateSpecialtyStyle(index, 'openInNewTab', ext)}
-                        className="font-heading font-bold text-xl text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
-                      />
-                      <InlineEditable
-                        value={style.subtitle}
-                        fieldName={`specialty-style-${style.id}-subtitle`}
-                        onChange={(v) => updateSpecialtyStyle(index, 'subtitle', v)}
-                        isEditMode={isEditMode}
-                        className="text-muted-foreground text-sm mt-1"
-                        as="p"
-                      />
+                      {isEditMode ? (
+                        <>
+                          <div className="aspect-[4/3] mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                            <InlineEditableImage
+                              src={style.image}
+                              alt={style.name}
+                              onImageChange={(url) => updateSpecialtyStyle(index, 'image', url)}
+                              isEditMode={isEditMode}
+                              imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-contain"
+                            />
+                          </div>
+                          <InlineEditableLink
+                            text={style.name}
+                            href={style.link}
+                            onTextChange={(text) => updateSpecialtyStyle(index, 'name', text)}
+                            onHrefChange={(href) => updateSpecialtyStyle(index, 'link', href)}
+                            isEditMode={isEditMode}
+                            isExternal={style.openInNewTab}
+                            onExternalChange={(ext) => updateSpecialtyStyle(index, 'openInNewTab', ext)}
+                            className="font-heading font-bold text-xl text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
+                          />
+                          <InlineEditable
+                            value={style.subtitle}
+                            fieldName={`specialty-style-${style.id}-subtitle`}
+                            onChange={(v) => updateSpecialtyStyle(index, 'subtitle', v)}
+                            isEditMode={isEditMode}
+                            className="text-muted-foreground text-sm mt-1"
+                            as="p"
+                          />
+                        </>
+                      ) : (
+                        <Link
+                          to={style.link}
+                          target={style.openInNewTab ? '_blank' : undefined}
+                          rel={style.openInNewTab ? 'noopener noreferrer' : undefined}
+                          className="block group cursor-pointer"
+                        >
+                          <div className="aspect-[4/3] mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                            <img
+                              src={style.image}
+                              alt={style.name}
+                              className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-contain"
+                            />
+                          </div>
+                          <h3 className="font-heading font-bold text-xl text-foreground group-hover:text-secondary transition-colors uppercase tracking-wide">
+                            {style.name}
+                          </h3>
+                          <p className="text-muted-foreground text-sm mt-1">
+                            {style.subtitle}
+                          </p>
+                        </Link>
+                      )}
                     </div>
                   ))}
                 </div>
