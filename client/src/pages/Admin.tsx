@@ -1,9 +1,9 @@
-import { useNavigate, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useLocation, Redirect } from "wouter";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { LogOut, Settings, Users, FileText, ShieldX, ChevronDown, RefreshCw } from "lucide-react";
+import { LogOut, Settings, Users, FileText, ShieldX, ChevronDown, RefreshCw, Copy } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { getBackendClient, isBackendAvailable } from "@/lib/backendClient";
 
@@ -24,12 +24,48 @@ function getKeySource(): string {
   return 'None';
 }
 
+const STATIC_PAGE_SLUGS = [
+  'home', 'about-us', 'buyers-guide', 'gallery', 'financing', 'privacy-policy',
+  'styles', 'styles-utility', 'styles-barn', 'styles-modern',
+  'types', 'basic-storage', 'deluxe-storage-cabins', 'garages-carports',
+  'economy-shed', 'budget-pro-utility', 'budget-pro-lofted-barn',
+  'utility-shed', 'pro-lofted-barn', 'cabin', 'barn-cabin', 'modern-shed',
+  'garage', 'carports', 'greenhouse', 'animal-shelters'
+];
+
 const Admin = () => {
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const { user, isAdmin, isLoading, error, recheckAdmin } = useAdminAuth();
   const client = getBackendClient();
   const [isRechecking, setIsRechecking] = useState(false);
   const [debugOpen, setDebugOpen] = useState(false);
+  const [duplicatedPages, setDuplicatedPages] = useState<string[]>([]);
+  const [loadingPages, setLoadingPages] = useState(true);
+
+  useEffect(() => {
+    const fetchDuplicatedPages = async () => {
+      if (!client) return;
+      try {
+        const { data, error } = await (client as any)
+          .from('page_content')
+          .select('slug')
+          .order('slug');
+        
+        if (!error && data) {
+          const slugs: string[] = data.map((row: any) => row.slug as string);
+          const customPages = slugs.filter((slug: string) => !STATIC_PAGE_SLUGS.includes(slug));
+          setDuplicatedPages([...new Set(customPages)] as string[]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch pages:', err);
+      } finally {
+        setLoadingPages(false);
+      }
+    };
+    fetchDuplicatedPages();
+  }, [client]);
+
+  const navigate = (path: string) => setLocation(path);
 
   const handleLogout = async () => {
     if (client) {
@@ -71,7 +107,7 @@ const Admin = () => {
   }
 
   if (!user) {
-    return <Navigate to="/admin/login" replace />;
+    return <Redirect to="/admin/login" />;
   }
 
   if (!isAdmin) {
@@ -292,6 +328,28 @@ const Admin = () => {
                   </Button>
                 </div>
               </div>
+
+              {/* Duplicated Pages */}
+              {duplicatedPages.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide flex items-center gap-2">
+                    <Copy className="w-4 h-4" />
+                    Duplicated Pages
+                  </h3>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {duplicatedPages.map((slug) => (
+                      <Button 
+                        key={slug} 
+                        variant="outline" 
+                        className="justify-start" 
+                        onClick={() => navigate('/' + slug)}
+                      >
+                        {slug}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 

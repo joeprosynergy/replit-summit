@@ -4,6 +4,7 @@ import { AdminEditMode } from './AdminEditMode';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { useSectionContent, SectionContent } from '@/hooks/useSectionContent';
 import { logAdminActivity } from '@/lib/adminActivityLog';
+import { usePageManagement } from '@/hooks/usePageManagement';
 
 interface EditablePageWrapperProps<T extends SectionContent> {
   children: ReactNode | ((props: { 
@@ -15,6 +16,7 @@ interface EditablePageWrapperProps<T extends SectionContent> {
   slug: string;
   defaultContent: T;
   sectionName?: string;
+  pageSlug?: string;
 }
 
 export function EditablePageWrapper<T extends SectionContent>({
@@ -22,6 +24,7 @@ export function EditablePageWrapper<T extends SectionContent>({
   slug,
   defaultContent,
   sectionName = 'main',
+  pageSlug,
 }: EditablePageWrapperProps<T>) {
   const { isAdmin, isRevalidating } = useAdminAuthContext();
   const {
@@ -34,6 +37,20 @@ export function EditablePageWrapper<T extends SectionContent>({
     save: saveContent,
     reset,
   } = useSectionContent<T>(slug, sectionName, defaultContent);
+
+  const effectivePageSlug = pageSlug || slug;
+  const {
+    showDuplicateDialog,
+    showDeleteDialog,
+    newSlug,
+    isDuplicating,
+    isDeleting,
+    setNewSlug,
+    setShowDuplicateDialog,
+    setShowDeleteDialog,
+    duplicatePage,
+    deletePage,
+  } = usePageManagement(effectivePageSlug);
 
   const [isEditMode, setIsEditMode] = React.useState(false);
 
@@ -78,6 +95,17 @@ export function EditablePageWrapper<T extends SectionContent>({
         onToggleEdit={handleStartEditing}
         onSave={handleSave}
         onCancel={handleCancel}
+        pageSlug={effectivePageSlug}
+        showDuplicateDialog={showDuplicateDialog}
+        showDeleteDialog={showDeleteDialog}
+        newSlug={newSlug}
+        isDuplicating={isDuplicating}
+        isDeleting={isDeleting}
+        onSetNewSlug={setNewSlug}
+        onSetShowDuplicateDialog={setShowDuplicateDialog}
+        onSetShowDeleteDialog={setShowDeleteDialog}
+        onDuplicatePage={duplicatePage}
+        onDeletePage={deletePage}
       />
       
       {/* Content always renders immediately */}

@@ -19,6 +19,7 @@ import { useEditablePageContent, PageContent } from '@/hooks/useEditablePageCont
 import { useSectionContent } from '@/hooks/useSectionContent';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { usePageManagement } from '@/hooks/usePageManagement';
 
 interface NavContent {
   coverLabel: string;
@@ -55,6 +56,7 @@ const defaultContent: PageContent = {
 
 const BuyersGuide = () => {
   const { isAdmin } = useAdminAuth();
+  const { showDuplicateDialog, showDeleteDialog, newSlug, isDuplicating, isDeleting, setNewSlug, setShowDuplicateDialog, setShowDeleteDialog, duplicatePage, deletePage } = usePageManagement('buyers-guide');
   const [activePage, setActivePage] = useState(1);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
@@ -172,6 +174,17 @@ const BuyersGuide = () => {
         onToggleEdit={startEditing}
         onSave={handleSave}
         onCancel={handleReset}
+        pageSlug="buyers-guide"
+        showDuplicateDialog={showDuplicateDialog}
+        showDeleteDialog={showDeleteDialog}
+        newSlug={newSlug}
+        isDuplicating={isDuplicating}
+        isDeleting={isDeleting}
+        onSetNewSlug={setNewSlug}
+        onSetShowDuplicateDialog={setShowDuplicateDialog}
+        onSetShowDeleteDialog={setShowDeleteDialog}
+        onDuplicatePage={duplicatePage}
+        onDeletePage={deletePage}
       />
 
       <main className="bg-muted min-h-screen pt-20">

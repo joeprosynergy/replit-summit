@@ -16,6 +16,7 @@ import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 import InlineEditableLink from '@/components/admin/InlineEditableLink';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { usePageManagement } from '@/hooks/usePageManagement';
 
 // Hero badges
 const heroBadges = [
@@ -292,6 +293,7 @@ const defaultContactContent: ContactContent = {
 const Index = () => {
   const location = useLocation();
   const { isAdmin } = useAdminAuth();
+  const { showDuplicateDialog, showDeleteDialog, newSlug, isDuplicating, isDeleting, setNewSlug, setShowDuplicateDialog, setShowDeleteDialog, duplicatePage, deletePage } = usePageManagement('home');
 
   // Page content hook for hero section
   const {
@@ -627,6 +629,17 @@ const Index = () => {
           onToggleEdit={startEditing}
           onSave={handleSave}
           onCancel={handleReset}
+          pageSlug="home"
+          showDuplicateDialog={showDuplicateDialog}
+          showDeleteDialog={showDeleteDialog}
+          newSlug={newSlug}
+          isDuplicating={isDuplicating}
+          isDeleting={isDeleting}
+          onSetNewSlug={setNewSlug}
+          onSetShowDuplicateDialog={setShowDuplicateDialog}
+          onSetShowDeleteDialog={setShowDeleteDialog}
+          onDuplicatePage={duplicatePage}
+          onDeletePage={deletePage}
         />
 
         <main>

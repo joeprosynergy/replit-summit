@@ -12,6 +12,7 @@ import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { usePageManagement } from '@/hooks/usePageManagement';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -122,6 +123,7 @@ const defaultContent: PageContent = {
 
 const Gallery = () => {
   const { isAdmin } = useAdminAuth();
+  const { showDuplicateDialog, showDeleteDialog, newSlug, isDuplicating, isDeleting, setNewSlug, setShowDuplicateDialog, setShowDeleteDialog, duplicatePage, deletePage } = usePageManagement('gallery');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
@@ -210,6 +212,17 @@ const Gallery = () => {
         onToggleEdit={startEditing}
         onSave={handleSave}
         onCancel={handleReset}
+        pageSlug="gallery"
+        showDuplicateDialog={showDuplicateDialog}
+        showDeleteDialog={showDeleteDialog}
+        newSlug={newSlug}
+        isDuplicating={isDuplicating}
+        isDeleting={isDeleting}
+        onSetNewSlug={setNewSlug}
+        onSetShowDuplicateDialog={setShowDuplicateDialog}
+        onSetShowDeleteDialog={setShowDeleteDialog}
+        onDuplicatePage={duplicatePage}
+        onDeletePage={deletePage}
       />
       
       <main className="pt-20">

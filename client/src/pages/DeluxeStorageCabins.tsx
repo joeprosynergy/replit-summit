@@ -13,6 +13,7 @@ import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { usePageManagement } from '@/hooks/usePageManagement';
 
 interface ModelItem {
   id: string;
@@ -141,6 +142,7 @@ const defaultContent: PageContent = {
 const DeluxeStorageCabins = () => {
   const location = useLocation();
   const { isAdmin } = useAdminAuth();
+  const { showDuplicateDialog, showDeleteDialog, newSlug, isDuplicating, isDeleting, setNewSlug, setShowDuplicateDialog, setShowDeleteDialog, duplicatePage, deletePage } = usePageManagement('deluxe-storage-cabins');
 
   useEffect(() => {
     if (location.hash) {
@@ -328,6 +330,17 @@ const DeluxeStorageCabins = () => {
         onToggleEdit={startEditing}
         onSave={handleSave}
         onCancel={handleReset}
+        pageSlug="deluxe-storage-cabins"
+        showDuplicateDialog={showDuplicateDialog}
+        showDeleteDialog={showDeleteDialog}
+        newSlug={newSlug}
+        isDuplicating={isDuplicating}
+        isDeleting={isDeleting}
+        onSetNewSlug={setNewSlug}
+        onSetShowDuplicateDialog={setShowDuplicateDialog}
+        onSetShowDeleteDialog={setShowDeleteDialog}
+        onDuplicatePage={duplicatePage}
+        onDeletePage={deletePage}
       />
 
       <main className="pt-20">

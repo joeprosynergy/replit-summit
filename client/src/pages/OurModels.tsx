@@ -8,6 +8,7 @@ import { useEditablePageContent, PageContent } from '@/hooks/useEditablePageCont
 import { useSectionContent } from '@/hooks/useSectionContent';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { usePageManagement } from '@/hooks/usePageManagement';
 import InlineEditableLink from '@/components/admin/InlineEditableLink';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
@@ -97,6 +98,7 @@ const defaultContent: PageContent = {
 
 const OurModels = () => {
   const { isAdmin } = useAdminAuth();
+  const { showDuplicateDialog, showDeleteDialog, newSlug, isDuplicating, isDeleting, setNewSlug, setShowDuplicateDialog, setShowDeleteDialog, duplicatePage, deletePage } = usePageManagement('types');
   const {
     content,
     editedContent,
@@ -236,6 +238,17 @@ const OurModels = () => {
         onToggleEdit={startEditing}
         onSave={handleSave}
         onCancel={handleReset}
+        pageSlug="types"
+        showDuplicateDialog={showDuplicateDialog}
+        showDeleteDialog={showDeleteDialog}
+        newSlug={newSlug}
+        isDuplicating={isDuplicating}
+        isDeleting={isDeleting}
+        onSetNewSlug={setNewSlug}
+        onSetShowDuplicateDialog={setShowDuplicateDialog}
+        onSetShowDeleteDialog={setShowDeleteDialog}
+        onDuplicatePage={duplicatePage}
+        onDeletePage={deletePage}
       />
 
       <main className="pt-20">

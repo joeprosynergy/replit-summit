@@ -11,6 +11,7 @@ import InlineEditableLink from '@/components/admin/InlineEditableLink';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { usePageManagement } from '@/hooks/usePageManagement';
 
 import modernShed1 from '@/assets/modern-shed-1.jpg';
 import garageImage from '@/assets/garage-1.jpg';
@@ -83,6 +84,7 @@ const defaultContent: PageContent = {
 
 const StylesModern = () => {
   const { isAdmin } = useAdminAuth();
+  const { showDuplicateDialog, showDeleteDialog, newSlug, isDuplicating, isDeleting, setNewSlug, setShowDuplicateDialog, setShowDeleteDialog, duplicatePage, deletePage } = usePageManagement('styles-modern');
 
   const {
     content,
@@ -237,6 +239,17 @@ const StylesModern = () => {
         onToggleEdit={startEditing}
         onSave={handleSave}
         onCancel={handleReset}
+        pageSlug="styles-modern"
+        showDuplicateDialog={showDuplicateDialog}
+        showDeleteDialog={showDeleteDialog}
+        newSlug={newSlug}
+        isDuplicating={isDuplicating}
+        isDeleting={isDeleting}
+        onSetNewSlug={setNewSlug}
+        onSetShowDuplicateDialog={setShowDuplicateDialog}
+        onSetShowDeleteDialog={setShowDeleteDialog}
+        onDuplicatePage={duplicatePage}
+        onDeletePage={deletePage}
       />
 
       <main className="pt-20">
