@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "./components/ScrollToTop";
 import { AdminAuthProvider } from "./contexts/AdminAuthContext";
+import { AdminNavLink } from "./components/admin/AdminNavLink";
 import Index from "./pages/Index";
 import AboutUs from "./pages/AboutUs";
 import OurModels from "./pages/OurModels";
@@ -50,6 +51,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
+          <AdminNavLink />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about-us" element={<AboutUs />} />

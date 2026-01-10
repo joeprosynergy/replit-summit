@@ -139,27 +139,180 @@ const Admin = () => {
 
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          {/* Inline Editing Section */}
+          {/* All Pages Section */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                Edit Page Content
+                All Pages
               </CardTitle>
               <CardDescription>
-                Navigate to any page to edit its content inline. Look for the "Edit Page" button in the bottom-right corner.
+                Navigate to any page to edit its content. Click "Edit Page" button in the bottom-right corner when on a page.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Main Pages */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Main Pages</h3>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/')}>
+                    Home
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/about-us')}>
+                    About Us
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/contact-us')}>
+                    Contact Us
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/buyers-guide')}>
+                    Buyer's Guide
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/gallery')}>
+                    Gallery
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/financing')}>
+                    Financing
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/privacy-policy')}>
+                    Privacy Policy
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/inventory')}>
+                    Inventory
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/3d-configurator')}>
+                    3D Configurator
+                  </Button>
+                </div>
+              </div>
+
+              {/* Styles Pages */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Building Styles</h3>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/styles')}>
+                    Styles Overview
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/styles/utility')}>
+                    Utility Style
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/styles/barn')}>
+                    Barn Style
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/styles/modern')}>
+                    Modern Style
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/styles/greenhouse')}>
+                    Greenhouse (Style)
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/styles/animal-shelters')}>
+                    Animal Shelters (Style)
+                  </Button>
+                </div>
+              </div>
+
+              {/* Types Pages */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Structure Types</h3>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types')}>
+                    Types Overview
+                  </Button>
+                </div>
+              </div>
+
+              {/* Basic Storage */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Basic Storage</h3>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/basic-storage')}>
+                    Basic Storage Overview
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/basic-storage/economy-shed')}>
+                    Economy Shed
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/basic-storage/budget-pro-utility')}>
+                    Budget Pro - Utility
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/basic-storage/budget-pro-lofted-barn')}>
+                    Budget Pro - Lofted Barn
+                  </Button>
+                </div>
+              </div>
+
+              {/* Deluxe Storage & Cabins */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Deluxe Storage & Cabins</h3>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/deluxe-storage-cabins')}>
+                    Deluxe Storage Overview
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/deluxe-storage-cabins/pro-utility-shed')}>
+                    Pro - Utility Shed
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/deluxe-storage-cabins/pro-lofted-barn')}>
+                    Pro - Lofted Barn
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/deluxe-storage-cabins/cabin')}>
+                    Summit Cabin
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/deluxe-storage-cabins/barn-cabin')}>
+                    Barn Cabin
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/deluxe-storage-cabins/modern-shed')}>
+                    Modern Shed
+                  </Button>
+                </div>
+              </div>
+
+              {/* Garages & Carports */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Garages & Carports</h3>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/garages-carports')}>
+                    Garages & Carports Overview
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/garages-carports/garage')}>
+                    Garage
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/garages-carports/carports')}>
+                    Carports
+                  </Button>
+                </div>
+              </div>
+
+              {/* Specialty Structures */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Specialty Structures</h3>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/greenhouse')}>
+                    Greenhouse
+                  </Button>
+                  <Button variant="outline" className="justify-start" onClick={() => navigate('/types/animal-shelters')}>
+                    Animal Shelters
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Admin Tools Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Admin Tools
+              </CardTitle>
+              <CardDescription>
+                Manage images and audit assets.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                <Button variant="outline" className="justify-start" onClick={() => navigate('/')}>
-                  Home Page
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                <Button variant="outline" className="justify-start" onClick={() => navigate('/cloudinary-upload')}>
+                  Cloudinary Upload
                 </Button>
-                <Button variant="outline" className="justify-start" onClick={() => navigate('/styles')}>
-                  Building Styles
-                </Button>
-                <Button variant="outline" className="justify-start" onClick={() => navigate('/types')}>
-                  Structure Types
+                <Button variant="outline" className="justify-start" onClick={() => navigate('/asset-audit')}>
+                  Asset Audit
                 </Button>
               </div>
             </CardContent>
