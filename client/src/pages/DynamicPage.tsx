@@ -36,7 +36,7 @@ const DynamicPage = () => {
         const { data, error } = await (client as any)
           .from('section_content')
           .select('id')
-          .eq('slug', slug)
+          .eq('page_slug', slug)
           .limit(1);
 
         if (error || !data || data.length === 0) {

@@ -92,13 +92,17 @@ export function usePageManagement(currentSlug: string) {
       if (sectionData && sectionData.length > 0) {
         const sectionPayloads = sectionData.map((section: any) => ({
           page_slug: targetSlug,
-          section_key: section.section_key,
+          section_name: section.section_name,
           content: section.content,
         }));
 
-        await (client as any)
+        const { error: sectionInsertError } = await (client as any)
           .from('section_content')
           .insert(sectionPayloads);
+        
+        if (sectionInsertError) {
+          console.error('[usePageManagement] Section insert error:', sectionInsertError);
+        }
       }
 
       toast.success(`Page duplicated to /${targetSlug}`);
