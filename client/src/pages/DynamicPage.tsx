@@ -27,22 +27,36 @@ const DynamicPage = () => {
   useEffect(() => {
     const checkPageExists = async () => {
       const client = getBackendClient();
+      
       if (!client || !slug) {
         setExists(false);
         return;
       }
 
       try {
-        const { data, error } = await (client as any)
+        // Check page_content table (where Admin finds duplicated pages)
+        const { data: pageData, error: pageError } = await (client as any)
+          .from('page_content')
+          .select('id')
+          .eq('slug', slug)
+          .limit(1);
+
+        if (!pageError && pageData && pageData.length > 0) {
+          setExists(true);
+          return;
+        }
+
+        // Also check section_content as fallback
+        const { data: sectionData, error: sectionError } = await (client as any)
           .from('section_content')
           .select('id')
           .eq('page_slug', slug)
           .limit(1);
 
-        if (error || !data || data.length === 0) {
-          setExists(false);
-        } else {
+        if (!sectionError && sectionData && sectionData.length > 0) {
           setExists(true);
+        } else {
+          setExists(false);
         }
       } catch (err) {
         console.error('Error checking page:', err);
