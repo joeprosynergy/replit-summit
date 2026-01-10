@@ -11,7 +11,7 @@ export function usePageManagement(currentSlug: string) {
   const [newSlug, setNewSlug] = useState('');
   const [, setLocation] = useLocation();
 
-  const duplicatePage = useCallback(async (targetSlug: string) => {
+  const duplicatePage = useCallback(async (targetSlug: string, currentContent?: Record<string, any>) => {
     if (!targetSlug.trim()) {
       toast.error('Please enter a valid page slug');
       return false;
@@ -38,40 +38,30 @@ export function usePageManagement(currentSlug: string) {
         return false;
       }
 
-      const { data: sourceContent, error: fetchError } = await (client as any)
-        .from('page_content')
-        .select('*')
-        .eq('slug', currentSlug)
-        .order('updated_at', { ascending: false, nullsFirst: false })
-        .limit(1)
-        .maybeSingle();
+      const { data: existingSectionTarget } = await (client as any)
+        .from('section_content')
+        .select('id')
+        .eq('page_slug', targetSlug)
+        .limit(1);
 
-      if (fetchError) {
-        toast.error('Failed to fetch page content');
+      if (existingSectionTarget && existingSectionTarget.length > 0) {
+        toast.error('A page with this slug already exists');
         setIsDuplicating(false);
         return false;
       }
 
-      const pagePayload = sourceContent ? {
+      const contentToSave = currentContent || {};
+
+      const pagePayload = {
         slug: targetSlug,
-        heading: sourceContent.heading,
-        tagline: sourceContent.tagline,
-        subheading: sourceContent.subheading,
-        cta_heading: sourceContent.cta_heading,
-        cta_description: sourceContent.cta_description,
-        cta_button: sourceContent.cta_button,
-        meta_title: sourceContent.meta_title ? sourceContent.meta_title.replace(currentSlug, targetSlug) : null,
-        meta_description: sourceContent.meta_description,
-      } : {
-        slug: targetSlug,
-        heading: 'New Page',
-        tagline: '',
-        subheading: '',
-        cta_heading: '',
-        cta_description: '',
-        cta_button: '',
-        meta_title: `${targetSlug} | Summit Portable Buildings`,
-        meta_description: '',
+        heading: contentToSave.title || contentToSave.heading || 'New Page',
+        tagline: contentToSave.subtitle || contentToSave.tagline || '',
+        subheading: contentToSave.description || contentToSave.subheading || '',
+        cta_heading: contentToSave.ctaHeading || contentToSave.cta_heading || '',
+        cta_description: contentToSave.ctaDescription || contentToSave.cta_description || '',
+        cta_button: contentToSave.ctaPrimaryButton || contentToSave.cta_button || '',
+        meta_title: contentToSave.metaTitle || `${targetSlug} | Summit Portable Buildings`,
+        meta_description: contentToSave.metaDescription || '',
       };
 
       const { error: insertError } = await (client as any)
@@ -79,32 +69,49 @@ export function usePageManagement(currentSlug: string) {
         .insert(pagePayload);
 
       if (insertError) {
-        toast.error('Failed to duplicate page content');
-        setIsDuplicating(false);
-        return false;
+        console.error('[usePageManagement] page_content insert error:', insertError);
       }
 
-      const { data: sectionData } = await (client as any)
-        .from('section_content')
-        .select('*')
-        .eq('page_slug', currentSlug);
-
-      if (sectionData && sectionData.length > 0) {
-        const sectionPayloads = sectionData.map((section: any) => {
-          const contentToCopy = section.content || section.content_json;
-          return {
-            page_slug: targetSlug,
-            section_name: section.section_name,
-            content: contentToCopy ? JSON.parse(JSON.stringify(contentToCopy)) : null,
-          };
-        });
+      if (currentContent && Object.keys(currentContent).length > 0) {
+        const sectionPayload = {
+          page_slug: targetSlug,
+          section_name: 'main',
+          content: currentContent,
+        };
 
         const { error: sectionInsertError } = await (client as any)
           .from('section_content')
-          .insert(sectionPayloads);
-        
+          .insert(sectionPayload);
+
         if (sectionInsertError) {
-          console.error('[usePageManagement] Section insert error:', sectionInsertError);
+          console.error('[usePageManagement] section_content insert error:', sectionInsertError);
+          toast.error('Failed to save page content');
+          setIsDuplicating(false);
+          return false;
+        }
+      } else {
+        const { data: sectionData } = await (client as any)
+          .from('section_content')
+          .select('*')
+          .eq('page_slug', currentSlug);
+
+        if (sectionData && sectionData.length > 0) {
+          const sectionPayloads = sectionData.map((section: any) => {
+            const contentToCopy = section.content || section.content_json;
+            return {
+              page_slug: targetSlug,
+              section_name: section.section_name,
+              content: contentToCopy ? JSON.parse(JSON.stringify(contentToCopy)) : null,
+            };
+          });
+
+          const { error: sectionInsertError } = await (client as any)
+            .from('section_content')
+            .insert(sectionPayloads);
+
+          if (sectionInsertError) {
+            console.error('[usePageManagement] Section insert error:', sectionInsertError);
+          }
         }
       }
 
@@ -114,6 +121,7 @@ export function usePageManagement(currentSlug: string) {
       setIsDuplicating(false);
       return true;
     } catch (err: any) {
+      console.error('[usePageManagement] Duplication error:', err);
       toast.error(`Duplication failed: ${err.message || 'Unknown error'}`);
       setIsDuplicating(false);
       return false;

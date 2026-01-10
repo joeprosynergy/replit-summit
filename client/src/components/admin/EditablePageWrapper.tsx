@@ -52,6 +52,10 @@ export function EditablePageWrapper<T extends SectionContent>({
     deletePage,
   } = usePageManagement(effectivePageSlug);
 
+  const handleDuplicatePage = useCallback(async (targetSlug: string) => {
+    return duplicatePage(targetSlug, content as Record<string, any>);
+  }, [duplicatePage, content]);
+
   const [isEditMode, setIsEditMode] = React.useState(false);
 
   const handleSave = useCallback(async () => {
@@ -104,7 +108,7 @@ export function EditablePageWrapper<T extends SectionContent>({
         onSetNewSlug={setNewSlug}
         onSetShowDuplicateDialog={setShowDuplicateDialog}
         onSetShowDeleteDialog={setShowDeleteDialog}
-        onDuplicatePage={duplicatePage}
+        onDuplicatePage={handleDuplicatePage}
         onDeletePage={deletePage}
       />
       
