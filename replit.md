@@ -79,6 +79,14 @@ The application includes a lightweight, secure CMS that stores content in Supaba
 - Both tables have RLS policies for public read, authenticated write
 
 ## Recent Changes
+- **2026-01-10**: Added "Add Gallery Image" functionality to all product pages
+  - New `updateDynamicField` function in useSectionContent hook for dynamic field persistence
+  - EditablePageWrapper exposes `updateDynamicField` for pages that need to add fields at runtime
+  - 11 product pages updated: EconomyShed, BudgetProUtility, BudgetProLoftedBarn, ProLoftedBarn, UtilityShed, Cabin, BarnCabin, ModernShed, Garage, Carports, Greenhouse
+  - Gallery images now constructed dynamically from content fields (galleryImage1, galleryImage2, etc.)
+  - "Add Gallery Image" button visible in edit mode below gallery grid
+  - New images get placeholder values and can be customized/replaced before saving
+  - All gallery edits (image replacement, alt text) use updateDynamicField for proper persistence
 - **2026-01-10**: Made Summit Cabin page (/types/deluxe-storage-cabins/cabin) fully editable
   - Hero section with editable image, alt text, title, description, subtitle, and 2 CTA buttons (text/link/new tab)
   - 4 gallery images with editable images and alt text

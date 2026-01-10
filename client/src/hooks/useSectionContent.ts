@@ -144,6 +144,10 @@ export function useSectionContent<T extends SectionContent>(
     setEditedContent(prev => ({ ...prev, [field]: value }));
   }, []);
 
+  const updateDynamicField = useCallback((field: string, value: string | number | boolean) => {
+    setEditedContent(prev => ({ ...prev, [field]: value } as T));
+  }, []);
+
   return {
     content: editedContent,
     originalContent: content,
@@ -151,6 +155,7 @@ export function useSectionContent<T extends SectionContent>(
     isSaving,
     hasChanges,
     updateField,
+    updateDynamicField,
     save,
     reset,
   };

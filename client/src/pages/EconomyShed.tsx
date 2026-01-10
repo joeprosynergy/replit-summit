@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { 
   Check,
   ArrowRight,
+  Plus,
 } from 'lucide-react';
 import {
   Accordion,
@@ -223,17 +224,22 @@ const EconomyShed = () => {
 
   return (
     <EditablePageWrapper slug="economy-shed" defaultContent={defaultContent}>
-      {({ content, isEditMode, updateField }) => {
-        const galleryImages = [
-          { src: content.galleryImage1 as string, alt: content.galleryImage1Alt as string },
-          { src: content.galleryImage2 as string, alt: content.galleryImage2Alt as string },
-          { src: content.galleryImage3 as string, alt: content.galleryImage3Alt as string },
-          { src: content.galleryImage4 as string, alt: content.galleryImage4Alt as string },
-          { src: content.galleryImage5 as string, alt: content.galleryImage5Alt as string },
-          { src: content.galleryImage6 as string, alt: content.galleryImage6Alt as string },
-          { src: content.galleryImage7 as string, alt: content.galleryImage7Alt as string },
-          { src: content.galleryImage8 as string, alt: content.galleryImage8Alt as string },
-        ];
+      {({ content, isEditMode, updateField, updateDynamicField }) => {
+        const galleryImages: { src: string; alt: string }[] = [];
+        let i = 1;
+        while (content[`galleryImage${i}`]) {
+          galleryImages.push({
+            src: content[`galleryImage${i}`] as string,
+            alt: content[`galleryImage${i}Alt`] as string || '',
+          });
+          i++;
+        }
+
+        const addGalleryImage = () => {
+          const nextIndex = galleryImages.length + 1;
+          updateDynamicField(`galleryImage${nextIndex}`, '/placeholder-shed.jpg');
+          updateDynamicField(`galleryImage${nextIndex}Alt`, 'New gallery image');
+        };
 
         const card1Features = [
           content.card1Feature1 as string,
@@ -364,29 +370,41 @@ const EconomyShed = () => {
           <section className="section-padding bg-background">
             <div className="container-custom">
               {isEditMode ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                  {galleryImages.map((img, index) => (
-                    <div key={index} className="relative">
-                      <InlineEditableImage
-                        src={img.src}
-                        alt={img.alt}
-                        onImageChange={(url) => updateField(`galleryImage${index + 1}`, url)}
-                        isEditMode={isEditMode}
-                        className="w-full aspect-video object-cover rounded-lg"
-                      />
-                      <div className="mt-2">
-                        <InlineEditable
-                          value={img.alt}
-                          fieldName={`galleryImage${index + 1}Alt`}
-                          onChange={(val) => updateField(`galleryImage${index + 1}Alt`, val)}
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    {galleryImages.map((img, index) => (
+                      <div key={index} className="relative">
+                        <InlineEditableImage
+                          src={img.src}
+                          alt={img.alt}
+                          onImageChange={(url) => updateDynamicField(`galleryImage${index + 1}`, url)}
                           isEditMode={isEditMode}
-                          as="span"
-                          className="text-xs text-muted-foreground"
+                          className="w-full aspect-video object-cover rounded-lg"
                         />
+                        <div className="mt-2">
+                          <InlineEditable
+                            value={img.alt}
+                            fieldName={`galleryImage${index + 1}Alt`}
+                            onChange={(val) => updateDynamicField(`galleryImage${index + 1}Alt`, val)}
+                            isEditMode={isEditMode}
+                            as="span"
+                            className="text-xs text-muted-foreground"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-center">
+                    <Button
+                      variant="outline"
+                      onClick={addGalleryImage}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Gallery Image
+                    </Button>
+                  </div>
+                </>
               ) : (
                 <GallerySection images={galleryImages} />
               )}

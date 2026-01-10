@@ -10,6 +10,7 @@ interface EditablePageWrapperProps<T extends SectionContent> {
     content: T; 
     isEditMode: boolean; 
     updateField: <K extends keyof T>(field: K, value: T[K]) => void;
+    updateDynamicField: (field: string, value: string | number | boolean) => void;
   }) => ReactNode);
   slug: string;
   defaultContent: T;
@@ -29,6 +30,7 @@ export function EditablePageWrapper<T extends SectionContent>({
     isSaving,
     hasChanges,
     updateField,
+    updateDynamicField,
     save: saveContent,
     reset,
   } = useSectionContent<T>(slug, sectionName, defaultContent);
@@ -84,6 +86,7 @@ export function EditablePageWrapper<T extends SectionContent>({
             content, 
             isEditMode, 
             updateField,
+            updateDynamicField,
           })
         : children
       }
