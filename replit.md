@@ -79,6 +79,12 @@ The application includes a lightweight, secure CMS that stores content in Supaba
 - Both tables have RLS policies for public read, authenticated write
 
 ## Recent Changes
+- **2026-01-10**: Added "Delete Gallery Image" functionality to all product pages
+  - Delete button (X icon) appears in top-right corner of each gallery image on hover in edit mode
+  - Uses destructive styling (red background) with smooth opacity transition
+  - Deleting an image shifts all subsequent images down to maintain sequential numbering
+  - Deletion persists after saving - removed images are fully deleted from content
+  - 11 product pages updated: EconomyShed, BudgetProUtility, BudgetProLoftedBarn, ProLoftedBarn, UtilityShed, Cabin, BarnCabin, ModernShed, Garage, Carports, Greenhouse
 - **2026-01-10**: Added "Add Gallery Image" functionality to all product pages
   - New `updateDynamicField` function in useSectionContent hook for dynamic field persistence
   - EditablePageWrapper exposes `updateDynamicField` for pages that need to add fields at runtime

@@ -6,6 +6,7 @@ import {
   Check,
   ArrowRight,
   Plus,
+  X,
 } from 'lucide-react';
 import {
   Accordion,
@@ -363,6 +364,18 @@ const ProLoftedBarn = () => {
           updateDynamicField(`galleryImage${nextIndex}Alt`, 'New gallery image');
         };
 
+        const deleteGalleryImage = (indexToDelete: number) => {
+          const totalImages = galleryImages.length;
+          for (let i = indexToDelete; i < totalImages; i++) {
+            const nextSrc = content[`galleryImage${i + 1}`] as string || '';
+            const nextAlt = content[`galleryImage${i + 1}Alt`] as string || '';
+            updateDynamicField(`galleryImage${i}`, nextSrc);
+            updateDynamicField(`galleryImage${i}Alt`, nextAlt);
+          }
+          updateDynamicField(`galleryImage${totalImages}`, '');
+          updateDynamicField(`galleryImage${totalImages}Alt`, '');
+        };
+
         const features = [
           { key: 'feature1', value: content.feature1 as string },
           { key: 'feature2', value: content.feature2 as string },
@@ -495,7 +508,7 @@ const ProLoftedBarn = () => {
                 <>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     {galleryImages.map((img, index) => (
-                      <div key={index} className="relative">
+                      <div key={index} className="relative group">
                         <InlineEditableImage
                           src={img.src}
                           alt={img.alt}
@@ -503,6 +516,13 @@ const ProLoftedBarn = () => {
                           isEditMode={isEditMode}
                           className="w-full aspect-video object-cover rounded-lg"
                         />
+                        <button
+                          onClick={() => deleteGalleryImage(index + 1)}
+                          className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Delete image"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                         <div className="mt-2">
                           <InlineEditable
                             value={img.alt}
