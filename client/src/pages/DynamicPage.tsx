@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getBackendClient } from '@/lib/backendClient';
 import { EditablePageWrapper } from '@/components/admin/EditablePageWrapper';
+import { EconomyShedWorkingCopyRenderer } from '@/components/EconomyShedWorkingCopyRenderer';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NotFound from './NotFound';
@@ -73,6 +74,11 @@ const DynamicPage = () => {
 
   if (!exists) {
     return <NotFound />;
+  }
+
+  // Special rendering for economy-shed-working-copy ONLY
+  if (slug === 'economy-shed-working-copy') {
+    return <EconomyShedWorkingCopyRenderer />;
   }
 
   return (
