@@ -7,6 +7,7 @@ import { LogOut, Settings, Users, FileText, ShieldX, ChevronDown, RefreshCw, Cop
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { getBackendClient, isBackendAvailable } from "@/lib/backendClient";
 import { migrateAllContent, MigrationProgress, MigrationResult } from "@/lib/contentMigration";
+import { MigrateEconomyShedWorkingCopy } from "@/components/admin/MigrateEconomyShedWorkingCopy";
 import { toast } from "sonner";
 
 // Helper to extract hostname for debug display
@@ -447,6 +448,11 @@ const Admin = () => {
                   </div>
                 </div>
               )}
+
+              <div className="pt-4 border-t">
+                <h4 className="text-sm font-medium mb-3">Page-Specific Migrations</h4>
+                <MigrateEconomyShedWorkingCopy />
+              </div>
             </CardContent>
           </Card>
 
