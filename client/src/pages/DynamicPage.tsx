@@ -14,6 +14,26 @@ interface DynamicContent {
   [key: string]: any;
 }
 
+interface SectionRow {
+  id: string;
+  page_id: string;
+  section_name: string;
+  content: Record<string, any>;
+}
+
+interface PageData {
+  id: string;
+  slug: string;
+  layout_config?: Record<string, any>;
+  is_canonical?: boolean;
+  [key: string]: any;
+}
+
+interface CmsPageData {
+  page: PageData;
+  sections: SectionRow[];
+}
+
 const defaultContent: DynamicContent = {};
 
 const DynamicPage = () => {
@@ -22,12 +42,57 @@ const DynamicPage = () => {
   const [exists, setExists] = useState<boolean | null>(null);
   const [pageData, setPageData] = useState<DynamicContent | null>(null);
   const [isCmsFirstPage, setIsCmsFirstPage] = useState<boolean>(false);
+  const [cmsPageData, setCmsPageData] = useState<CmsPageData | null>(null);
 
   useEffect(() => {
     const checkPageExists = async () => {
+      if (!slug) {
+        setExists(false);
+        return;
+      }
+
+      // First, try to fetch from server endpoint for CMS-first pages
+      try {
+        const response = await fetch(`/api/cms-page/${encodeURIComponent(slug)}`);
+        
+        if (response.ok) {
+          const data: CmsPageData = await response.json();
+          
+          // Check if this is a CMS-first page (has sections other than 'main')
+          const hasCmsFirstSections = data.sections.some(
+            (s) => s.section_name !== 'main'
+          );
+          
+          if (hasCmsFirstSections) {
+            console.log(`[DynamicPage] CMS-FIRST PAGE from server: ${slug}`);
+            setCmsPageData(data);
+            setPageData(data.page);
+            setIsCmsFirstPage(true);
+            setExists(true);
+            return;
+          }
+          
+          // Not a CMS-first page, but page exists - use legacy rendering
+          setPageData(data.page);
+          setExists(true);
+          return;
+        }
+        
+        if (response.status === 404) {
+          // Page doesn't exist
+          setExists(false);
+          return;
+        }
+        
+        // Server error - fall back to client-side check
+        console.warn(`[DynamicPage] Server endpoint error, falling back to client-side check`);
+      } catch (err) {
+        console.warn(`[DynamicPage] Server fetch failed, falling back to client-side:`, err);
+      }
+
+      // Fallback: client-side Supabase check for legacy pages
       const client = getBackendClient();
-      
-      if (!client || !slug) {
+      if (!client) {
         setExists(false);
         return;
       }
@@ -41,26 +106,6 @@ const DynamicPage = () => {
 
         if (!pageError && pageResult && pageResult.length > 0) {
           setPageData(pageResult[0]);
-          const pageId = pageResult[0].id;
-
-          // CMS-FIRST DETECTION: Check if page has sections other than 'main'
-          if (pageId) {
-            const { data: allSections } = await (client as any)
-              .from('section_content')
-              .select('section_name')
-              .eq('page_id', pageId);
-            
-            if (allSections && allSections.length > 0) {
-              const hasCmsFirstSections = allSections.some(
-                (s: { section_name: string }) => s.section_name !== 'main'
-              );
-              if (hasCmsFirstSections) {
-                console.log(`[DynamicPage] CMS-FIRST PAGE DETECTED: ${slug}`);
-                setIsCmsFirstPage(true);
-              }
-            }
-          }
-
           setExists(true);
           return;
         }
@@ -71,14 +116,6 @@ const DynamicPage = () => {
           .eq('page_slug', slug);
 
         if (!sectionError && sectionData && sectionData.length > 0) {
-          // Check if any section is not 'main' (CMS-first indicator)
-          const hasCmsFirstSections = sectionData.some(
-            (s: { section_name: string }) => s.section_name !== 'main'
-          );
-          if (hasCmsFirstSections) {
-            console.log(`[DynamicPage] CMS-FIRST PAGE DETECTED (by slug): ${slug}`);
-            setIsCmsFirstPage(true);
-          }
           setExists(true);
         } else {
           setExists(false);
@@ -107,9 +144,16 @@ const DynamicPage = () => {
   // CMS-FIRST PAGES: Render using section-based CMS renderer
   // This applies to economy-shed-working-copy AND any pages duplicated from it
   // These pages have section_content rows with section_name != 'main'
-  if (isCmsFirstPage) {
-    console.log(`[DynamicPage] Rendering CMS-first page: ${slug}`);
-    return <EconomyShedWorkingCopyRenderer pageSlug={slug} />;
+  // Data is fetched from server endpoint and passed as props (no client-side Supabase fetch)
+  if (isCmsFirstPage && cmsPageData) {
+    console.log(`[DynamicPage] Rendering CMS-first page: ${slug} (server data)`);
+    return (
+      <EconomyShedWorkingCopyRenderer 
+        pageSlug={slug}
+        initialPage={cmsPageData.page}
+        initialSections={cmsPageData.sections}
+      />
+    );
   }
 
   return (

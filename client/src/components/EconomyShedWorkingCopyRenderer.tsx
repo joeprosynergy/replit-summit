@@ -12,8 +12,18 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
+interface PageData {
+  id: string;
+  slug: string;
+  layout_config?: Record<string, any>;
+  is_canonical?: boolean;
+  [key: string]: any;
+}
+
 interface EconomyShedWorkingCopyRendererProps {
   pageSlug?: string;
+  initialPage?: PageData;
+  initialSections?: SectionRow[];
 }
 
 interface SectionRow {
@@ -189,15 +199,40 @@ function RenderSection({ section, isEditMode, onUpdateField }: RenderSectionProp
   }
 }
 
-export function EconomyShedWorkingCopyRenderer({ pageSlug = 'economy-shed-working-copy' }: EconomyShedWorkingCopyRendererProps) {
+export function EconomyShedWorkingCopyRenderer({ 
+  pageSlug = 'economy-shed-working-copy',
+  initialPage,
+  initialSections,
+}: EconomyShedWorkingCopyRendererProps) {
   const { isAdmin, isRevalidating } = useAdminAuthContext();
-  const [isLoading, setIsLoading] = useState(true);
-  const [sections, setSections] = useState<SectionRow[]>([]);
+  
+  // If initialSections provided from server, skip loading state
+  const hasServerData = !!(initialPage && initialSections);
+  const [isLoading, setIsLoading] = useState(!hasServerData);
+  const [sections, setSections] = useState<SectionRow[]>(() => {
+    if (initialSections && initialSections.length > 0) {
+      // Sort sections in render order
+      const orderedSections = ['hero', 'cta'];
+      return [...initialSections].sort((a, b) => {
+        return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
+      });
+    }
+    return [];
+  });
   const [error, setError] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [editedSections, setEditedSections] = useState<SectionRow[]>([]);
+  const [editedSections, setEditedSections] = useState<SectionRow[]>(() => {
+    if (initialSections && initialSections.length > 0) {
+      const orderedSections = ['hero', 'cta'];
+      const sorted = [...initialSections].sort((a, b) => {
+        return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
+      });
+      return JSON.parse(JSON.stringify(sorted));
+    }
+    return [];
+  });
 
   const {
     isDuplicating,
@@ -212,13 +247,23 @@ export function EconomyShedWorkingCopyRenderer({ pageSlug = 'economy-shed-workin
     deletePage,
   } = usePageManagement(pageSlug);
 
+  // Only fetch from client-side Supabase if no server data was provided (legacy fallback)
   const fetchSections = useCallback(async () => {
+    // Skip if server data was provided
+    if (hasServerData) {
+      console.log(`[CmsFirstRenderer] Using server-provided data for ${pageSlug}`);
+      setIsLoading(false);
+      return;
+    }
+
     const client = getBackendClient();
     if (!client) {
       setError('Database client not available');
       setIsLoading(false);
       return;
     }
+
+    console.log(`[CmsFirstRenderer] Fallback: fetching from client-side Supabase for ${pageSlug}`);
 
     try {
       const { data: pageData, error: pageError } = await (client as any)
@@ -267,7 +312,7 @@ export function EconomyShedWorkingCopyRenderer({ pageSlug = 'economy-shed-workin
       setError(err.message);
       setIsLoading(false);
     }
-  }, [pageSlug]);
+  }, [pageSlug, hasServerData]);
 
   useEffect(() => {
     fetchSections();
