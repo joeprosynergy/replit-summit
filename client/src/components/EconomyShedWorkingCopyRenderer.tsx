@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { getBackendClient } from '@/lib/backendClient';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
@@ -207,33 +207,37 @@ export function EconomyShedWorkingCopyRenderer({
 }: EconomyShedWorkingCopyRendererProps) {
   const { isAdmin, isRevalidating } = useAdminAuthContext();
   
-  // If initialSections provided from server, skip loading state
-  const hasServerData = !!(initialPage && initialSections);
-  const [isLoading, setIsLoading] = useState(!hasServerData);
-  const [sections, setSections] = useState<SectionRow[]>(() => {
-    if (initialSections && initialSections.length > 0) {
-      // Sort sections in render order
-      const orderedSections = ['hero', 'cta'];
-      return [...initialSections].sort((a, b) => {
-        return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
-      });
-    }
-    return [];
-  });
-  const [error, setError] = useState<string | null>(null);
+  // CMS-FIRST IMMUTABLE DATA: Server-provided sections are the ONLY source of truth
+  // DO NOT copy into mutable state - render directly from props
+  const hasServerData = !!(initialPage && initialSections && initialSections.length > 0);
+  
+  // Compute sorted sections from immutable server props (no state)
+  const immutableSections = useMemo(() => {
+    if (!initialSections || initialSections.length === 0) return [];
+    const orderedSections = ['hero', 'cta'];
+    return [...initialSections].sort((a, b) => {
+      return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
+    });
+  }, [initialSections]);
+
+  // Edit mode state - only used during active editing
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // editedSections: Deep clone of immutable data, used ONLY during edit mode
+  // Initialized once from server props, reset on cancel
   const [editedSections, setEditedSections] = useState<SectionRow[]>(() => {
-    if (initialSections && initialSections.length > 0) {
-      const orderedSections = ['hero', 'cta'];
-      const sorted = [...initialSections].sort((a, b) => {
-        return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
-      });
-      return JSON.parse(JSON.stringify(sorted));
-    }
-    return [];
+    if (!initialSections || initialSections.length === 0) return [];
+    const orderedSections = ['hero', 'cta'];
+    const sorted = [...initialSections].sort((a, b) => {
+      return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
+    });
+    return JSON.parse(JSON.stringify(sorted));
   });
+
+  // Track if we've saved changes (to show updated content without re-fetch)
+  const [savedSections, setSavedSections] = useState<SectionRow[] | null>(null);
 
   const {
     isDuplicating,
@@ -248,76 +252,8 @@ export function EconomyShedWorkingCopyRenderer({
     deletePage,
   } = usePageManagement(pageSlug);
 
-  // Only fetch from client-side Supabase if no server data was provided (legacy fallback)
-  const fetchSections = useCallback(async () => {
-    // Skip if server data was provided
-    if (hasServerData) {
-      console.log(`[CmsFirstRenderer] Using server-provided data for ${pageSlug}`);
-      setIsLoading(false);
-      return;
-    }
-
-    const client = getBackendClient();
-    if (!client) {
-      setError('Database client not available');
-      setIsLoading(false);
-      return;
-    }
-
-    console.log(`[CmsFirstRenderer] Fallback: fetching from client-side Supabase for ${pageSlug}`);
-
-    try {
-      const { data: pageData, error: pageError } = await (client as any)
-        .from('page_content')
-        .select('id, layout_config, is_canonical')
-        .eq('slug', pageSlug)
-        .maybeSingle();
-
-      if (pageError) {
-        throw new Error(`Failed to fetch page: ${pageError.message}`);
-      }
-
-      if (!pageData) {
-        throw new Error('Page not found');
-      }
-
-      const pageId = pageData.id;
-
-      console.log(`[CmsFirstRenderer] Fetching sections for ${pageSlug}, page_id:`, pageId);
-
-      const { data: sectionRows, error: sectionsError } = await (client as any)
-        .from('section_content')
-        .select('id, page_id, section_name, content')
-        .eq('page_id', pageId)
-        .in('section_name', ['hero', 'cta']);
-
-      if (sectionsError) {
-        throw new Error(`Failed to fetch sections: ${sectionsError.message}`);
-      }
-
-      console.log(`[CmsFirstRenderer] Fetched ${sectionRows?.length || 0} sections for ${pageSlug}`);
-      sectionRows?.forEach((s: SectionRow) => {
-        console.log(`  - ${s.section_name}: ${Object.keys(s.content || {}).length} fields`);
-      });
-
-      const orderedSections = ['hero', 'cta'];
-      const sortedSections = (sectionRows || []).sort((a: SectionRow, b: SectionRow) => {
-        return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
-      });
-
-      setSections(sortedSections);
-      setEditedSections(JSON.parse(JSON.stringify(sortedSections)));
-      setIsLoading(false);
-    } catch (err: any) {
-      console.error(`[CmsFirstRenderer] Error for ${pageSlug}:`, err);
-      setError(err.message);
-      setIsLoading(false);
-    }
-  }, [pageSlug, hasServerData]);
-
-  useEffect(() => {
-    fetchSections();
-  }, [fetchSections]);
+  // CMS-FIRST: NO client-side fetch for pages with server data
+  // This eliminates all post-mount state mutations that could overwrite server data
 
   const handleStartEditing = useCallback(() => {
     setIsEditMode(true);
@@ -345,7 +281,8 @@ export function EconomyShedWorkingCopyRenderer({
       }
 
       toast.success('Changes saved');
-      setSections(JSON.parse(JSON.stringify(editedSections)));
+      // Store saved sections to display after save (without mutating immutable props)
+      setSavedSections(JSON.parse(JSON.stringify(editedSections)));
       setHasChanges(false);
       setIsEditMode(false);
     } catch (err: any) {
@@ -354,13 +291,15 @@ export function EconomyShedWorkingCopyRenderer({
     } finally {
       setIsSaving(false);
     }
-  }, [editedSections]);
+  }, [editedSections, pageSlug]);
 
   const handleCancel = useCallback(() => {
-    setEditedSections(JSON.parse(JSON.stringify(sections)));
+    // Reset to immutable source: savedSections (if exists) or original immutable props
+    const sourceData = savedSections || immutableSections;
+    setEditedSections(JSON.parse(JSON.stringify(sourceData)));
     setHasChanges(false);
     setIsEditMode(false);
-  }, [sections]);
+  }, [savedSections, immutableSections]);
 
   const handleUpdateSectionField = useCallback((sectionId: string, field: string, value: string) => {
     setEditedSections(prev => {
@@ -381,30 +320,14 @@ export function EconomyShedWorkingCopyRenderer({
     setHasChanges(true);
   }, []);
 
-  const sectionsToRender = isEditMode ? editedSections : sections;
+  // IMMUTABLE RENDER: Use savedSections (after save) or immutableSections (from server props)
+  // Only use editedSections during active edit mode
+  const sectionsToRender = isEditMode 
+    ? editedSections 
+    : (savedSections || immutableSections);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center p-8">
-            <h1 className="text-2xl font-bold text-destructive mb-4">Error</h1>
-            <p className="text-muted-foreground">{error}</p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+  // CMS-FIRST: No loading state needed - server data is available immediately
+  // No error state needed - errors are handled at the DynamicPage level
 
   return (
     <EditModeProvider
