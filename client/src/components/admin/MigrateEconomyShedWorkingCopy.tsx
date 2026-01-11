@@ -46,11 +46,21 @@ export function MigrateEconomyShedWorkingCopy() {
         .maybeSingle();
 
       let heroCreated = false;
+      let heroUpdated = false;
+      const heroLayoutFields = {
+        backgroundColor: 'hsl(var(--primary) / 0.1)',
+        paddingTop: '4rem',
+        paddingBottom: '4rem',
+        textAlignment: 'center',
+        layoutVariant: 'simple',
+      };
+
       if (!existingHero) {
         const heroContent = {
           heading: pageData.heading || '',
           tagline: pageData.tagline || '',
           subheading: pageData.subheading || '',
+          ...heroLayoutFields,
         };
 
         const { error: heroError } = await supabase
@@ -66,7 +76,30 @@ export function MigrateEconomyShedWorkingCopy() {
           throw new Error(`Failed to create hero section: ${heroError.message}`);
         }
         heroCreated = true;
-        console.log('[Migration] Created hero section');
+        console.log('[Migration] Created hero section with layout fields');
+      } else {
+        const { data: heroData } = await supabase
+          .from('section_content')
+          .select('content')
+          .eq('id', existingHero.id)
+          .single();
+
+        const existingContent = (heroData?.content as Record<string, any>) || {};
+        const needsLayoutFields = !existingContent.backgroundColor || !existingContent.paddingTop;
+
+        if (needsLayoutFields) {
+          const updatedContent = { ...existingContent, ...heroLayoutFields };
+          const { error: updateError } = await supabase
+            .from('section_content')
+            .update({ content: updatedContent })
+            .eq('id', existingHero.id);
+
+          if (updateError) {
+            throw new Error(`Failed to update hero section: ${updateError.message}`);
+          }
+          heroUpdated = true;
+          console.log('[Migration] Updated hero section with layout fields');
+        }
       }
 
       const { data: existingCta } = await supabase
@@ -77,11 +110,22 @@ export function MigrateEconomyShedWorkingCopy() {
         .maybeSingle();
 
       let ctaCreated = false;
+      let ctaUpdated = false;
+      const ctaLayoutFields = {
+        buttonLink: '#',
+        backgroundColor: 'hsl(var(--primary) / 0.1)',
+        paddingTop: '4rem',
+        paddingBottom: '4rem',
+        textAlignment: 'center',
+        layoutVariant: 'simple',
+      };
+
       if (!existingCta) {
         const ctaContent = {
           heading: pageData.cta_heading || '',
           description: pageData.cta_description || '',
           button: pageData.cta_button || '',
+          ...ctaLayoutFields,
         };
 
         const { error: ctaError } = await supabase
@@ -97,7 +141,30 @@ export function MigrateEconomyShedWorkingCopy() {
           throw new Error(`Failed to create cta section: ${ctaError.message}`);
         }
         ctaCreated = true;
-        console.log('[Migration] Created cta section');
+        console.log('[Migration] Created cta section with layout fields');
+      } else {
+        const { data: ctaData } = await supabase
+          .from('section_content')
+          .select('content')
+          .eq('id', existingCta.id)
+          .single();
+
+        const existingContent = (ctaData?.content as Record<string, any>) || {};
+        const needsLayoutFields = !existingContent.backgroundColor || !existingContent.paddingTop;
+
+        if (needsLayoutFields) {
+          const updatedContent = { ...existingContent, ...ctaLayoutFields };
+          const { error: updateError } = await supabase
+            .from('section_content')
+            .update({ content: updatedContent })
+            .eq('id', existingCta.id);
+
+          if (updateError) {
+            throw new Error(`Failed to update cta section: ${updateError.message}`);
+          }
+          ctaUpdated = true;
+          console.log('[Migration] Updated cta section with layout fields');
+        }
       }
 
       const { data: allSections } = await supabase
@@ -107,8 +174,12 @@ export function MigrateEconomyShedWorkingCopy() {
 
       const summary = [
         `Migration complete for ${TARGET_SLUG}`,
-        heroCreated ? '- Created hero section' : '- Hero section already exists',
-        ctaCreated ? '- Created cta section' : '- CTA section already exists',
+        heroCreated ? '- Created hero section with layout fields' 
+          : heroUpdated ? '- Updated hero section with layout fields'
+          : '- Hero section already has layout fields',
+        ctaCreated ? '- Created cta section with layout fields' 
+          : ctaUpdated ? '- Updated cta section with layout fields'
+          : '- CTA section already has layout fields',
         `- Total sections: ${allSections?.length || 0}`,
       ].join('\n');
 
@@ -127,7 +198,8 @@ export function MigrateEconomyShedWorkingCopy() {
     <div className="p-4 border rounded-lg bg-muted/50 space-y-4">
       <h3 className="font-semibold">Migrate: {TARGET_SLUG}</h3>
       <p className="text-sm text-muted-foreground">
-        Creates hero and cta section rows from page_content fields.
+        Creates or updates hero and cta section rows with full layout/styling fields
+        (backgroundColor, padding, alignment, layoutVariant).
       </p>
       <Button onClick={runMigration} disabled={isRunning}>
         {isRunning ? 'Running...' : 'Run Migration'}

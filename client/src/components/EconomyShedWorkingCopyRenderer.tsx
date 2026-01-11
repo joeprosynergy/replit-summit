@@ -16,18 +16,39 @@ interface HeroContent {
   heading: string;
   tagline: string;
   subheading: string;
+  backgroundColor: string;
+  paddingTop: string;
+  paddingBottom: string;
+  textAlignment: string;
+  layoutVariant: string;
 }
 
 interface CtaContent {
   heading: string;
   description: string;
   button: string;
+  buttonLink: string;
+  backgroundColor: string;
+  paddingTop: string;
+  paddingBottom: string;
+  textAlignment: string;
+  layoutVariant: string;
 }
 
 function HeroSection({ content }: { content: HeroContent }) {
+  const sectionStyle: React.CSSProperties = {
+    backgroundColor: content.backgroundColor,
+    paddingTop: content.paddingTop,
+    paddingBottom: content.paddingBottom,
+  };
+
+  const alignmentClass = content.textAlignment === 'left' ? 'text-left' 
+    : content.textAlignment === 'right' ? 'text-right' 
+    : 'text-center';
+
   return (
-    <section className="py-16 bg-gradient-to-b from-primary/10 to-background">
-      <div className="container mx-auto px-4 text-center">
+    <section style={sectionStyle}>
+      <div className={`container mx-auto px-4 ${alignmentClass}`}>
         <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
           {content.heading}
         </h1>
@@ -47,9 +68,19 @@ function HeroSection({ content }: { content: HeroContent }) {
 }
 
 function CtaSection({ content }: { content: CtaContent }) {
+  const sectionStyle: React.CSSProperties = {
+    backgroundColor: content.backgroundColor,
+    paddingTop: content.paddingTop,
+    paddingBottom: content.paddingBottom,
+  };
+
+  const alignmentClass = content.textAlignment === 'left' ? 'text-left' 
+    : content.textAlignment === 'right' ? 'text-right' 
+    : 'text-center';
+
   return (
-    <section className="py-16 bg-primary/10">
-      <div className="container mx-auto px-4 text-center">
+    <section style={sectionStyle}>
+      <div className={`container mx-auto px-4 ${alignmentClass}`}>
         <h2 className="text-3xl font-bold mb-4">
           {content.heading}
         </h2>
@@ -60,7 +91,7 @@ function CtaSection({ content }: { content: CtaContent }) {
         )}
         {content.button && (
           <Button asChild size="lg">
-            <a href="#">
+            <a href={content.buttonLink}>
               {content.button}
               <ArrowRight className="ml-2 h-4 w-4" />
             </a>
