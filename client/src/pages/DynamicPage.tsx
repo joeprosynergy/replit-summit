@@ -145,7 +145,13 @@ const DynamicPage = () => {
   // This applies to economy-shed-working-copy AND any pages duplicated from it
   // These pages have section_content rows with section_name != 'main'
   // Data is fetched from server endpoint and passed as props (no client-side Supabase fetch)
-  if (isCmsFirstPage && cmsPageData) {
+  // GUARD: Check cmsPageData directly to prevent race condition where isCmsFirstPage
+  // may not be set yet but cmsPageData exists (React state batching issue)
+  const hasCmsFirstData = cmsPageData && cmsPageData.sections.some(
+    (s) => s.section_name !== 'main'
+  );
+  
+  if (hasCmsFirstData) {
     console.log(`[DynamicPage] Rendering CMS-first page: ${slug} (server data)`);
     return (
       <EconomyShedWorkingCopyRenderer 
@@ -153,6 +159,16 @@ const DynamicPage = () => {
         initialPage={cmsPageData.page}
         initialSections={cmsPageData.sections}
       />
+    );
+  }
+
+  // GUARD: Prevent legacy rendering if CMS-first state is set but data not yet available
+  // This prevents EditablePageWrapper from running useSectionContent for CMS-first pages
+  if (isCmsFirstPage) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading CMS content...</div>
+      </div>
     );
   }
 
