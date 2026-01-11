@@ -186,7 +186,8 @@ export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageDa
 
 export async function duplicateCanonicalPage(
   sourceSlug: string,
-  targetSlug: string
+  targetSlug: string,
+  providedContent?: Record<string, any>
 ): Promise<{ success: boolean; message: string }> {
   const client = getBackendClient();
   if (!client) {
@@ -213,32 +214,51 @@ export async function duplicateCanonicalPage(
     return { success: false, message: 'A page with this slug already exists' };
   }
 
-  const canonical = await ensureCanonicalPage(sourceSlug);
-  
-  if (!canonical) {
-    return { success: false, message: `Could not canonicalize source page: ${sourceSlug}` };
+  let contentToClone: Record<string, any>;
+
+  if (providedContent && Object.keys(providedContent).length > 0) {
+    console.log(`[canonicalization] Using provided content (${Object.keys(providedContent).length} fields) for duplication`);
+    contentToClone = providedContent;
+  } else {
+    const canonical = await ensureCanonicalPage(sourceSlug);
+    
+    if (!canonical) {
+      return { success: false, message: `Could not canonicalize source page: ${sourceSlug}` };
+    }
+
+    if (!canonical.content || Object.keys(canonical.content).length === 0) {
+      return { success: false, message: `Source page ${sourceSlug} has no content to duplicate` };
+    }
+    
+    contentToClone = canonical.content;
   }
 
-  if (!canonical.content || Object.keys(canonical.content).length === 0) {
-    return { success: false, message: `Source page ${sourceSlug} has no content to duplicate` };
-  }
+  console.log(`[canonicalization] Duplicating page ${sourceSlug} (${Object.keys(contentToClone).length} fields) to ${targetSlug}`);
 
-  console.log(`[canonicalization] Duplicating canonical page ${sourceSlug} (${Object.keys(canonical.content).length} fields) to ${targetSlug}`);
+  const deepClonedContent = JSON.parse(JSON.stringify(contentToClone));
 
-  const deepClonedContent = JSON.parse(JSON.stringify(canonical.content));
+  console.log(`[canonicalization] Inserting section_content for ${targetSlug}:`, {
+    page_slug: targetSlug,
+    section_name: 'main',
+    contentKeys: Object.keys(deepClonedContent),
+    contentFieldCount: Object.keys(deepClonedContent).length,
+  });
 
-  const { error: sectionError } = await (client as any)
+  const { data: insertedSection, error: sectionError } = await (client as any)
     .from('section_content')
     .insert({
       page_slug: targetSlug,
-      section_name: canonical.sectionName,
+      section_name: 'main',
       content: deepClonedContent,
-    });
+    })
+    .select('id, page_slug, section_name');
 
   if (sectionError) {
     console.error(`[canonicalization] Failed to insert section_content for ${targetSlug}:`, sectionError);
     return { success: false, message: `Failed to duplicate section content: ${sectionError.message}` };
   }
+
+  console.log(`[canonicalization] Successfully inserted section_content:`, insertedSection);
 
   const pagePayload = {
     slug: targetSlug,

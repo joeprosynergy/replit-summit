@@ -44,10 +44,21 @@ export function useSectionContent<T extends SectionContent>(
         console.error('[useSectionContent] Fetch error:', error);
       }
 
+      console.log(`[useSectionContent] Fetch result for ${pageSlug}/${sectionName}:`, {
+        hasData: !!data,
+        hasError: !!error,
+        hasContent: !!(data?.content),
+        contentFieldCount: data?.content ? Object.keys(data.content).length : 0,
+        defaultContentFieldCount: Object.keys(defaultContent).length,
+      });
+
       if (data && !error && data.content) {
         const merged = { ...defaultContent, ...(data.content as T) };
+        console.log(`[useSectionContent] Merged content has ${Object.keys(merged).length} fields`);
         setContent(merged);
         setEditedContent(merged);
+      } else {
+        console.log(`[useSectionContent] No DB content, using defaultContent with ${Object.keys(defaultContent).length} fields`);
       }
       setIsLoading(false);
     };
