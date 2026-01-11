@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { isBackendAvailable, getBackendClient } from '@/lib/backendClient';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
+import { duplicateCanonicalPage } from '@/lib/canonicalization';
 
 export function usePageManagement(currentSlug: string) {
   const [isDuplicating, setIsDuplicating] = useState(false);
@@ -11,14 +12,13 @@ export function usePageManagement(currentSlug: string) {
   const [newSlug, setNewSlug] = useState('');
   const [, setLocation] = useLocation();
 
-  const duplicatePage = useCallback(async (targetSlug: string, currentContent?: Record<string, any>) => {
+  const duplicatePage = useCallback(async (targetSlug: string, _currentContent?: Record<string, any>) => {
     if (!targetSlug.trim()) {
       toast.error('Please enter a valid page slug');
       return false;
     }
 
-    const client = getBackendClient();
-    if (!client || !isBackendAvailable()) {
+    if (!isBackendAvailable()) {
       toast.error('Database not available');
       return false;
     }
@@ -26,93 +26,12 @@ export function usePageManagement(currentSlug: string) {
     setIsDuplicating(true);
 
     try {
-      const { data: existingTarget } = await (client as any)
-        .from('page_content')
-        .select('id')
-        .eq('slug', targetSlug)
-        .maybeSingle();
+      const result = await duplicateCanonicalPage(currentSlug, targetSlug.trim());
 
-      if (existingTarget) {
-        toast.error('A page with this slug already exists');
+      if (!result.success) {
+        toast.error(result.message);
         setIsDuplicating(false);
         return false;
-      }
-
-      const { data: existingSectionTarget } = await (client as any)
-        .from('section_content')
-        .select('id')
-        .eq('page_slug', targetSlug)
-        .limit(1);
-
-      if (existingSectionTarget && existingSectionTarget.length > 0) {
-        toast.error('A page with this slug already exists');
-        setIsDuplicating(false);
-        return false;
-      }
-
-      const contentToSave = currentContent || {};
-
-      const pagePayload = {
-        slug: targetSlug,
-        heading: contentToSave.title || contentToSave.heading || 'New Page',
-        tagline: contentToSave.subtitle || contentToSave.tagline || '',
-        subheading: contentToSave.description || contentToSave.subheading || '',
-        cta_heading: contentToSave.ctaHeading || contentToSave.cta_heading || '',
-        cta_description: contentToSave.ctaDescription || contentToSave.cta_description || '',
-        cta_button: contentToSave.ctaPrimaryButton || contentToSave.cta_button || '',
-        meta_title: contentToSave.metaTitle || `${targetSlug} | Summit Portable Buildings`,
-        meta_description: contentToSave.metaDescription || '',
-      };
-
-      const { error: insertError } = await (client as any)
-        .from('page_content')
-        .insert(pagePayload);
-
-      if (insertError) {
-        console.error('[usePageManagement] page_content insert error:', insertError);
-      }
-
-      if (currentContent && Object.keys(currentContent).length > 0) {
-        const sectionPayload = {
-          page_slug: targetSlug,
-          section_name: 'main',
-          content: currentContent,
-        };
-
-        const { error: sectionInsertError } = await (client as any)
-          .from('section_content')
-          .insert(sectionPayload);
-
-        if (sectionInsertError) {
-          console.error('[usePageManagement] section_content insert error:', sectionInsertError);
-          toast.error('Failed to save page content');
-          setIsDuplicating(false);
-          return false;
-        }
-      } else {
-        const { data: sectionData } = await (client as any)
-          .from('section_content')
-          .select('*')
-          .eq('page_slug', currentSlug);
-
-        if (sectionData && sectionData.length > 0) {
-          const sectionPayloads = sectionData.map((section: any) => {
-            const contentToCopy = section.content || section.content_json;
-            return {
-              page_slug: targetSlug,
-              section_name: section.section_name,
-              content: contentToCopy ? JSON.parse(JSON.stringify(contentToCopy)) : null,
-            };
-          });
-
-          const { error: sectionInsertError } = await (client as any)
-            .from('section_content')
-            .insert(sectionPayloads);
-
-          if (sectionInsertError) {
-            console.error('[usePageManagement] Section insert error:', sectionInsertError);
-          }
-        }
       }
 
       toast.success(`Page duplicated to /${targetSlug}`);
