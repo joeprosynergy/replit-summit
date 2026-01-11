@@ -96,6 +96,20 @@ export function useSectionContent<T extends SectionContent>(
         usedPageId: !!data?.page_id,
       });
 
+      // Diagnostic guards for economy-shed-working-copy ONLY
+      if (pageSlug === 'economy-shed-working-copy') {
+        const isLayoutConfigMissing = !layoutConfig || 
+          (typeof layoutConfig === 'object' && Object.keys(layoutConfig).length === 0);
+        
+        if (isLayoutConfigMissing) {
+          throw new Error('Page is not canonical: layout_config missing');
+        }
+        
+        if (!data || !data.content) {
+          throw new Error('Page is not canonical: no sections found');
+        }
+      }
+
       if (data && !error && data.content) {
         const merged = { ...defaultContent, ...(data.content as T) };
         console.log(`[useSectionContent] Merged content has ${Object.keys(merged).length} fields`);
