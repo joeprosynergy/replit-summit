@@ -6,6 +6,9 @@ import { EditModeProvider } from '@/contexts/EditModeContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -41,7 +44,13 @@ interface CtaContent {
   layoutVariant: string;
 }
 
-function HeroSection({ content }: { content: HeroContent }) {
+interface EditableSectionProps<T> {
+  content: T;
+  isEditMode: boolean;
+  onUpdateField: (field: keyof T, value: string) => void;
+}
+
+function HeroSection({ content, isEditMode, onUpdateField }: EditableSectionProps<HeroContent>) {
   const sectionStyle: React.CSSProperties = {
     backgroundColor: content.backgroundColor,
     paddingTop: content.paddingTop,
@@ -51,6 +60,48 @@ function HeroSection({ content }: { content: HeroContent }) {
   const alignmentClass = content.textAlignment === 'left' ? 'text-left' 
     : content.textAlignment === 'right' ? 'text-right' 
     : 'text-center';
+
+  if (isEditMode) {
+    return (
+      <section style={sectionStyle} className="relative">
+        <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 text-xs rounded">
+          Hero Section
+        </div>
+        <div className="container mx-auto px-4 py-8 space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="hero-heading">Heading</Label>
+            <Input
+              id="hero-heading"
+              value={content.heading || ''}
+              onChange={(e) => onUpdateField('heading', e.target.value)}
+              placeholder="Enter heading..."
+              data-testid="input-hero-heading"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-tagline">Tagline</Label>
+            <Input
+              id="hero-tagline"
+              value={content.tagline || ''}
+              onChange={(e) => onUpdateField('tagline', e.target.value)}
+              placeholder="Enter tagline..."
+              data-testid="input-hero-tagline"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hero-subheading">Subheading</Label>
+            <Textarea
+              id="hero-subheading"
+              value={content.subheading || ''}
+              onChange={(e) => onUpdateField('subheading', e.target.value)}
+              placeholder="Enter subheading..."
+              data-testid="input-hero-subheading"
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section style={sectionStyle}>
@@ -73,7 +124,7 @@ function HeroSection({ content }: { content: HeroContent }) {
   );
 }
 
-function CtaSection({ content }: { content: CtaContent }) {
+function CtaSection({ content, isEditMode, onUpdateField }: EditableSectionProps<CtaContent>) {
   const sectionStyle: React.CSSProperties = {
     backgroundColor: content.backgroundColor,
     paddingTop: content.paddingTop,
@@ -83,6 +134,58 @@ function CtaSection({ content }: { content: CtaContent }) {
   const alignmentClass = content.textAlignment === 'left' ? 'text-left' 
     : content.textAlignment === 'right' ? 'text-right' 
     : 'text-center';
+
+  if (isEditMode) {
+    return (
+      <section style={sectionStyle} className="relative">
+        <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 text-xs rounded">
+          CTA Section
+        </div>
+        <div className="container mx-auto px-4 py-8 space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="cta-heading">Heading</Label>
+            <Input
+              id="cta-heading"
+              value={content.heading || ''}
+              onChange={(e) => onUpdateField('heading', e.target.value)}
+              placeholder="Enter heading..."
+              data-testid="input-cta-heading"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cta-description">Description</Label>
+            <Textarea
+              id="cta-description"
+              value={content.description || ''}
+              onChange={(e) => onUpdateField('description', e.target.value)}
+              placeholder="Enter description..."
+              data-testid="input-cta-description"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cta-button">Button Text</Label>
+            <Input
+              id="cta-button"
+              value={content.button || ''}
+              onChange={(e) => onUpdateField('button', e.target.value)}
+              placeholder="Enter button text..."
+              data-testid="input-cta-button"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cta-buttonLink">Button Link</Label>
+            <Input
+              id="cta-buttonLink"
+              value={content.buttonLink || ''}
+              onChange={(e) => onUpdateField('buttonLink', e.target.value)}
+              placeholder="Enter button link..."
+              data-testid="input-cta-buttonLink"
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section style={sectionStyle}>
@@ -108,12 +211,36 @@ function CtaSection({ content }: { content: CtaContent }) {
   );
 }
 
-function renderSection(section: SectionRow) {
+interface RenderSectionProps {
+  section: SectionRow;
+  isEditMode: boolean;
+  onUpdateField: (sectionId: string, field: string, value: string) => void;
+}
+
+function RenderSection({ section, isEditMode, onUpdateField }: RenderSectionProps) {
+  const handleUpdateField = useCallback((field: string, value: string) => {
+    onUpdateField(section.id, field, value);
+  }, [section.id, onUpdateField]);
+
   switch (section.section_name) {
     case 'hero':
-      return <HeroSection key={section.id} content={section.content as HeroContent} />;
+      return (
+        <HeroSection
+          key={section.id}
+          content={section.content as HeroContent}
+          isEditMode={isEditMode}
+          onUpdateField={handleUpdateField as (field: keyof HeroContent, value: string) => void}
+        />
+      );
     case 'cta':
-      return <CtaSection key={section.id} content={section.content as CtaContent} />;
+      return (
+        <CtaSection
+          key={section.id}
+          content={section.content as CtaContent}
+          isEditMode={isEditMode}
+          onUpdateField={handleUpdateField as (field: keyof CtaContent, value: string) => void}
+        />
+      );
     default:
       console.warn(`[EconomyShedWorkingCopyRenderer] Unknown section_name: ${section.section_name}`);
       return null;
@@ -234,6 +361,27 @@ export function EconomyShedWorkingCopyRenderer() {
     setIsEditMode(false);
   }, [sections]);
 
+  const handleUpdateSectionField = useCallback((sectionId: string, field: string, value: string) => {
+    setEditedSections(prev => {
+      const updated = prev.map(section => {
+        if (section.id === sectionId) {
+          return {
+            ...section,
+            content: {
+              ...section.content,
+              [field]: value,
+            },
+          };
+        }
+        return section;
+      });
+      return updated;
+    });
+    setHasChanges(true);
+  }, []);
+
+  const sectionsToRender = isEditMode ? editedSections : sections;
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -286,7 +434,14 @@ export function EconomyShedWorkingCopyRenderer() {
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-grow">
-          {sections.map(section => renderSection(section))}
+          {sectionsToRender.map(section => (
+            <RenderSection
+              key={section.id}
+              section={section}
+              isEditMode={isEditMode}
+              onUpdateField={handleUpdateSectionField}
+            />
+          ))}
         </main>
         <Footer />
       </div>
