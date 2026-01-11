@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getBackendClient } from '@/lib/backendClient';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
+import { AdminEditMode } from '@/components/admin/AdminEditMode';
+import { EditModeProvider } from '@/contexts/EditModeContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
+
+const PAGE_SLUG = 'economy-shed-working-copy';
 
 interface SectionRow {
   id: string;
@@ -115,69 +121,118 @@ function renderSection(section: SectionRow) {
 }
 
 export function EconomyShedWorkingCopyRenderer() {
+  const { isAdmin, isRevalidating } = useAdminAuthContext();
   const [isLoading, setIsLoading] = useState(true);
   const [sections, setSections] = useState<SectionRow[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [editedSections, setEditedSections] = useState<SectionRow[]>([]);
+
+  const fetchSections = useCallback(async () => {
+    const client = getBackendClient();
+    if (!client) {
+      setError('Database client not available');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data: pageData, error: pageError } = await (client as any)
+        .from('page_content')
+        .select('id, layout_config, is_canonical')
+        .eq('slug', PAGE_SLUG)
+        .maybeSingle();
+
+      if (pageError) {
+        throw new Error(`Failed to fetch page: ${pageError.message}`);
+      }
+
+      if (!pageData) {
+        throw new Error('Page not found');
+      }
+
+      const pageId = pageData.id;
+
+      console.log('[EconomyShedWorkingCopyRenderer] Fetching sections for page_id:', pageId);
+
+      const { data: sectionRows, error: sectionsError } = await (client as any)
+        .from('section_content')
+        .select('id, page_id, section_name, content')
+        .eq('page_id', pageId)
+        .in('section_name', ['hero', 'cta']);
+
+      if (sectionsError) {
+        throw new Error(`Failed to fetch sections: ${sectionsError.message}`);
+      }
+
+      console.log('[EconomyShedWorkingCopyRenderer] Fetched sections:', sectionRows?.length || 0);
+      sectionRows?.forEach((s: SectionRow) => {
+        console.log(`  - ${s.section_name}: ${Object.keys(s.content || {}).length} fields`);
+      });
+
+      const orderedSections = ['hero', 'cta'];
+      const sortedSections = (sectionRows || []).sort((a: SectionRow, b: SectionRow) => {
+        return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
+      });
+
+      setSections(sortedSections);
+      setEditedSections(JSON.parse(JSON.stringify(sortedSections)));
+      setIsLoading(false);
+    } catch (err: any) {
+      console.error('[EconomyShedWorkingCopyRenderer] Error:', err);
+      setError(err.message);
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchSections = async () => {
-      const client = getBackendClient();
-      if (!client) {
-        setError('Database client not available');
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const { data: pageData, error: pageError } = await (client as any)
-          .from('page_content')
-          .select('id, layout_config, is_canonical')
-          .eq('slug', 'economy-shed-working-copy')
-          .maybeSingle();
-
-        if (pageError) {
-          throw new Error(`Failed to fetch page: ${pageError.message}`);
-        }
-
-        if (!pageData) {
-          throw new Error('Page not found');
-        }
-
-        const pageId = pageData.id;
-
-        console.log('[EconomyShedWorkingCopyRenderer] Fetching sections for page_id:', pageId);
-
-        const { data: sectionRows, error: sectionsError } = await (client as any)
-          .from('section_content')
-          .select('id, page_id, section_name, content')
-          .eq('page_id', pageId)
-          .in('section_name', ['hero', 'cta']);
-
-        if (sectionsError) {
-          throw new Error(`Failed to fetch sections: ${sectionsError.message}`);
-        }
-
-        console.log('[EconomyShedWorkingCopyRenderer] Fetched sections:', sectionRows?.length || 0);
-        sectionRows?.forEach((s: SectionRow) => {
-          console.log(`  - ${s.section_name}: ${Object.keys(s.content || {}).length} fields`);
-        });
-
-        const orderedSections = ['hero', 'cta'];
-        const sortedSections = (sectionRows || []).sort((a: SectionRow, b: SectionRow) => {
-          return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
-        });
-
-        setSections(sortedSections);
-        setIsLoading(false);
-      } catch (err: any) {
-        console.error('[EconomyShedWorkingCopyRenderer] Error:', err);
-        setError(err.message);
-        setIsLoading(false);
-      }
-    };
-
     fetchSections();
+  }, [fetchSections]);
+
+  const handleStartEditing = useCallback(() => {
+    setIsEditMode(true);
   }, []);
+
+  const handleSave = useCallback(async () => {
+    const client = getBackendClient();
+    if (!client) {
+      toast.error('Database not available');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      for (const section of editedSections) {
+        const { error } = await (client as any)
+          .from('section_content')
+          .update({ content: section.content })
+          .eq('id', section.id);
+
+        if (error) {
+          throw new Error(`Failed to save ${section.section_name}: ${error.message}`);
+        }
+      }
+
+      toast.success('Changes saved');
+      setSections(JSON.parse(JSON.stringify(editedSections)));
+      setHasChanges(false);
+      setIsEditMode(false);
+    } catch (err: any) {
+      console.error('[EconomyShedWorkingCopyRenderer] Save error:', err);
+      toast.error(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [editedSections]);
+
+  const handleCancel = useCallback(() => {
+    setEditedSections(JSON.parse(JSON.stringify(sections)));
+    setHasChanges(false);
+    setIsEditMode(false);
+  }, [sections]);
 
   if (isLoading) {
     return (
@@ -203,12 +258,38 @@ export function EconomyShedWorkingCopyRenderer() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow">
-        {sections.map(section => renderSection(section))}
-      </main>
-      <Footer />
-    </div>
+    <EditModeProvider
+      initialContent={{}}
+      onSave={handleSave}
+    >
+      <AdminEditMode
+        isAdmin={isAdmin}
+        isRevalidating={isRevalidating}
+        isEditMode={isEditMode}
+        hasChanges={hasChanges}
+        isSaving={isSaving}
+        onToggleEdit={handleStartEditing}
+        onSave={handleSave}
+        onCancel={handleCancel}
+        pageSlug={PAGE_SLUG}
+        showDuplicateDialog={false}
+        showDeleteDialog={false}
+        newSlug=""
+        isDuplicating={false}
+        isDeleting={false}
+        onSetNewSlug={() => {}}
+        onSetShowDuplicateDialog={() => {}}
+        onSetShowDeleteDialog={() => {}}
+        onDuplicatePage={async () => false}
+        onDeletePage={async () => false}
+      />
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow">
+          {sections.map(section => renderSection(section))}
+        </main>
+        <Footer />
+      </div>
+    </EditModeProvider>
   );
 }
