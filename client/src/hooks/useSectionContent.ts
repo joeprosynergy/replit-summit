@@ -108,6 +108,33 @@ export function useSectionContent<T extends SectionContent>(
         if (!data || !data.content) {
           throw new Error('Page is not canonical: no sections found');
         }
+
+        // Check section content completeness
+        const sectionContent = data.content as Record<string, unknown>;
+        const contentKeys = Object.keys(sectionContent);
+        
+        // Required fields for economy-shed type pages
+        const requiredFields = [
+          'title',
+          'titleHighlight', 
+          'description',
+          'subtitle',
+          'heroImage',
+          'heroImageAlt',
+        ];
+        
+        const missingFields = requiredFields.filter(field => {
+          const value = sectionContent[field];
+          return value === null || value === undefined || value === '';
+        });
+        
+        if (contentKeys.length === 0 || missingFields.length > 0) {
+          console.error('[useSectionContent] Incomplete section content for economy-shed-working-copy:', {
+            totalFields: contentKeys.length,
+            missingFields,
+          });
+          throw new Error('Page is not canonical: section content incomplete');
+        }
       }
 
       if (data && !error && data.content) {
