@@ -21,6 +21,7 @@ const DynamicPage = () => {
   const slug = fullPath || '';
   const [exists, setExists] = useState<boolean | null>(null);
   const [pageData, setPageData] = useState<DynamicContent | null>(null);
+  const [isCmsFirstPage, setIsCmsFirstPage] = useState<boolean>(false);
 
   useEffect(() => {
     const checkPageExists = async () => {
@@ -40,17 +41,44 @@ const DynamicPage = () => {
 
         if (!pageError && pageResult && pageResult.length > 0) {
           setPageData(pageResult[0]);
+          const pageId = pageResult[0].id;
+
+          // CMS-FIRST DETECTION: Check if page has sections other than 'main'
+          if (pageId) {
+            const { data: allSections } = await (client as any)
+              .from('section_content')
+              .select('section_name')
+              .eq('page_id', pageId);
+            
+            if (allSections && allSections.length > 0) {
+              const hasCmsFirstSections = allSections.some(
+                (s: { section_name: string }) => s.section_name !== 'main'
+              );
+              if (hasCmsFirstSections) {
+                console.log(`[DynamicPage] CMS-FIRST PAGE DETECTED: ${slug}`);
+                setIsCmsFirstPage(true);
+              }
+            }
+          }
+
           setExists(true);
           return;
         }
 
         const { data: sectionData, error: sectionError } = await (client as any)
           .from('section_content')
-          .select('id')
-          .eq('page_slug', slug)
-          .limit(1);
+          .select('id, section_name')
+          .eq('page_slug', slug);
 
         if (!sectionError && sectionData && sectionData.length > 0) {
+          // Check if any section is not 'main' (CMS-first indicator)
+          const hasCmsFirstSections = sectionData.some(
+            (s: { section_name: string }) => s.section_name !== 'main'
+          );
+          if (hasCmsFirstSections) {
+            console.log(`[DynamicPage] CMS-FIRST PAGE DETECTED (by slug): ${slug}`);
+            setIsCmsFirstPage(true);
+          }
           setExists(true);
         } else {
           setExists(false);
@@ -76,9 +104,12 @@ const DynamicPage = () => {
     return <NotFound />;
   }
 
-  // Special rendering for economy-shed-working-copy ONLY
-  if (slug === 'economy-shed-working-copy') {
-    return <EconomyShedWorkingCopyRenderer />;
+  // CMS-FIRST PAGES: Render using section-based CMS renderer
+  // This applies to economy-shed-working-copy AND any pages duplicated from it
+  // These pages have section_content rows with section_name != 'main'
+  if (isCmsFirstPage) {
+    console.log(`[DynamicPage] Rendering CMS-first page: ${slug}`);
+    return <EconomyShedWorkingCopyRenderer pageSlug={slug} />;
   }
 
   return (

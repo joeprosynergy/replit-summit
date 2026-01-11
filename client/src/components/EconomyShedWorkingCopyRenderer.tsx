@@ -12,7 +12,9 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
-const PAGE_SLUG = 'economy-shed-working-copy';
+interface EconomyShedWorkingCopyRendererProps {
+  pageSlug?: string;
+}
 
 interface SectionRow {
   id: string;
@@ -180,7 +182,7 @@ function RenderSection({ section, isEditMode, onUpdateField }: RenderSectionProp
   }
 }
 
-export function EconomyShedWorkingCopyRenderer() {
+export function EconomyShedWorkingCopyRenderer({ pageSlug = 'economy-shed-working-copy' }: EconomyShedWorkingCopyRendererProps) {
   const { isAdmin, isRevalidating } = useAdminAuthContext();
   const [isLoading, setIsLoading] = useState(true);
   const [sections, setSections] = useState<SectionRow[]>([]);
@@ -201,7 +203,7 @@ export function EconomyShedWorkingCopyRenderer() {
     setShowDeleteDialog,
     duplicatePage,
     deletePage,
-  } = usePageManagement(PAGE_SLUG);
+  } = usePageManagement(pageSlug);
 
   const fetchSections = useCallback(async () => {
     const client = getBackendClient();
@@ -215,7 +217,7 @@ export function EconomyShedWorkingCopyRenderer() {
       const { data: pageData, error: pageError } = await (client as any)
         .from('page_content')
         .select('id, layout_config, is_canonical')
-        .eq('slug', PAGE_SLUG)
+        .eq('slug', pageSlug)
         .maybeSingle();
 
       if (pageError) {
@@ -228,7 +230,7 @@ export function EconomyShedWorkingCopyRenderer() {
 
       const pageId = pageData.id;
 
-      console.log('[EconomyShedWorkingCopyRenderer] Fetching sections for page_id:', pageId);
+      console.log(`[CmsFirstRenderer] Fetching sections for ${pageSlug}, page_id:`, pageId);
 
       const { data: sectionRows, error: sectionsError } = await (client as any)
         .from('section_content')
@@ -240,7 +242,7 @@ export function EconomyShedWorkingCopyRenderer() {
         throw new Error(`Failed to fetch sections: ${sectionsError.message}`);
       }
 
-      console.log('[EconomyShedWorkingCopyRenderer] Fetched sections:', sectionRows?.length || 0);
+      console.log(`[CmsFirstRenderer] Fetched ${sectionRows?.length || 0} sections for ${pageSlug}`);
       sectionRows?.forEach((s: SectionRow) => {
         console.log(`  - ${s.section_name}: ${Object.keys(s.content || {}).length} fields`);
       });
@@ -254,11 +256,11 @@ export function EconomyShedWorkingCopyRenderer() {
       setEditedSections(JSON.parse(JSON.stringify(sortedSections)));
       setIsLoading(false);
     } catch (err: any) {
-      console.error('[EconomyShedWorkingCopyRenderer] Error:', err);
+      console.error(`[CmsFirstRenderer] Error for ${pageSlug}:`, err);
       setError(err.message);
       setIsLoading(false);
     }
-  }, []);
+  }, [pageSlug]);
 
   useEffect(() => {
     fetchSections();
@@ -294,7 +296,7 @@ export function EconomyShedWorkingCopyRenderer() {
       setHasChanges(false);
       setIsEditMode(false);
     } catch (err: any) {
-      console.error('[EconomyShedWorkingCopyRenderer] Save error:', err);
+      console.error(`[CmsFirstRenderer] Save error for ${pageSlug}:`, err);
       toast.error(err.message);
     } finally {
       setIsSaving(false);
@@ -365,7 +367,7 @@ export function EconomyShedWorkingCopyRenderer() {
         onToggleEdit={handleStartEditing}
         onSave={handleSave}
         onCancel={handleCancel}
-        pageSlug={PAGE_SLUG}
+        pageSlug={pageSlug}
         showDuplicateDialog={showDuplicateDialog}
         showDeleteDialog={showDeleteDialog}
         newSlug={newSlug}
