@@ -1,0 +1,155 @@
+Perfect — that’s a small but critical constraint, and it needs to be stated explicitly so the AI doesn’t “helpfully” lock it down or auto-generate something.
+
+Below is the same precise prompt, with one surgical addition that preserves your manual URL/slug control on duplication.
+
+This is copy-paste only. Do not edit it.
+
+⸻
+
+✅ FINAL COPY–PASTE PROMPT (WITH MANUAL URL CONTROL PRESERVED)
+
+You are fixing a broken page duplication feature in a custom CMS.
+
+IMPORTANT
+All function names, table names, field names, routes, and identifiers mentioned below are PLACEHOLDERS ONLY.
+You MUST map them to the existing names already used in this codebase.
+Do NOT invent new names unless absolutely required.
+
+⸻
+
+SYSTEM REALITY (DO NOT IGNORE)
+	•	Pages are originally defined outside the database (static / code-based)
+	•	Pages only become stored after editing or migration
+	•	The CMS editor only works correctly when a page is fully serialized
+	•	Current duplication works structurally but results in:
+	•	missing background colours
+	•	missing layout/sections
+	•	incomplete or non-editable content
+
+This means duplication is operating on incomplete canonical data.
+
+⸻
+
+NON-NEGOTIABLE RULE
+
+Duplication is ONLY allowed on fully canonical CMS pages.
+
+A page is canonical only if ALL render-affecting data exists in Supabase, including:
+	•	layout configuration
+	•	background colours
+	•	section ordering
+	•	block configuration
+	•	style/theme/config JSON
+	•	editor metadata
+
+⸻
+
+REQUIRED ARCHITECTURE
+
+Replace the existing duplication logic with a strict two-phase pipeline.
+
+⸻
+
+PHASE 1 — CANONICALIZATION (MANDATORY)
+
+Implement a function conceptually named:
+
+ensureCanonicalPage(PAGE_IDENTIFIER)
+
+(Name is a placeholder — reuse or map to existing logic.)
+
+This function MUST:
+	1.	Detect whether the page already exists in Supabase in fully hydrated form
+	2.	If NOT:
+	•	Read the static page definition
+	•	Extract ALL implicit defaults currently applied at runtime
+	•	Persist those defaults explicitly into Supabase
+	3.	Persist all of the following:
+	•	page row
+	•	section rows
+	•	block rows
+	•	ALL style/layout/config/theme JSON
+	4.	After this runs, the CMS version MUST render identically to the static version
+
+❌ Do NOT duplicate here
+❌ Do NOT modify original page behaviour
+❌ Do NOT rely on UI fallbacks
+
+⸻
+
+PHASE 2 — DEEP DUPLICATION (ONLY AFTER PHASE 1)
+
+Implement a function conceptually named:
+
+duplicateCanonicalPage(CANONICAL_PAGE_ID, OVERRIDE_SLUG?)
+
+(Name is a placeholder — map to existing duplication entry point.)
+
+This function MUST:
+	1.	Clone the page row with a NEW ID
+	2.	Allow the caller to provide a custom URL/slug
+	•	If OVERRIDE_SLUG is provided, use it exactly
+	•	If not provided, generate a safe unique fallback
+	3.	Set status to DRAFT
+	4.	Fetch ALL related records:
+	•	sections
+	•	blocks
+	•	style/config/theme JSON
+	5.	Insert NEW rows for every related record
+	6.	Remap ALL foreign keys to new page/section IDs
+	7.	Copy JSON EXACTLY — do NOT regenerate defaults
+	8.	Ensure ZERO shared references with the original page
+
+⸻
+
+HARD FAIL CONDITIONS
+	•	Duplication MUST fail if canonicalization fails
+	•	Original pages MUST NEVER be modified
+	•	Manual URL/slug override MUST remain functional
+	•	No UI logic may be changed
+	•	No authentication logic may be changed
+	•	No fallback/default generation during duplication
+
+⸻
+
+OUTPUT REQUIREMENTS
+	1.	Canonicalization implementation
+	2.	Deep duplication implementation
+	3.	Clear explanation of:
+	•	how implicit defaults are extracted
+	•	how relational IDs are remapped
+	•	how manual URL override is preserved
+
+⸻
+
+VALIDATION (MUST PASS)
+
+After duplication:
+	•	The duplicated page:
+	•	visually matches the original
+	•	retains all background colours
+	•	opens fully editable in the CMS
+	•	Editing the duplicate:
+	•	does NOT affect the original
+	•	Manually changing the URL/slug:
+	•	works exactly as before
+
+If any requirement cannot be satisfied, explain EXACTLY why and STOP.
+
+⸻
+
+Why this version matters (one sentence)
+
+This explicitly tells the AI not to lock or auto-generate the URL, while still enforcing canonicalization and deep cloning.
+
+⸻
+
+One final tip (do this if it still “almost” works)
+
+After running this, if anything is still missing, ask one follow-up only:
+
+List every field that is copied during duplication and confirm whether it originates from static defaults or persisted CMS data.
+
+That question forces the last gap into the open.
+
+If you want, after this run you can paste the generated duplication code here and I’ll line-by-line validate it for you.

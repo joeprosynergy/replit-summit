@@ -53,6 +53,33 @@ export async function getStaticDefaultContent(slug: string): Promise<Record<stri
   }
 }
 
+function deepMerge(defaults: Record<string, any>, overrides: Record<string, any>): Record<string, any> {
+  const result = { ...defaults };
+  
+  for (const key of Object.keys(overrides)) {
+    const overrideValue = overrides[key];
+    const defaultValue = defaults[key];
+    
+    if (overrideValue === null || overrideValue === undefined) {
+      continue;
+    }
+    
+    if (
+      typeof overrideValue === 'object' && 
+      !Array.isArray(overrideValue) &&
+      typeof defaultValue === 'object' && 
+      !Array.isArray(defaultValue) &&
+      defaultValue !== null
+    ) {
+      result[key] = deepMerge(defaultValue, overrideValue);
+    } else {
+      result[key] = overrideValue;
+    }
+  }
+  
+  return result;
+}
+
 export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageData | null> {
   const client = getBackendClient();
   if (!client) {
@@ -67,76 +94,84 @@ export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageDa
     .eq('section_name', 'main')
     .maybeSingle();
 
-  if (existingSection && existingSection.content && Object.keys(existingSection.content).length > 0) {
-    console.log(`[canonicalization] Page ${slug} already canonical in database`);
-    return {
-      slug,
-      sectionName: 'main',
-      content: existingSection.content,
-      isCanonical: true,
-    };
-  }
+  const staticDefaults = await getStaticDefaultContent(slug);
+  const dbContent = existingSection?.content || {};
 
-  const staticContent = await getStaticDefaultContent(slug);
-  
-  if (staticContent && Object.keys(staticContent).length > 0) {
-    console.log(`[canonicalization] Hydrating static page ${slug} to database`);
+  let canonicalContent: Record<string, any>;
+
+  if (staticDefaults && Object.keys(staticDefaults).length > 0) {
+    canonicalContent = deepMerge(staticDefaults, dbContent);
     
-    if (existingSection) {
-      const { error } = await (client as any)
-        .from('section_content')
-        .update({ content: staticContent })
-        .eq('id', existingSection.id);
+    const staticKeyCount = Object.keys(staticDefaults).length;
+    const dbKeyCount = Object.keys(dbContent).length;
+    const mergedKeyCount = Object.keys(canonicalContent).length;
+    
+    console.log(`[canonicalization] Page ${slug}: static=${staticKeyCount} keys, db=${dbKeyCount} keys, merged=${mergedKeyCount} keys`);
+    
+    const needsUpdate = !existingSection || mergedKeyCount > dbKeyCount || JSON.stringify(dbContent) !== JSON.stringify(canonicalContent);
+    
+    if (needsUpdate) {
+      console.log(`[canonicalization] Persisting canonical content for ${slug}`);
       
-      if (error) {
-        console.error(`[canonicalization] Failed to update section_content for ${slug}:`, error);
-        return null;
+      if (existingSection) {
+        const { error } = await (client as any)
+          .from('section_content')
+          .update({ content: canonicalContent })
+          .eq('id', existingSection.id);
+        
+        if (error) {
+          console.error(`[canonicalization] Failed to update section_content for ${slug}:`, error);
+          return null;
+        }
+      } else {
+        const { error } = await (client as any)
+          .from('section_content')
+          .insert({
+            page_slug: slug,
+            section_name: 'main',
+            content: canonicalContent,
+          });
+        
+        if (error) {
+          console.error(`[canonicalization] Failed to insert section_content for ${slug}:`, error);
+          return null;
+        }
+      }
+
+      const pagePayload = {
+        slug,
+        heading: canonicalContent.title || canonicalContent.heading || slug,
+        tagline: canonicalContent.subtitle || canonicalContent.tagline || '',
+        subheading: canonicalContent.description || canonicalContent.subheading || '',
+        meta_title: canonicalContent.metaTitle || `${slug} | Summit Portable Buildings`,
+        meta_description: canonicalContent.metaDescription || '',
+      };
+
+      const { data: existingPage } = await (client as any)
+        .from('page_content')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (!existingPage) {
+        await (client as any)
+          .from('page_content')
+          .insert(pagePayload);
       }
     } else {
-      const { error } = await (client as any)
-        .from('section_content')
-        .insert({
-          page_slug: slug,
-          section_name: 'main',
-          content: staticContent,
-        });
-      
-      if (error) {
-        console.error(`[canonicalization] Failed to insert section_content for ${slug}:`, error);
-        return null;
-      }
-    }
-
-    const pagePayload = {
-      slug,
-      heading: staticContent.title || staticContent.heading || slug,
-      tagline: staticContent.subtitle || staticContent.tagline || '',
-      subheading: staticContent.description || staticContent.subheading || '',
-      meta_title: staticContent.metaTitle || `${slug} | Summit Portable Buildings`,
-      meta_description: staticContent.metaDescription || '',
-    };
-
-    const { data: existingPage } = await (client as any)
-      .from('page_content')
-      .select('id')
-      .eq('slug', slug)
-      .maybeSingle();
-
-    if (!existingPage) {
-      await (client as any)
-        .from('page_content')
-        .insert(pagePayload);
+      console.log(`[canonicalization] Page ${slug} already fully canonical`);
     }
 
     return {
       slug,
       sectionName: 'main',
-      content: staticContent,
+      content: canonicalContent,
       isCanonical: true,
     };
   }
 
-  if (existingSection && existingSection.content) {
+  if (existingSection && existingSection.content && Object.keys(existingSection.content).length > 0) {
+    console.log(`[canonicalization] Page ${slug} is dynamic (no static defaults), using DB content`);
     return {
       slug,
       sectionName: 'main',
@@ -184,7 +219,11 @@ export async function duplicateCanonicalPage(
     return { success: false, message: `Could not canonicalize source page: ${sourceSlug}` };
   }
 
-  console.log(`[canonicalization] Duplicating canonical page ${sourceSlug} to ${targetSlug}`);
+  if (!canonical.content || Object.keys(canonical.content).length === 0) {
+    return { success: false, message: `Source page ${sourceSlug} has no content to duplicate` };
+  }
+
+  console.log(`[canonicalization] Duplicating canonical page ${sourceSlug} (${Object.keys(canonical.content).length} fields) to ${targetSlug}`);
 
   const deepClonedContent = JSON.parse(JSON.stringify(canonical.content));
 
@@ -221,5 +260,5 @@ export async function duplicateCanonicalPage(
     console.error(`[canonicalization] Failed to insert page_content for ${targetSlug}:`, pageError);
   }
 
-  return { success: true, message: `Successfully duplicated ${sourceSlug} to ${targetSlug}` };
+  return { success: true, message: `Successfully duplicated ${sourceSlug} to ${targetSlug} (${Object.keys(deepClonedContent).length} fields)` };
 }
