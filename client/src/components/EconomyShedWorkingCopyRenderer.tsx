@@ -5,6 +5,7 @@ import { AdminEditMode } from '@/components/admin/AdminEditMode';
 import { EditModeProvider } from '@/contexts/EditModeContext';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
+import { usePageManagement } from '@/hooks/usePageManagement';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -189,6 +190,19 @@ export function EconomyShedWorkingCopyRenderer() {
   const [hasChanges, setHasChanges] = useState(false);
   const [editedSections, setEditedSections] = useState<SectionRow[]>([]);
 
+  const {
+    isDuplicating,
+    isDeleting,
+    showDuplicateDialog,
+    showDeleteDialog,
+    newSlug,
+    setNewSlug,
+    setShowDuplicateDialog,
+    setShowDeleteDialog,
+    duplicatePage,
+    deletePage,
+  } = usePageManagement(PAGE_SLUG);
+
   const fetchSections = useCallback(async () => {
     const client = getBackendClient();
     if (!client) {
@@ -352,16 +366,16 @@ export function EconomyShedWorkingCopyRenderer() {
         onSave={handleSave}
         onCancel={handleCancel}
         pageSlug={PAGE_SLUG}
-        showDuplicateDialog={false}
-        showDeleteDialog={false}
-        newSlug=""
-        isDuplicating={false}
-        isDeleting={false}
-        onSetNewSlug={() => {}}
-        onSetShowDuplicateDialog={() => {}}
-        onSetShowDeleteDialog={() => {}}
-        onDuplicatePage={async () => false}
-        onDeletePage={async () => false}
+        showDuplicateDialog={showDuplicateDialog}
+        showDeleteDialog={showDeleteDialog}
+        newSlug={newSlug}
+        isDuplicating={isDuplicating}
+        isDeleting={isDeleting}
+        onSetNewSlug={setNewSlug}
+        onSetShowDuplicateDialog={setShowDuplicateDialog}
+        onSetShowDeleteDialog={setShowDeleteDialog}
+        onDuplicatePage={duplicatePage}
+        onDeletePage={deletePage}
       />
       <div className="min-h-screen flex flex-col">
         <Header />
