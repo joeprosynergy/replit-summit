@@ -20,6 +20,8 @@ export type Database = {
           cta_heading: string | null
           heading: string | null
           id: string
+          is_canonical: boolean
+          layout_config: Json | null
           meta_description: string | null
           meta_title: string | null
           slug: string
@@ -34,6 +36,8 @@ export type Database = {
           cta_heading?: string | null
           heading?: string | null
           id?: string
+          is_canonical?: boolean
+          layout_config?: Json | null
           meta_description?: string | null
           meta_title?: string | null
           slug: string
@@ -48,6 +52,8 @@ export type Database = {
           cta_heading?: string | null
           heading?: string | null
           id?: string
+          is_canonical?: boolean
+          layout_config?: Json | null
           meta_description?: string | null
           meta_title?: string | null
           slug?: string
@@ -56,6 +62,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      section_content: {
+        Row: {
+          id: string
+          page_id: string | null
+          page_slug: string
+          section_name: string
+          content: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          page_id?: string | null
+          page_slug: string
+          section_name: string
+          content: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          page_id?: string | null
+          page_slug?: string
+          section_name?: string
+          content?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "section_content_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "page_content"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       profiles: {
         Row: {

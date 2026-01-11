@@ -36,6 +36,7 @@ export function EditablePageWrapper<T extends SectionContent>({
     updateDynamicField,
     save: saveContent,
     reset,
+    pageMetadata,
   } = useSectionContent<T>(slug, sectionName, defaultContent);
 
   const effectivePageSlug = pageSlug || slug;
@@ -53,8 +54,8 @@ export function EditablePageWrapper<T extends SectionContent>({
   } = usePageManagement(effectivePageSlug);
 
   const handleDuplicatePage = useCallback(async (targetSlug: string) => {
-    return duplicatePage(targetSlug, content as Record<string, any>);
-  }, [duplicatePage, content]);
+    return duplicatePage(targetSlug, content as Record<string, any>, pageMetadata.layoutConfig);
+  }, [duplicatePage, content, pageMetadata.layoutConfig]);
 
   const [isEditMode, setIsEditMode] = React.useState(false);
 

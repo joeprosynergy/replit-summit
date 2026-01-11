@@ -6,6 +6,12 @@ export interface SectionContent {
   [key: string]: string | number | boolean | string[] | Record<string, unknown>;
 }
 
+export interface PageMetadata {
+  pageId: string | null;
+  layoutConfig: Record<string, any> | null;
+  isCanonical: boolean;
+}
+
 export function useSectionContent<T extends SectionContent>(
   pageSlug: string,
   sectionName: string,
@@ -15,6 +21,11 @@ export function useSectionContent<T extends SectionContent>(
   const [editedContent, setEditedContent] = useState<T>(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [pageMetadata, setPageMetadata] = useState<PageMetadata>({
+    pageId: null,
+    layoutConfig: null,
+    isCanonical: false,
+  });
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -29,16 +40,47 @@ export function useSectionContent<T extends SectionContent>(
         return;
       }
 
-      // Fetch latest row deterministically (handles duplicates gracefully)
-      const { data, error } = await (client as any)
-        .from('section_content')
-        .select('id, content')
-        .eq('page_slug', pageSlug)
-        .eq('section_name', sectionName)
-        .order('updated_at', { ascending: false, nullsFirst: false })
-        .order('created_at', { ascending: false, nullsFirst: false })
-        .limit(1)
+      const { data: pageData } = await (client as any)
+        .from('page_content')
+        .select('id, layout_config, is_canonical')
+        .eq('slug', pageSlug)
         .maybeSingle();
+
+      const pageId = pageData?.id || null;
+      const layoutConfig = pageData?.layout_config || null;
+      const isCanonical = pageData?.is_canonical || false;
+
+      setPageMetadata({ pageId, layoutConfig, isCanonical });
+
+      let data = null;
+      let error = null;
+
+      if (pageId) {
+        const result = await (client as any)
+          .from('section_content')
+          .select('id, content, page_id')
+          .eq('page_id', pageId)
+          .eq('section_name', sectionName)
+          .order('updated_at', { ascending: false, nullsFirst: false })
+          .limit(1)
+          .maybeSingle();
+        data = result.data;
+        error = result.error;
+      }
+
+      if (!data && !error) {
+        const result = await (client as any)
+          .from('section_content')
+          .select('id, content, page_id')
+          .eq('page_slug', pageSlug)
+          .eq('section_name', sectionName)
+          .order('updated_at', { ascending: false, nullsFirst: false })
+          .order('created_at', { ascending: false, nullsFirst: false })
+          .limit(1)
+          .maybeSingle();
+        data = result.data;
+        error = result.error;
+      }
 
       if (error) {
         console.error('[useSectionContent] Fetch error:', error);
@@ -50,6 +92,8 @@ export function useSectionContent<T extends SectionContent>(
         hasContent: !!(data?.content),
         contentFieldCount: data?.content ? Object.keys(data.content).length : 0,
         defaultContentFieldCount: Object.keys(defaultContent).length,
+        pageId,
+        usedPageId: !!data?.page_id,
       });
 
       if (data && !error && data.content) {
@@ -75,14 +119,18 @@ export function useSectionContent<T extends SectionContent>(
     setIsSaving(true);
 
     try {
-      // Check if row exists - get latest row deterministically
-      const { data: existing, error: existingError } = await (client as any)
+      let existingQuery = (client as any)
         .from('section_content')
-        .select('id')
-        .eq('page_slug', pageSlug)
-        .eq('section_name', sectionName)
+        .select('id, page_id');
+
+      if (pageMetadata.pageId) {
+        existingQuery = existingQuery.eq('page_id', pageMetadata.pageId).eq('section_name', sectionName);
+      } else {
+        existingQuery = existingQuery.eq('page_slug', pageSlug).eq('section_name', sectionName);
+      }
+
+      const { data: existing, error: existingError } = await existingQuery
         .order('updated_at', { ascending: false, nullsFirst: false })
-        .order('created_at', { ascending: false, nullsFirst: false })
         .limit(1)
         .maybeSingle();
 
@@ -93,24 +141,26 @@ export function useSectionContent<T extends SectionContent>(
         return false;
       }
 
-      const payload = {
+      const payload: Record<string, unknown> = {
         page_slug: pageSlug,
         section_name: sectionName,
         content: editedContent as unknown as Record<string, unknown>,
       };
 
+      if (pageMetadata.pageId) {
+        payload.page_id = pageMetadata.pageId;
+      }
+
       let error;
       let writeResult;
       if (existing?.id) {
-        // Update existing row
         writeResult = await (client as any)
           .from('section_content')
-          .update({ content: payload.content })
+          .update({ content: payload.content, page_id: pageMetadata.pageId || existing.page_id })
           .eq('id', existing.id)
           .select('id');
         error = writeResult.error;
       } else {
-        // Insert new row
         writeResult = await (client as any)
           .from('section_content')
           .insert(payload)
@@ -145,7 +195,7 @@ export function useSectionContent<T extends SectionContent>(
       setIsSaving(false);
       return false;
     }
-  }, [pageSlug, sectionName, editedContent]);
+  }, [pageSlug, sectionName, editedContent, pageMetadata]);
 
   const reset = useCallback(() => {
     setEditedContent(content);
@@ -169,5 +219,6 @@ export function useSectionContent<T extends SectionContent>(
     updateDynamicField,
     save,
     reset,
+    pageMetadata,
   };
 }

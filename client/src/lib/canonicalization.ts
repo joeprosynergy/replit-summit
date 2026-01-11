@@ -31,8 +31,10 @@ const PAGE_CONTENT_LOADERS: Record<string, () => Promise<Record<string, any>>> =
 
 export interface CanonicalPageData {
   slug: string;
+  pageId: string | null;
   sectionName: string;
   content: Record<string, any>;
+  layoutConfig: Record<string, any> | null;
   isCanonical: boolean;
 }
 
@@ -87,12 +89,37 @@ export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageDa
     return null;
   }
 
-  const { data: existingSection } = await (client as any)
-    .from('section_content')
-    .select('*')
-    .eq('page_slug', slug)
-    .eq('section_name', 'main')
+  const { data: existingPage } = await (client as any)
+    .from('page_content')
+    .select('id, layout_config, is_canonical')
+    .eq('slug', slug)
     .maybeSingle();
+
+  const pageId = existingPage?.id || null;
+  const layoutConfig = existingPage?.layout_config || null;
+  const isAlreadyCanonical = existingPage?.is_canonical || false;
+
+  let existingSection = null;
+  
+  if (pageId) {
+    const { data } = await (client as any)
+      .from('section_content')
+      .select('*')
+      .eq('page_id', pageId)
+      .eq('section_name', 'main')
+      .maybeSingle();
+    existingSection = data;
+  }
+  
+  if (!existingSection) {
+    const { data } = await (client as any)
+      .from('section_content')
+      .select('*')
+      .eq('page_slug', slug)
+      .eq('section_name', 'main')
+      .maybeSingle();
+    existingSection = data;
+  }
 
   const staticDefaults = await getStaticDefaultContent(slug);
   const dbContent = existingSection?.content || {};
@@ -110,13 +137,66 @@ export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageDa
     
     const needsUpdate = !existingSection || mergedKeyCount > dbKeyCount || JSON.stringify(dbContent) !== JSON.stringify(canonicalContent);
     
-    if (needsUpdate) {
+    let finalPageId = pageId;
+    let finalLayoutConfig = layoutConfig;
+    
+    if (needsUpdate || !isAlreadyCanonical) {
       console.log(`[canonicalization] Persisting canonical content for ${slug}`);
+
+      const pagePayload: Record<string, any> = {
+        slug,
+        heading: canonicalContent.title || canonicalContent.heading || slug,
+        tagline: canonicalContent.subtitle || canonicalContent.tagline || '',
+        subheading: canonicalContent.description || canonicalContent.subheading || '',
+        meta_title: canonicalContent.metaTitle || `${slug} | Summit Portable Buildings`,
+        meta_description: canonicalContent.metaDescription || '',
+        is_canonical: true,
+      };
+
+      if (!layoutConfig && canonicalContent) {
+        pagePayload.layout_config = {
+          heroBackground: canonicalContent.heroBackground || null,
+          heroLayout: canonicalContent.heroLayout || null,
+          backgroundColor: canonicalContent.backgroundColor || null,
+          theme: canonicalContent.theme || null,
+        };
+        finalLayoutConfig = pagePayload.layout_config;
+      }
+
+      if (!existingPage) {
+        const { data: insertedPage, error: pageInsertError } = await (client as any)
+          .from('page_content')
+          .insert(pagePayload)
+          .select('id')
+          .single();
+        
+        if (pageInsertError) {
+          console.error(`[canonicalization] Failed to insert page_content for ${slug}:`, pageInsertError);
+        } else {
+          finalPageId = insertedPage?.id || null;
+        }
+      } else {
+        await (client as any)
+          .from('page_content')
+          .update({ ...pagePayload, layout_config: pagePayload.layout_config || layoutConfig })
+          .eq('id', pageId);
+        finalPageId = pageId;
+      }
+
+      const sectionPayload: Record<string, any> = {
+        page_slug: slug,
+        section_name: 'main',
+        content: canonicalContent,
+      };
+      
+      if (finalPageId) {
+        sectionPayload.page_id = finalPageId;
+      }
       
       if (existingSection) {
         const { error } = await (client as any)
           .from('section_content')
-          .update({ content: canonicalContent })
+          .update({ content: canonicalContent, page_id: finalPageId })
           .eq('id', existingSection.id);
         
         if (error) {
@@ -126,37 +206,12 @@ export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageDa
       } else {
         const { error } = await (client as any)
           .from('section_content')
-          .insert({
-            page_slug: slug,
-            section_name: 'main',
-            content: canonicalContent,
-          });
+          .insert(sectionPayload);
         
         if (error) {
           console.error(`[canonicalization] Failed to insert section_content for ${slug}:`, error);
           return null;
         }
-      }
-
-      const pagePayload = {
-        slug,
-        heading: canonicalContent.title || canonicalContent.heading || slug,
-        tagline: canonicalContent.subtitle || canonicalContent.tagline || '',
-        subheading: canonicalContent.description || canonicalContent.subheading || '',
-        meta_title: canonicalContent.metaTitle || `${slug} | Summit Portable Buildings`,
-        meta_description: canonicalContent.metaDescription || '',
-      };
-
-      const { data: existingPage } = await (client as any)
-        .from('page_content')
-        .select('id')
-        .eq('slug', slug)
-        .maybeSingle();
-
-      if (!existingPage) {
-        await (client as any)
-          .from('page_content')
-          .insert(pagePayload);
       }
     } else {
       console.log(`[canonicalization] Page ${slug} already fully canonical`);
@@ -164,8 +219,10 @@ export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageDa
 
     return {
       slug,
+      pageId: finalPageId,
       sectionName: 'main',
       content: canonicalContent,
+      layoutConfig: finalLayoutConfig,
       isCanonical: true,
     };
   }
@@ -174,8 +231,10 @@ export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageDa
     console.log(`[canonicalization] Page ${slug} is dynamic (no static defaults), using DB content`);
     return {
       slug,
+      pageId,
       sectionName: 'main',
       content: existingSection.content,
+      layoutConfig,
       isCanonical: true,
     };
   }
@@ -187,21 +246,12 @@ export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageDa
 export async function duplicateCanonicalPage(
   sourceSlug: string,
   targetSlug: string,
-  providedContent?: Record<string, any>
+  providedContent?: Record<string, any>,
+  providedLayoutConfig?: Record<string, any> | null
 ): Promise<{ success: boolean; message: string }> {
   const client = getBackendClient();
   if (!client) {
     return { success: false, message: 'Database client not available' };
-  }
-
-  const { data: existingTarget } = await (client as any)
-    .from('section_content')
-    .select('id')
-    .eq('page_slug', targetSlug)
-    .limit(1);
-
-  if (existingTarget && existingTarget.length > 0) {
-    return { success: false, message: 'A page with this slug already exists' };
   }
 
   const { data: existingPageTarget } = await (client as any)
@@ -215,6 +265,7 @@ export async function duplicateCanonicalPage(
   }
 
   let contentToClone: Record<string, any>;
+  let layoutConfigToClone: Record<string, any> | null = providedLayoutConfig || null;
 
   if (providedContent && Object.keys(providedContent).length > 0) {
     console.log(`[canonicalization] Using provided content (${Object.keys(providedContent).length} fields) for duplication`);
@@ -231,36 +282,15 @@ export async function duplicateCanonicalPage(
     }
     
     contentToClone = canonical.content;
+    layoutConfigToClone = layoutConfigToClone || canonical.layoutConfig;
   }
 
   console.log(`[canonicalization] Duplicating page ${sourceSlug} (${Object.keys(contentToClone).length} fields) to ${targetSlug}`);
 
   const deepClonedContent = JSON.parse(JSON.stringify(contentToClone));
+  const deepClonedLayoutConfig = layoutConfigToClone ? JSON.parse(JSON.stringify(layoutConfigToClone)) : null;
 
-  console.log(`[canonicalization] Inserting section_content for ${targetSlug}:`, {
-    page_slug: targetSlug,
-    section_name: 'main',
-    contentKeys: Object.keys(deepClonedContent),
-    contentFieldCount: Object.keys(deepClonedContent).length,
-  });
-
-  const { data: insertedSection, error: sectionError } = await (client as any)
-    .from('section_content')
-    .insert({
-      page_slug: targetSlug,
-      section_name: 'main',
-      content: deepClonedContent,
-    })
-    .select('id, page_slug, section_name');
-
-  if (sectionError) {
-    console.error(`[canonicalization] Failed to insert section_content for ${targetSlug}:`, sectionError);
-    return { success: false, message: `Failed to duplicate section content: ${sectionError.message}` };
-  }
-
-  console.log(`[canonicalization] Successfully inserted section_content:`, insertedSection);
-
-  const pagePayload = {
+  const pagePayload: Record<string, any> = {
     slug: targetSlug,
     heading: deepClonedContent.title || deepClonedContent.heading || targetSlug,
     tagline: deepClonedContent.subtitle || deepClonedContent.tagline || '',
@@ -270,15 +300,53 @@ export async function duplicateCanonicalPage(
     cta_button: deepClonedContent.ctaPrimaryButton || deepClonedContent.cta_button || '',
     meta_title: deepClonedContent.metaTitle || `${targetSlug} | Summit Portable Buildings`,
     meta_description: deepClonedContent.metaDescription || '',
+    is_canonical: true,
+    layout_config: deepClonedLayoutConfig || {
+      heroBackground: deepClonedContent.heroBackground || null,
+      heroLayout: deepClonedContent.heroLayout || null,
+      backgroundColor: deepClonedContent.backgroundColor || null,
+      theme: deepClonedContent.theme || null,
+    },
   };
 
-  const { error: pageError } = await (client as any)
+  const { data: insertedPage, error: pageError } = await (client as any)
     .from('page_content')
-    .insert(pagePayload);
+    .insert(pagePayload)
+    .select('id')
+    .single();
 
   if (pageError) {
     console.error(`[canonicalization] Failed to insert page_content for ${targetSlug}:`, pageError);
+    return { success: false, message: `Failed to create page: ${pageError.message}` };
   }
+
+  const newPageId = insertedPage?.id;
+  console.log(`[canonicalization] Created page_content for ${targetSlug} with id: ${newPageId}`);
+
+  console.log(`[canonicalization] Inserting section_content for ${targetSlug}:`, {
+    page_slug: targetSlug,
+    page_id: newPageId,
+    section_name: 'main',
+    contentFieldCount: Object.keys(deepClonedContent).length,
+  });
+
+  const { data: insertedSection, error: sectionError } = await (client as any)
+    .from('section_content')
+    .insert({
+      page_slug: targetSlug,
+      page_id: newPageId,
+      section_name: 'main',
+      content: deepClonedContent,
+    })
+    .select('id, page_slug, page_id, section_name');
+
+  if (sectionError) {
+    console.error(`[canonicalization] Failed to insert section_content for ${targetSlug}:`, sectionError);
+    await (client as any).from('page_content').delete().eq('id', newPageId);
+    return { success: false, message: `Failed to duplicate section content: ${sectionError.message}` };
+  }
+
+  console.log(`[canonicalization] Successfully inserted section_content:`, insertedSection);
 
   return { success: true, message: `Successfully duplicated ${sourceSlug} to ${targetSlug} (${Object.keys(deepClonedContent).length} fields)` };
 }

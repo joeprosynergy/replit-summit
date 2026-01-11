@@ -12,7 +12,11 @@ export function usePageManagement(currentSlug: string) {
   const [newSlug, setNewSlug] = useState('');
   const [, setLocation] = useLocation();
 
-  const duplicatePage = useCallback(async (targetSlug: string, currentContent?: Record<string, any>) => {
+  const duplicatePage = useCallback(async (
+    targetSlug: string, 
+    currentContent?: Record<string, any>,
+    layoutConfig?: Record<string, any> | null
+  ) => {
     if (!targetSlug.trim()) {
       toast.error('Please enter a valid page slug');
       return false;
@@ -28,7 +32,7 @@ export function usePageManagement(currentSlug: string) {
     try {
       console.log(`[usePageManagement] Duplicating ${currentSlug} to ${targetSlug} with ${currentContent ? Object.keys(currentContent).length : 0} content fields`);
       
-      const result = await duplicateCanonicalPage(currentSlug, targetSlug.trim(), currentContent);
+      const result = await duplicateCanonicalPage(currentSlug, targetSlug.trim(), currentContent, layoutConfig);
 
       if (!result.success) {
         toast.error(result.message);
