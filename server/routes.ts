@@ -2,6 +2,18 @@ import type { Express } from "express";
 import { storage } from "./storage";
 import { insertPageContentSchema } from "@shared/schema";
 import crypto from "crypto";
+import { createClient } from "@supabase/supabase-js";
+
+function getSupabaseClient() {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  
+  if (!url || !key) {
+    return null;
+  }
+  
+  return createClient(url, key);
+}
 
 export function registerRoutes(app: Express): void {
   app.get("/api/page-content/:slug", async (req, res) => {
@@ -92,6 +104,59 @@ export function registerRoutes(app: Express): void {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("Cloudinary upload error:", errorMessage);
       res.status(500).json({ success: false, error: errorMessage });
+    }
+  });
+
+  // CMS-first page endpoint: fetches page_content and section_content by slug
+  app.get("/api/cms-page/:slug", async (req, res) => {
+    const { slug } = req.params;
+    
+    if (!slug) {
+      return res.status(400).json({ error: "Slug is required" });
+    }
+
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return res.status(500).json({ error: "Database not configured" });
+    }
+
+    try {
+      // Fetch page_content by slug
+      const { data: pageData, error: pageError } = await supabase
+        .from("page_content")
+        .select("*")
+        .eq("slug", slug)
+        .maybeSingle();
+
+      if (pageError) {
+        console.error("[cms-page] Error fetching page_content:", pageError);
+        return res.status(500).json({ error: "Failed to fetch page content" });
+      }
+
+      if (!pageData) {
+        return res.status(404).json({ error: "Page not found" });
+      }
+
+      const pageId = pageData.id;
+
+      // Fetch section_content by page_id
+      const { data: sectionsData, error: sectionsError } = await supabase
+        .from("section_content")
+        .select("*")
+        .eq("page_id", pageId);
+
+      if (sectionsError) {
+        console.error("[cms-page] Error fetching section_content:", sectionsError);
+        return res.status(500).json({ error: "Failed to fetch sections" });
+      }
+
+      res.json({
+        page: pageData,
+        sections: sectionsData || [],
+      });
+    } catch (err) {
+      console.error("[cms-page] Unexpected error:", err);
+      return res.status(500).json({ error: "Internal server error" });
     }
   });
 
