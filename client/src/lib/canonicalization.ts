@@ -293,13 +293,17 @@ export async function duplicateCanonicalPage(
   }
 
   // Determine if this is a CMS-first page (has sections other than 'main')
+  // CMS-first pages use ONLY section_content as source of truth
   const isCmsFirstPage = allSourceSections.some(s => s.section_name !== 'main');
 
   console.log(`[canonicalization] Source ${sourceSlug}: ${allSourceSections.length} sections, CMS-first: ${isCmsFirstPage}`);
+  console.log(`[canonicalization] Section names found:`, allSourceSections.map(s => s.section_name));
 
+  // CMS-FIRST DUPLICATION: Use ONLY section_content as source of truth
+  // Do NOT call ensureCanonicalPage, do NOT hydrate from static defaults
   if (isCmsFirstPage && allSourceSections.length > 0) {
-    // CMS-first page duplication: copy page_content and ALL section_content rows
-    console.log(`[canonicalization] Duplicating CMS-first page ${sourceSlug} with ${allSourceSections.length} sections`);
+    console.log(`[canonicalization] CMS-FIRST DUPLICATION: ${sourceSlug} -> ${targetSlug}`);
+    console.log(`[canonicalization] Duplicating ${allSourceSections.length} sections EXACTLY as-is from section_content`);
 
     // Create page_content row
     const pagePayload: Record<string, any> = {
@@ -328,13 +332,17 @@ export async function duplicateCanonicalPage(
     console.log(`[canonicalization] Created page_content for ${targetSlug} with id: ${newPageId}`);
 
     // Duplicate ALL section_content rows with new page_id
+    // ONLY copy from section_content.content - no hydration, no defaults
     let sectionsCreated = 0;
     for (const section of allSourceSections) {
+      const clonedContent = JSON.parse(JSON.stringify(section.content));
+      console.log(`[canonicalization] Cloning section '${section.section_name}' with ${Object.keys(clonedContent).length} fields:`, Object.keys(clonedContent));
+      
       const sectionPayload = {
         page_slug: targetSlug,
         page_id: newPageId,
         section_name: section.section_name,
-        content: JSON.parse(JSON.stringify(section.content)),
+        content: clonedContent,
       };
 
       const { error: sectionError } = await (client as any)
