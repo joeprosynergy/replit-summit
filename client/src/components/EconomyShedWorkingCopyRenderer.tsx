@@ -3,12 +3,11 @@ import { getBackendClient } from '@/lib/backendClient';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { AdminEditMode } from '@/components/admin/AdminEditMode';
 import { EditModeProvider } from '@/contexts/EditModeContext';
+import { InlineEditable } from '@/components/admin/InlineEditable';
+import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -61,64 +60,34 @@ function HeroSection({ content, isEditMode, onUpdateField }: EditableSectionProp
     : content.textAlignment === 'right' ? 'text-right' 
     : 'text-center';
 
-  if (isEditMode) {
-    return (
-      <section style={sectionStyle} className="relative">
-        <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 text-xs rounded">
-          Hero Section
-        </div>
-        <div className="container mx-auto px-4 py-8 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="hero-heading">Heading</Label>
-            <Input
-              id="hero-heading"
-              value={content.heading || ''}
-              onChange={(e) => onUpdateField('heading', e.target.value)}
-              placeholder="Enter heading..."
-              data-testid="input-hero-heading"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="hero-tagline">Tagline</Label>
-            <Input
-              id="hero-tagline"
-              value={content.tagline || ''}
-              onChange={(e) => onUpdateField('tagline', e.target.value)}
-              placeholder="Enter tagline..."
-              data-testid="input-hero-tagline"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="hero-subheading">Subheading</Label>
-            <Textarea
-              id="hero-subheading"
-              value={content.subheading || ''}
-              onChange={(e) => onUpdateField('subheading', e.target.value)}
-              placeholder="Enter subheading..."
-              data-testid="input-hero-subheading"
-            />
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section style={sectionStyle}>
       <div className={`container mx-auto px-4 ${alignmentClass}`}>
-        <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-          {content.heading}
-        </h1>
-        {content.tagline && (
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
-            {content.tagline}
-          </p>
-        )}
-        {content.subheading && (
-          <p className="text-muted-foreground max-w-3xl mx-auto">
-            {content.subheading}
-          </p>
-        )}
+        <InlineEditable
+          value={content.heading || ''}
+          fieldName="heading"
+          onChange={(value) => onUpdateField('heading', value)}
+          isEditMode={isEditMode}
+          as="h1"
+          className="text-4xl md:text-5xl font-bold text-foreground mb-4"
+        />
+        <InlineEditable
+          value={content.tagline || ''}
+          fieldName="tagline"
+          onChange={(value) => onUpdateField('tagline', value)}
+          isEditMode={isEditMode}
+          as="p"
+          className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4"
+        />
+        <InlineEditable
+          value={content.subheading || ''}
+          fieldName="subheading"
+          type="textarea"
+          onChange={(value) => onUpdateField('subheading', value)}
+          isEditMode={isEditMode}
+          as="p"
+          className="text-muted-foreground max-w-3xl mx-auto"
+        />
       </div>
     </section>
   );
@@ -135,77 +104,40 @@ function CtaSection({ content, isEditMode, onUpdateField }: EditableSectionProps
     : content.textAlignment === 'right' ? 'text-right' 
     : 'text-center';
 
-  if (isEditMode) {
-    return (
-      <section style={sectionStyle} className="relative">
-        <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 text-xs rounded">
-          CTA Section
-        </div>
-        <div className="container mx-auto px-4 py-8 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="cta-heading">Heading</Label>
-            <Input
-              id="cta-heading"
-              value={content.heading || ''}
-              onChange={(e) => onUpdateField('heading', e.target.value)}
-              placeholder="Enter heading..."
-              data-testid="input-cta-heading"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="cta-description">Description</Label>
-            <Textarea
-              id="cta-description"
-              value={content.description || ''}
-              onChange={(e) => onUpdateField('description', e.target.value)}
-              placeholder="Enter description..."
-              data-testid="input-cta-description"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="cta-button">Button Text</Label>
-            <Input
-              id="cta-button"
-              value={content.button || ''}
-              onChange={(e) => onUpdateField('button', e.target.value)}
-              placeholder="Enter button text..."
-              data-testid="input-cta-button"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="cta-buttonLink">Button Link</Label>
-            <Input
-              id="cta-buttonLink"
-              value={content.buttonLink || ''}
-              onChange={(e) => onUpdateField('buttonLink', e.target.value)}
-              placeholder="Enter button link..."
-              data-testid="input-cta-buttonLink"
-            />
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section style={sectionStyle}>
       <div className={`container mx-auto px-4 ${alignmentClass}`}>
-        <h2 className="text-3xl font-bold mb-4">
-          {content.heading}
-        </h2>
-        {content.description && (
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            {content.description}
-          </p>
-        )}
-        {content.button && (
+        <InlineEditable
+          value={content.heading || ''}
+          fieldName="heading"
+          onChange={(value) => onUpdateField('heading', value)}
+          isEditMode={isEditMode}
+          as="h2"
+          className="text-3xl font-bold mb-4"
+        />
+        <InlineEditable
+          value={content.description || ''}
+          fieldName="description"
+          type="textarea"
+          onChange={(value) => onUpdateField('description', value)}
+          isEditMode={isEditMode}
+          as="p"
+          className="text-muted-foreground mb-8 max-w-2xl mx-auto"
+        />
+        <InlineEditableButton
+          text={content.button || ''}
+          href={content.buttonLink || ''}
+          onTextChange={(value) => onUpdateField('button', value)}
+          onHrefChange={(value) => onUpdateField('buttonLink', value)}
+          isEditMode={isEditMode}
+        >
           <Button asChild size="lg">
             <a href={content.buttonLink}>
-              {content.button}
+              {content.button || '[Add button text]'}
               <ArrowRight className="ml-2 h-4 w-4" />
             </a>
           </Button>
-        )}
+        </InlineEditableButton>
       </div>
     </section>
   );
