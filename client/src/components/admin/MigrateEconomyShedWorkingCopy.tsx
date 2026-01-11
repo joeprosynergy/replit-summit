@@ -113,6 +113,7 @@ export function MigrateEconomyShedWorkingCopy() {
       let ctaUpdated = false;
       const ctaLayoutFields = {
         buttonLink: '#',
+        buttonTarget: '_self',
         backgroundColor: 'hsl(var(--primary) / 0.1)',
         paddingTop: '4rem',
         paddingBottom: '4rem',
@@ -150,7 +151,7 @@ export function MigrateEconomyShedWorkingCopy() {
           .single();
 
         const existingContent = (ctaData?.content as Record<string, any>) || {};
-        const needsLayoutFields = !existingContent.backgroundColor || !existingContent.paddingTop;
+        const needsLayoutFields = !existingContent.backgroundColor || !existingContent.paddingTop || !existingContent.buttonTarget;
 
         if (needsLayoutFields) {
           const updatedContent = { ...existingContent, ...ctaLayoutFields };

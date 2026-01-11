@@ -39,6 +39,7 @@ interface CtaContent {
   description: string;
   button: string;
   buttonLink: string;
+  buttonTarget: string;
   backgroundColor: string;
   paddingTop: string;
   paddingBottom: string;
@@ -133,9 +134,15 @@ function CtaSection({ content, isEditMode, onUpdateField }: EditableSectionProps
           onTextChange={(value) => onUpdateField('button', value)}
           onHrefChange={(value) => onUpdateField('buttonLink', value)}
           isEditMode={isEditMode}
+          isExternal={content.buttonTarget === '_blank'}
+          onExternalChange={(isExternal) => onUpdateField('buttonTarget', isExternal ? '_blank' : '_self')}
         >
           <Button asChild size="lg">
-            <a href={content.buttonLink}>
+            <a 
+              href={content.buttonLink}
+              target={content.buttonTarget || '_self'}
+              rel={content.buttonTarget === '_blank' ? 'noopener noreferrer' : undefined}
+            >
               {content.button || '[Add button text]'}
               <ArrowRight className="ml-2 h-4 w-4" />
             </a>
