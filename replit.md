@@ -34,6 +34,11 @@ The application is structured into a client-side React application and a server-
 **Database**:
 - Supabase (PostgreSQL) is used as the primary database, storing application content, user information, and CMS data.
 - Row-Level Security (RLS) policies are applied for secure public read and authenticated write access to content tables.
+- **Key Tables**:
+  - `page_content`: Stores page metadata (slug, heading, meta fields), `layout_config` (JSONB for hero/background styles), and `is_canonical` flag.
+  - `section_content`: Stores section-level content with `page_id` (UUID FK to page_content) as primary relationship, `page_slug` for backward compatibility.
+- **Data Flow**: Sections are fetched/linked by `page_id` when available, falling back to `page_slug` for legacy compatibility.
+- **Canonicalization**: Before duplication or advanced editing, pages are canonicalized (`is_canonical=true`) with all layout defaults persisted to `layout_config`.
 
 ## External Dependencies
 - **Supabase**: Used for database services (PostgreSQL), authentication, and potentially storage.
