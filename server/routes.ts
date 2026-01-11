@@ -107,6 +107,136 @@ export function registerRoutes(app: Express): void {
     }
   });
 
+  // One-time migration: populate canonical layout values for CMS-first pages
+  app.post("/api/admin/populate-layout-config/:slug", async (req, res) => {
+    const { slug } = req.params;
+    
+    if (!slug) {
+      return res.status(400).json({ error: "Slug is required" });
+    }
+
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return res.status(500).json({ error: "Database not configured" });
+    }
+
+    try {
+      // Fetch page_content
+      const { data: pageData, error: pageError } = await supabase
+        .from("page_content")
+        .select("id, layout_config")
+        .eq("slug", slug)
+        .maybeSingle();
+
+      if (pageError || !pageData) {
+        return res.status(404).json({ error: "Page not found" });
+      }
+
+      const pageId = pageData.id;
+
+      // Default layout config for page_content
+      const defaultLayoutConfig = {
+        heroBackground: null,
+        heroLayout: "full-width",
+        backgroundColor: "#f8f9fa",
+        theme: "default",
+      };
+
+      // Update page_content.layout_config
+      const { error: updatePageError } = await supabase
+        .from("page_content")
+        .update({ layout_config: defaultLayoutConfig })
+        .eq("id", pageId);
+
+      if (updatePageError) {
+        console.error("[populate-layout] Failed to update page_content:", updatePageError);
+        return res.status(500).json({ error: "Failed to update page layout_config" });
+      }
+
+      // Default layout values for sections
+      const heroLayoutDefaults = {
+        backgroundColor: "hsl(var(--primary) / 0.1)",
+        paddingTop: "4rem",
+        paddingBottom: "4rem",
+        textAlignment: "center",
+        layoutVariant: "full-width",
+      };
+
+      const ctaLayoutDefaults = {
+        backgroundColor: "hsl(var(--primary) / 0.1)",
+        paddingTop: "4rem",
+        paddingBottom: "4rem",
+        textAlignment: "center",
+        layoutVariant: "default",
+        buttonTarget: "_self",
+      };
+
+      // Fetch sections
+      const { data: sections, error: sectionsError } = await supabase
+        .from("section_content")
+        .select("id, section_name, content")
+        .eq("page_id", pageId)
+        .in("section_name", ["hero", "cta"]);
+
+      if (sectionsError) {
+        console.error("[populate-layout] Failed to fetch sections:", sectionsError);
+        return res.status(500).json({ error: "Failed to fetch sections" });
+      }
+
+      const updates: { sectionName: string; fieldsAdded: string[] }[] = [];
+
+      for (const section of sections || []) {
+        const currentContent = section.content || {};
+        let layoutDefaults: Record<string, string>;
+
+        if (section.section_name === "hero") {
+          layoutDefaults = heroLayoutDefaults;
+        } else if (section.section_name === "cta") {
+          layoutDefaults = ctaLayoutDefaults;
+        } else {
+          continue;
+        }
+
+        // Merge layout defaults into content (only add missing fields)
+        const updatedContent = { ...currentContent };
+        const fieldsAdded: string[] = [];
+
+        for (const [key, value] of Object.entries(layoutDefaults)) {
+          if (updatedContent[key] === undefined || updatedContent[key] === null) {
+            updatedContent[key] = value;
+            fieldsAdded.push(key);
+          }
+        }
+
+        if (fieldsAdded.length > 0) {
+          const { error: updateError } = await supabase
+            .from("section_content")
+            .update({ content: updatedContent })
+            .eq("id", section.id);
+
+          if (updateError) {
+            console.error(`[populate-layout] Failed to update section ${section.section_name}:`, updateError);
+            return res.status(500).json({ error: `Failed to update section ${section.section_name}` });
+          }
+
+          updates.push({ sectionName: section.section_name, fieldsAdded });
+        }
+      }
+
+      console.log(`[populate-layout] Updated ${slug}:`, { layoutConfig: defaultLayoutConfig, sections: updates });
+
+      res.json({
+        success: true,
+        slug,
+        layoutConfig: defaultLayoutConfig,
+        sectionsUpdated: updates,
+      });
+    } catch (err) {
+      console.error("[populate-layout] Unexpected error:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // CMS-first page endpoint: fetches page_content and section_content by slug
   app.get("/api/cms-page/:slug", async (req, res) => {
     const { slug } = req.params;

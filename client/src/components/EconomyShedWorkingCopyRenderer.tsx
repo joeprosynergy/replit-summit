@@ -11,6 +11,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { PopulateLayoutConfigButton } from '@/components/admin/PopulateLayoutConfigButton';
 
 interface PageData {
   id: string;
@@ -431,6 +432,11 @@ export function EconomyShedWorkingCopyRenderer({
         onDuplicatePage={duplicatePage}
         onDeletePage={deletePage}
       />
+      {isAdmin && !isEditMode && initialPage?.id && (
+        <div className="fixed bottom-4 left-4 z-50">
+          <PopulateLayoutConfigButton pageSlug={pageSlug} pageId={initialPage.id} />
+        </div>
+      )}
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-grow">
