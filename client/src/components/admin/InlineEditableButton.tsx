@@ -38,6 +38,7 @@ const InlineEditableButton = ({
   const [editedExternal, setEditedExternal] = useState(isExternal);
 
   const handleSave = () => {
+    console.log("BUTTON TARGET EDITOR HANDLER CALLED");
     onTextChange(editedText);
     onHrefChange(editedHref);
     onExternalChange?.(editedExternal);

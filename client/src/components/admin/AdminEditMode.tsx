@@ -66,7 +66,11 @@ export function AdminEditMode({
               <>
                 <Button
                   variant="outline"
-                  onClick={() => onSetShowDuplicateDialog(true)}
+                  onClick={() => {
+                    console.log("DUPLICATE BUTTON HANDLER CALLED");
+                    alert("DUPLICATE BUTTON HANDLER CALLED");
+                    onSetShowDuplicateDialog(true);
+                  }}
                   disabled={isSaving}
                   data-testid="button-duplicate-page"
                 >
