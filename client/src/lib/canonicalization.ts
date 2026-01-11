@@ -264,6 +264,98 @@ export async function duplicateCanonicalPage(
     return { success: false, message: 'A page with this slug already exists' };
   }
 
+  // Fetch source page to get its page_id
+  const { data: sourcePage } = await (client as any)
+    .from('page_content')
+    .select('id, layout_config, is_canonical, heading, tagline, subheading, meta_title, meta_description')
+    .eq('slug', sourceSlug)
+    .maybeSingle();
+
+  const sourcePageId = sourcePage?.id || null;
+
+  // Check if this is a CMS-first page (has multiple sections with different section_names)
+  let allSourceSections: any[] = [];
+  if (sourcePageId) {
+    const { data: sections } = await (client as any)
+      .from('section_content')
+      .select('*')
+      .eq('page_id', sourcePageId);
+    allSourceSections = sections || [];
+  }
+
+  // If no sections found by page_id, try by page_slug
+  if (allSourceSections.length === 0) {
+    const { data: sections } = await (client as any)
+      .from('section_content')
+      .select('*')
+      .eq('page_slug', sourceSlug);
+    allSourceSections = sections || [];
+  }
+
+  // Determine if this is a CMS-first page (has sections other than 'main')
+  const isCmsFirstPage = allSourceSections.some(s => s.section_name !== 'main');
+
+  console.log(`[canonicalization] Source ${sourceSlug}: ${allSourceSections.length} sections, CMS-first: ${isCmsFirstPage}`);
+
+  if (isCmsFirstPage && allSourceSections.length > 0) {
+    // CMS-first page duplication: copy page_content and ALL section_content rows
+    console.log(`[canonicalization] Duplicating CMS-first page ${sourceSlug} with ${allSourceSections.length} sections`);
+
+    // Create page_content row
+    const pagePayload: Record<string, any> = {
+      slug: targetSlug,
+      heading: sourcePage?.heading || targetSlug,
+      tagline: sourcePage?.tagline || '',
+      subheading: sourcePage?.subheading || '',
+      meta_title: sourcePage?.meta_title || `${targetSlug} | Summit Portable Buildings`,
+      meta_description: sourcePage?.meta_description || '',
+      is_canonical: true,
+      layout_config: sourcePage?.layout_config ? JSON.parse(JSON.stringify(sourcePage.layout_config)) : null,
+    };
+
+    const { data: insertedPage, error: pageError } = await (client as any)
+      .from('page_content')
+      .insert(pagePayload)
+      .select('id')
+      .single();
+
+    if (pageError) {
+      console.error(`[canonicalization] Failed to insert page_content for ${targetSlug}:`, pageError);
+      return { success: false, message: `Failed to create page: ${pageError.message}` };
+    }
+
+    const newPageId = insertedPage?.id;
+    console.log(`[canonicalization] Created page_content for ${targetSlug} with id: ${newPageId}`);
+
+    // Duplicate ALL section_content rows with new page_id
+    let sectionsCreated = 0;
+    for (const section of allSourceSections) {
+      const sectionPayload = {
+        page_slug: targetSlug,
+        page_id: newPageId,
+        section_name: section.section_name,
+        content: JSON.parse(JSON.stringify(section.content)),
+      };
+
+      const { error: sectionError } = await (client as any)
+        .from('section_content')
+        .insert(sectionPayload);
+
+      if (sectionError) {
+        console.error(`[canonicalization] Failed to insert section ${section.section_name} for ${targetSlug}:`, sectionError);
+        // Rollback: delete page and any sections created
+        await (client as any).from('section_content').delete().eq('page_id', newPageId);
+        await (client as any).from('page_content').delete().eq('id', newPageId);
+        return { success: false, message: `Failed to duplicate section ${section.section_name}: ${sectionError.message}` };
+      }
+      sectionsCreated++;
+    }
+
+    console.log(`[canonicalization] Successfully duplicated ${sectionsCreated} sections for ${targetSlug}`);
+    return { success: true, message: `Successfully duplicated ${sourceSlug} to ${targetSlug} (${sectionsCreated} sections)` };
+  }
+
+  // Legacy duplication path for non-CMS-first pages
   let contentToClone: Record<string, any>;
   let layoutConfigToClone: Record<string, any> | null = providedLayoutConfig || null;
 
