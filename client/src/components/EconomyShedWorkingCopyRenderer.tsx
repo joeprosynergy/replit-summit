@@ -253,21 +253,48 @@ export function EconomyShedWorkingCopyRenderer({
   const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
-    if (initialPage && initialSections) return;
-    if (isFetching) return;
+    console.log('[CMS FETCH] effect start', {
+      pageSlug,
+      initialPage,
+      initialSections,
+      isFetching,
+    });
+
+    if (initialPage && initialSections) {
+      console.log('[CMS FETCH] skipped – initial data present');
+      return;
+    }
+
+    if (isFetching) {
+      console.log('[CMS FETCH] skipped – already fetching');
+      return;
+    }
 
     setIsFetching(true);
 
     const fetchCmsPage = async () => {
       try {
+        console.log('[CMS FETCH] fetching /api/cms-page/', pageSlug);
+
         const res = await fetch(
-          `/api/cms-page/${encodeURIComponent(pageSlug)}`,
+          `/api/cms-page/${encodeURIComponent(pageSlug)}`
         );
-        if (!res.ok) return;
+
+        console.log('[CMS FETCH] response status', res.status);
+
+        if (!res.ok) {
+          console.log('[CMS FETCH] response not ok');
+          return;
+        }
 
         const data = await res.json();
+
+        console.log('[CMS FETCH] data received', data);
+
         setFetchedPage(data.page);
         setFetchedSections(data.sections);
+      } catch (e) {
+        console.error('[CMS FETCH] error', e);
       } finally {
         setIsFetching(false);
       }
@@ -413,7 +440,10 @@ export function EconomyShedWorkingCopyRenderer({
   const sectionsToRender = isEditMode
     ? editedSections
     : savedSections || immutableSections;
-
+  console.log('[CMS RENDER CHECK]', {
+    pageSource,
+    sectionSource,
+  });
   // CMS-FIRST: No loading state needed - server data is available immediately
   // No error state needed - errors are handled at the DynamicPage level
 
