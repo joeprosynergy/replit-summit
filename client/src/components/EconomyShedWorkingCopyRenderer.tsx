@@ -262,7 +262,15 @@ export function EconomyShedWorkingCopyRenderer({
           `${window.location.origin}/api/cms-page/${encodeURIComponent(pageSlug)}`
         );
 
-        if (!res.ok) return;
+        const contentType = res.headers.get("content-type");
+
+        if (!contentType || !contentType.includes("application/json")) {
+          console.error("[CMS FETCH] Non-JSON response", {
+            status: res.status,
+            contentType,
+          });
+          return;
+        }
 
         const data = await res.json();
 
