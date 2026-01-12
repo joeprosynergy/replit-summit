@@ -259,7 +259,7 @@ export function EconomyShedWorkingCopyRenderer({
     const fetchCmsPage = async () => {
       try {
         const res = await fetch(
-          `/api/cms-page/${encodeURIComponent(pageSlug)}`
+          `${window.location.origin}/api/cms-page/${encodeURIComponent(pageSlug)}`
         );
 
         if (!res.ok) return;
