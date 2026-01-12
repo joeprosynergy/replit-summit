@@ -34,6 +34,21 @@ interface CmsPageData {
   sections: SectionRow[];
 }
 
+const DynamicPage = () => {
+  const { '*': fullPath } = useParams();
+  const slug = fullPath || '';
+
+  // 🚨 HARD CMS-FIRST SHORT CIRCUIT (PRODUCTION SAFE)
+  if (slug === 'economy-shed-working-copy') {
+    return (
+      <EconomyShedWorkingCopyRenderer
+        pageSlug={slug}
+      />
+    );
+  }
+
+  // legacy logic continues below
+
 const defaultContent: DynamicContent = {};
 
 const DynamicPage = () => {
