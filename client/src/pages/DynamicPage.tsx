@@ -1,14 +1,14 @@
-import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { getBackendClient } from '@/lib/backendClient';
-import { EditablePageWrapper } from '@/components/admin/EditablePageWrapper';
-import { EconomyShedWorkingCopyRenderer } from '@/components/EconomyShedWorkingCopyRenderer';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import NotFound from './NotFound';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Check } from 'lucide-react';
-import GallerySection from '@/components/GallerySection';
+import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getBackendClient } from "@/lib/backendClient";
+import { EditablePageWrapper } from "@/components/admin/EditablePageWrapper";
+import { EconomyShedWorkingCopyRenderer } from "@/components/EconomyShedWorkingCopyRenderer";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import NotFound from "./NotFound";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Check } from "lucide-react";
+import GallerySection from "@/components/GallerySection";
 
 interface DynamicContent {
   [key: string]: any;
@@ -34,26 +34,18 @@ interface CmsPageData {
   sections: SectionRow[];
 }
 
-const DynamicPage = () => {
-  const { '*': fullPath } = useParams();
-  const slug = fullPath || '';
-
-  // 🚨 HARD CMS-FIRST SHORT CIRCUIT (PRODUCTION SAFE)
-  if (slug === 'economy-shed-working-copy') {
-    return (
-      <EconomyShedWorkingCopyRenderer
-        pageSlug={slug}
-      />
-    );
-  }
-
-  // legacy logic continues below
-
 const defaultContent: DynamicContent = {};
 
 const DynamicPage = () => {
-  const { '*': fullPath } = useParams();
-  const slug = fullPath || '';
+  const { "*": fullPath } = useParams();
+  const slug = fullPath || "";
+
+  // 🚨 HARD CMS-FIRST SHORT CIRCUIT (PRODUCTION SAFE)
+  if (slug === "economy-shed-working-copy") {
+    return <EconomyShedWorkingCopyRenderer pageSlug={slug} />;
+  }
+
+  // legacy logic continues below
   const [exists, setExists] = useState<boolean | null>(null);
   const [pageData, setPageData] = useState<DynamicContent | null>(null);
   const [isCmsFirstPage, setIsCmsFirstPage] = useState<boolean>(false);
@@ -68,16 +60,18 @@ const DynamicPage = () => {
 
       // First, try to fetch from server endpoint for CMS-first pages
       try {
-        const response = await fetch(`/api/cms-page/${encodeURIComponent(slug)}`);
-        
+        const response = await fetch(
+          `/api/cms-page/${encodeURIComponent(slug)}`,
+        );
+
         if (response.ok) {
           const data: CmsPageData = await response.json();
-          
+
           // Check if this is a CMS-first page (has sections other than 'main')
           const hasCmsFirstSections = data.sections.some(
-            (s) => s.section_name !== 'main'
+            (s) => s.section_name !== "main",
           );
-          
+
           if (hasCmsFirstSections) {
             console.log(`[DynamicPage] CMS-FIRST PAGE from server: ${slug}`);
             setCmsPageData(data);
@@ -86,23 +80,28 @@ const DynamicPage = () => {
             setExists(true);
             return;
           }
-          
+
           // Not a CMS-first page, but page exists - use legacy rendering
           setPageData(data.page);
           setExists(true);
           return;
         }
-        
+
         if (response.status === 404) {
           // Page doesn't exist
           setExists(false);
           return;
         }
-        
+
         // Server error - fall back to client-side check
-        console.warn(`[DynamicPage] Server endpoint error, falling back to client-side check`);
+        console.warn(
+          `[DynamicPage] Server endpoint error, falling back to client-side check`,
+        );
       } catch (err) {
-        console.warn(`[DynamicPage] Server fetch failed, falling back to client-side:`, err);
+        console.warn(
+          `[DynamicPage] Server fetch failed, falling back to client-side:`,
+          err,
+        );
       }
 
       // Fallback: client-side Supabase check for legacy pages
@@ -114,9 +113,9 @@ const DynamicPage = () => {
 
       try {
         const { data: pageResult, error: pageError } = await (client as any)
-          .from('page_content')
-          .select('*')
-          .eq('slug', slug)
+          .from("page_content")
+          .select("*")
+          .eq("slug", slug)
           .limit(1);
 
         if (!pageError && pageResult && pageResult.length > 0) {
@@ -126,9 +125,9 @@ const DynamicPage = () => {
         }
 
         const { data: sectionData, error: sectionError } = await (client as any)
-          .from('section_content')
-          .select('id, section_name')
-          .eq('page_slug', slug);
+          .from("section_content")
+          .select("id, section_name")
+          .eq("page_slug", slug);
 
         if (!sectionError && sectionData && sectionData.length > 0) {
           setExists(true);
@@ -136,7 +135,7 @@ const DynamicPage = () => {
           setExists(false);
         }
       } catch (err) {
-        console.error('Error checking page:', err);
+        console.error("Error checking page:", err);
         setExists(false);
       }
     };
@@ -162,14 +161,15 @@ const DynamicPage = () => {
   // Data is fetched from server endpoint and passed as props (no client-side Supabase fetch)
   // GUARD: Check cmsPageData directly to prevent race condition where isCmsFirstPage
   // may not be set yet but cmsPageData exists (React state batching issue)
-  const hasCmsFirstData = cmsPageData && cmsPageData.sections.some(
-    (s) => s.section_name !== 'main'
-  );
-  
+  const hasCmsFirstData =
+    cmsPageData && cmsPageData.sections.some((s) => s.section_name !== "main");
+
   if (hasCmsFirstData) {
-    console.log(`[DynamicPage] Rendering CMS-first page: ${slug} (server data)`);
+    console.log(
+      `[DynamicPage] Rendering CMS-first page: ${slug} (server data)`,
+    );
     return (
-      <EconomyShedWorkingCopyRenderer 
+      <EconomyShedWorkingCopyRenderer
         pageSlug={slug}
         initialPage={cmsPageData.page}
         initialSections={cmsPageData.sections}
@@ -182,7 +182,9 @@ const DynamicPage = () => {
   if (isCmsFirstPage) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading CMS content...</div>
+        <div className="animate-pulse text-muted-foreground">
+          Loading CMS content...
+        </div>
       </div>
     );
   }
@@ -195,17 +197,23 @@ const DynamicPage = () => {
         while (content[`galleryImage${i}`]) {
           galleryImages.push({
             src: content[`galleryImage${i}`] as string,
-            alt: content[`galleryImage${i}Alt`] as string || '',
+            alt: (content[`galleryImage${i}Alt`] as string) || "",
           });
           i++;
         }
 
-        const title = content.title || content.heading || pageData?.heading || 'Page Title';
-        const titleHighlight = content.titleHighlight || '';
-        const description = content.description || content.subheading || pageData?.subheading || '';
-        const subtitle = content.subtitle || content.tagline || pageData?.tagline || '';
-        const heroImage = content.heroImage || '';
-        const heroImageAlt = content.heroImageAlt || '';
+        const title =
+          content.title || content.heading || pageData?.heading || "Page Title";
+        const titleHighlight = content.titleHighlight || "";
+        const description =
+          content.description ||
+          content.subheading ||
+          pageData?.subheading ||
+          "";
+        const subtitle =
+          content.subtitle || content.tagline || pageData?.tagline || "";
+        const heroImage = content.heroImage || "";
+        const heroImageAlt = content.heroImageAlt || "";
 
         const benefits: string[] = [];
         for (let j = 1; j <= 10; j++) {
@@ -224,12 +232,16 @@ const DynamicPage = () => {
                       <div className="space-y-6">
                         <h1 className="text-4xl md:text-5xl font-bold text-foreground">
                           {titleHighlight && (
-                            <span className="text-primary">{titleHighlight} </span>
+                            <span className="text-primary">
+                              {titleHighlight}{" "}
+                            </span>
                           )}
                           {title}
                         </h1>
                         {subtitle && (
-                          <p className="text-lg text-muted-foreground">{subtitle}</p>
+                          <p className="text-lg text-muted-foreground">
+                            {subtitle}
+                          </p>
                         )}
                         {description && (
                           <p className="text-muted-foreground">{description}</p>
@@ -237,10 +249,20 @@ const DynamicPage = () => {
                         <div className="flex flex-wrap gap-4">
                           {content.heroButton1Text && (
                             <Button asChild>
-                              <a 
-                                href={content.heroButton1Link as string || '#'} 
-                                target={content.heroButton1OpenInNewTab ? '_blank' : undefined}
-                                rel={content.heroButton1OpenInNewTab ? 'noopener noreferrer' : undefined}
+                              <a
+                                href={
+                                  (content.heroButton1Link as string) || "#"
+                                }
+                                target={
+                                  content.heroButton1OpenInNewTab
+                                    ? "_blank"
+                                    : undefined
+                                }
+                                rel={
+                                  content.heroButton1OpenInNewTab
+                                    ? "noopener noreferrer"
+                                    : undefined
+                                }
                               >
                                 {content.heroButton1Text}
                                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -249,10 +271,20 @@ const DynamicPage = () => {
                           )}
                           {content.heroButton2Text && (
                             <Button variant="outline" asChild>
-                              <a 
-                                href={content.heroButton2Link as string || '#'} 
-                                target={content.heroButton2OpenInNewTab ? '_blank' : undefined}
-                                rel={content.heroButton2OpenInNewTab ? 'noopener noreferrer' : undefined}
+                              <a
+                                href={
+                                  (content.heroButton2Link as string) || "#"
+                                }
+                                target={
+                                  content.heroButton2OpenInNewTab
+                                    ? "_blank"
+                                    : undefined
+                                }
+                                rel={
+                                  content.heroButton2OpenInNewTab
+                                    ? "noopener noreferrer"
+                                    : undefined
+                                }
                               >
                                 {content.heroButton2Text}
                               </a>
@@ -261,8 +293,8 @@ const DynamicPage = () => {
                         </div>
                       </div>
                       <div className="relative">
-                        <img 
-                          src={heroImage} 
+                        <img
+                          src={heroImage}
                           alt={heroImageAlt || title}
                           className="rounded-lg shadow-xl w-full object-cover"
                         />
@@ -302,7 +334,9 @@ const DynamicPage = () => {
                   <div className="container mx-auto px-4">
                     {content.sectionHeading && (
                       <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-4">{content.sectionHeading}</h2>
+                        <h2 className="text-3xl font-bold mb-4">
+                          {content.sectionHeading}
+                        </h2>
                         {content.sectionSubheading && (
                           <p className="text-muted-foreground max-w-2xl mx-auto">
                             {content.sectionSubheading}
@@ -314,22 +348,32 @@ const DynamicPage = () => {
                       {content.card1Title && (
                         <div className="bg-card rounded-lg overflow-hidden shadow-lg">
                           {content.card1Image && (
-                            <img 
-                              src={content.card1Image as string} 
-                              alt={content.card1ImageAlt as string || content.card1Title as string}
+                            <img
+                              src={content.card1Image as string}
+                              alt={
+                                (content.card1ImageAlt as string) ||
+                                (content.card1Title as string)
+                              }
                               className="w-full h-48 object-cover"
                             />
                           )}
                           <div className="p-6">
-                            <h3 className="text-xl font-bold mb-2">{content.card1Title}</h3>
+                            <h3 className="text-xl font-bold mb-2">
+                              {content.card1Title}
+                            </h3>
                             {content.card1Description && (
-                              <p className="text-muted-foreground mb-4">{content.card1Description}</p>
+                              <p className="text-muted-foreground mb-4">
+                                {content.card1Description}
+                              </p>
                             )}
                             <ul className="space-y-2">
-                              {[1, 2, 3, 4].map(n => {
+                              {[1, 2, 3, 4].map((n) => {
                                 const feature = content[`card1Feature${n}`];
                                 return feature ? (
-                                  <li key={n} className="flex items-center gap-2">
+                                  <li
+                                    key={n}
+                                    className="flex items-center gap-2"
+                                  >
                                     <Check className="h-4 w-4 text-primary" />
                                     <span className="text-sm">{feature}</span>
                                   </li>
@@ -342,22 +386,32 @@ const DynamicPage = () => {
                       {content.card2Title && (
                         <div className="bg-card rounded-lg overflow-hidden shadow-lg">
                           {content.card2Image && (
-                            <img 
-                              src={content.card2Image as string} 
-                              alt={content.card2ImageAlt as string || content.card2Title as string}
+                            <img
+                              src={content.card2Image as string}
+                              alt={
+                                (content.card2ImageAlt as string) ||
+                                (content.card2Title as string)
+                              }
                               className="w-full h-48 object-cover"
                             />
                           )}
                           <div className="p-6">
-                            <h3 className="text-xl font-bold mb-2">{content.card2Title}</h3>
+                            <h3 className="text-xl font-bold mb-2">
+                              {content.card2Title}
+                            </h3>
                             {content.card2Description && (
-                              <p className="text-muted-foreground mb-4">{content.card2Description}</p>
+                              <p className="text-muted-foreground mb-4">
+                                {content.card2Description}
+                              </p>
                             )}
                             <ul className="space-y-2">
-                              {[1, 2, 3, 4].map(n => {
+                              {[1, 2, 3, 4].map((n) => {
                                 const feature = content[`card2Feature${n}`];
                                 return feature ? (
-                                  <li key={n} className="flex items-center gap-2">
+                                  <li
+                                    key={n}
+                                    className="flex items-center gap-2"
+                                  >
                                     <Check className="h-4 w-4 text-primary" />
                                     <span className="text-sm">{feature}</span>
                                   </li>
@@ -371,10 +425,18 @@ const DynamicPage = () => {
                     {content.designButtonText && (
                       <div className="text-center mt-8">
                         <Button asChild size="lg">
-                          <a 
-                            href={content.designButtonLink as string || '#'} 
-                            target={content.designButtonOpenInNewTab ? '_blank' : undefined}
-                            rel={content.designButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
+                          <a
+                            href={(content.designButtonLink as string) || "#"}
+                            target={
+                              content.designButtonOpenInNewTab
+                                ? "_blank"
+                                : undefined
+                            }
+                            rel={
+                              content.designButtonOpenInNewTab
+                                ? "noopener noreferrer"
+                                : undefined
+                            }
                           >
                             {content.designButtonText}
                             <ArrowRight className="ml-2 h-4 w-4" />
@@ -390,12 +452,17 @@ const DynamicPage = () => {
                 <section className="py-16 bg-muted/50">
                   <div className="container mx-auto px-4">
                     {content.valueHeading && (
-                      <h2 className="text-3xl font-bold text-center mb-8">{content.valueHeading}</h2>
+                      <h2 className="text-3xl font-bold text-center mb-8">
+                        {content.valueHeading}
+                      </h2>
                     )}
                     {benefits.length > 0 && (
                       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
                         {benefits.map((benefit, idx) => (
-                          <div key={idx} className="flex items-center gap-3 bg-background p-4 rounded-lg">
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3 bg-background p-4 rounded-lg"
+                          >
                             <Check className="h-5 w-5 text-primary flex-shrink-0" />
                             <span>{benefit}</span>
                           </div>
@@ -411,24 +478,42 @@ const DynamicPage = () => {
                 </section>
               )}
 
-              {(content.ctaHeading || content.cta_heading || pageData?.cta_heading) && (
+              {(content.ctaHeading ||
+                content.cta_heading ||
+                pageData?.cta_heading) && (
                 <section className="py-16 bg-primary/10">
                   <div className="container mx-auto px-4 text-center">
                     <h2 className="text-3xl font-bold mb-4">
-                      {content.ctaHeading || content.cta_heading || pageData?.cta_heading}
+                      {content.ctaHeading ||
+                        content.cta_heading ||
+                        pageData?.cta_heading}
                     </h2>
-                    {(content.ctaDescription || content.cta_description || pageData?.cta_description) && (
+                    {(content.ctaDescription ||
+                      content.cta_description ||
+                      pageData?.cta_description) && (
                       <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-                        {content.ctaDescription || content.cta_description || pageData?.cta_description}
+                        {content.ctaDescription ||
+                          content.cta_description ||
+                          pageData?.cta_description}
                       </p>
                     )}
                     <div className="flex flex-wrap justify-center gap-4">
                       {content.ctaPrimaryButton && (
                         <Button asChild size="lg">
-                          <a 
-                            href={content.ctaPrimaryButtonLink as string || '#'} 
-                            target={content.ctaPrimaryButtonOpenInNewTab ? '_blank' : undefined}
-                            rel={content.ctaPrimaryButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
+                          <a
+                            href={
+                              (content.ctaPrimaryButtonLink as string) || "#"
+                            }
+                            target={
+                              content.ctaPrimaryButtonOpenInNewTab
+                                ? "_blank"
+                                : undefined
+                            }
+                            rel={
+                              content.ctaPrimaryButtonOpenInNewTab
+                                ? "noopener noreferrer"
+                                : undefined
+                            }
                           >
                             {content.ctaPrimaryButton}
                             <ArrowRight className="ml-2 h-4 w-4" />
@@ -437,10 +522,20 @@ const DynamicPage = () => {
                       )}
                       {content.ctaSecondaryButton && (
                         <Button variant="outline" asChild size="lg">
-                          <a 
-                            href={content.ctaSecondaryButtonLink as string || '#'} 
-                            target={content.ctaSecondaryButtonOpenInNewTab ? '_blank' : undefined}
-                            rel={content.ctaSecondaryButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
+                          <a
+                            href={
+                              (content.ctaSecondaryButtonLink as string) || "#"
+                            }
+                            target={
+                              content.ctaSecondaryButtonOpenInNewTab
+                                ? "_blank"
+                                : undefined
+                            }
+                            rel={
+                              content.ctaSecondaryButtonOpenInNewTab
+                                ? "noopener noreferrer"
+                                : undefined
+                            }
                           >
                             {content.ctaSecondaryButton}
                           </a>
