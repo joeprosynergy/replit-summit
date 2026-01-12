@@ -285,13 +285,13 @@ export function EconomyShedWorkingCopyRenderer({
   const immutableSections = useMemo(() => {
     if (!sectionSource || sectionSource.length === 0) return [];
     const orderedSections = ["hero", "cta"];
-    return [...initialSections].sort((a, b) => {
+    return [...sectionSource].sort((a, b) => {
       return (
         orderedSections.indexOf(a.section_name) -
         orderedSections.indexOf(b.section_name)
       );
     });
-  }, [initialSections]);
+  }, [sectionSource]);
 
   // Edit mode state - only used during active editing
   const [isEditMode, setIsEditMode] = useState(false);
@@ -303,7 +303,7 @@ export function EconomyShedWorkingCopyRenderer({
   const [editedSections, setEditedSections] = useState<SectionRow[]>(() => {
     if (!sectionSource || sectionSource.length === 0) return [];
     const orderedSections = ["hero", "cta"];
-    const sorted = [...initialSections].sort((a, b) => {
+    const sorted = [...sectionSource].sort((a, b) => {
       return (
         orderedSections.indexOf(a.section_name) -
         orderedSections.indexOf(b.section_name)
@@ -445,7 +445,7 @@ export function EconomyShedWorkingCopyRenderer({
         <div className="fixed bottom-4 left-4 z-50">
           <PopulateLayoutConfigButton
             pageSlug={pageSlug}
-            pageId={initialPage.id}
+            pageId={pageSource.id}
           />
         </div>
       )}
