@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getBackendClient } from "@/lib/backendClient";
 import { EditablePageWrapper } from "@/components/admin/EditablePageWrapper";
@@ -40,9 +40,11 @@ const DynamicPage = () => {
   const { "*": fullPath } = useParams();
   const slug = fullPath || "";
 
-  // 🚨 HARD CMS-FIRST SHORT CIRCUIT (PRODUCTION SAFE)
-  if (slug === "economy-shed-working-copy") {
-    return <EconomyShedWorkingCopyRenderer pageSlug={slug} />;
+  // 🚨 CMS-FIRST ROUTE REDIRECT (FINAL MINIMAL FIX)
+  const cmsFirstSlugs = ["economy-shed-working-copy"];
+
+  if (cmsFirstSlugs.includes(slug)) {
+    return <Navigate to={`/cms/${slug}`} replace />;
   }
 
   // legacy logic continues below

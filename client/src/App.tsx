@@ -37,10 +37,13 @@ import ContactUs from "./pages/ContactUs";
 import NotFound from "./pages/NotFound";
 import Inventory from "./pages/Inventory";
 import Configurator3D from "./pages/Configurator3D";
+import CmsFirstPage from "./pages/CmsFirstPage";
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
-const AdminCloudinaryUpload = lazy(() => import("./pages/AdminCloudinaryUpload"));
+const AdminCloudinaryUpload = lazy(
+  () => import("./pages/AdminCloudinaryUpload"),
+);
 const AssetAudit = lazy(() => import("./pages/AssetAudit"));
 const DynamicPage = lazy(() => import("./pages/DynamicPage"));
 
@@ -63,23 +66,59 @@ const App = () => (
             <Route path="/styles/barn" element={<StylesBarn />} />
             <Route path="/styles/modern" element={<StylesModern />} />
             <Route path="/styles/greenhouse" element={<Greenhouse />} />
-            <Route path="/styles/animal-shelters" element={<AnimalShelters />} />
+            <Route
+              path="/styles/animal-shelters"
+              element={<AnimalShelters />}
+            />
             {/* Basic Storage category and detail pages */}
             <Route path="/types/basic-storage" element={<BasicStorage />} />
-            <Route path="/types/basic-storage/economy-shed" element={<EconomyShed />} />
-            <Route path="/types/basic-storage/budget-pro-lofted-barn" element={<BudgetProLoftedBarn />} />
-            <Route path="/types/basic-storage/budget-pro-utility" element={<BudgetProUtility />} />
+            <Route
+              path="/types/basic-storage/economy-shed"
+              element={<EconomyShed />}
+            />
+            <Route
+              path="/types/basic-storage/budget-pro-lofted-barn"
+              element={<BudgetProLoftedBarn />}
+            />
+            <Route
+              path="/types/basic-storage/budget-pro-utility"
+              element={<BudgetProUtility />}
+            />
             {/* Deluxe Storage & Cabins category and detail pages */}
-            <Route path="/types/deluxe-storage-cabins" element={<DeluxeStorageCabins />} />
-            <Route path="/types/deluxe-storage-cabins/pro-utility-shed" element={<UtilityShed />} />
-            <Route path="/types/deluxe-storage-cabins/pro-lofted-barn" element={<ProLoftedBarn />} />
-            <Route path="/types/deluxe-storage-cabins/cabin" element={<Cabin />} />
-            <Route path="/types/deluxe-storage-cabins/barn-cabin" element={<BarnCabin />} />
-            <Route path="/types/deluxe-storage-cabins/modern-shed" element={<ModernShed />} />
+            <Route
+              path="/types/deluxe-storage-cabins"
+              element={<DeluxeStorageCabins />}
+            />
+            <Route
+              path="/types/deluxe-storage-cabins/pro-utility-shed"
+              element={<UtilityShed />}
+            />
+            <Route
+              path="/types/deluxe-storage-cabins/pro-lofted-barn"
+              element={<ProLoftedBarn />}
+            />
+            <Route
+              path="/types/deluxe-storage-cabins/cabin"
+              element={<Cabin />}
+            />
+            <Route
+              path="/types/deluxe-storage-cabins/barn-cabin"
+              element={<BarnCabin />}
+            />
+            <Route
+              path="/types/deluxe-storage-cabins/modern-shed"
+              element={<ModernShed />}
+            />
             {/* Garages & Carports category and detail pages */}
-            <Route path="/types/garages-carports" element={<GaragesCarports />} />
+            <Route
+              path="/types/garages-carports"
+              element={<GaragesCarports />}
+            />
             <Route path="/types/garages-carports/garage" element={<Garage />} />
-            <Route path="/types/garages-carports/carports" element={<Carports />} />
+            <Route
+              path="/types/garages-carports/carports"
+              element={<Carports />}
+            />
             {/* Greenhouse & Animal Shelters */}
             <Route path="/types/greenhouse" element={<Greenhouse />} />
             <Route path="/types/animal-shelters" element={<AnimalShelters />} />
@@ -91,47 +130,107 @@ const App = () => (
             <Route path="/contact-us" element={<ContactUs />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/3d-configurator" element={<Configurator3D />} />
-            <Route path="/admin/login" element={
-              <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}>
-                <AdminLogin />
-              </Suspense>
-            } />
-            <Route path="/auth/callback" element={
-              <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}>
-                <AuthCallback />
-              </Suspense>
-            } />
-            <Route path="/admin" element={
-              <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}>
-                <Admin />
-              </Suspense>
-            } />
             <Route
-               path="/cloudinary-upload"
-               element={
-                 <Suspense
-                   fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}
-                 >
-                   <AdminCloudinaryUpload />
-                 </Suspense>
-               }
-              />
-              <Route
-                path="/asset-audit"
-                element={
-                  <Suspense
-                    fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}
-                  >
-                    <AssetAudit />
-                  </Suspense>
-                }
-              />
-          {/* Dynamic page route for duplicated pages */}
-          <Route path="/*" element={
-            <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading…</div>}>
-              <DynamicPage />
-            </Suspense>
-          } />
+              path="/admin/login"
+              element={
+                <Suspense
+                  fallback={
+                    <div className="p-6 text-sm text-muted-foreground">
+                      Loading…
+                    </div>
+                  }
+                >
+                  <AdminLogin />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/auth/callback"
+              element={
+                <Suspense
+                  fallback={
+                    <div className="p-6 text-sm text-muted-foreground">
+                      Loading…
+                    </div>
+                  }
+                >
+                  <AuthCallback />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <Suspense
+                  fallback={
+                    <div className="p-6 text-sm text-muted-foreground">
+                      Loading…
+                    </div>
+                  }
+                >
+                  <Admin />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/cloudinary-upload"
+              element={
+                <Suspense
+                  fallback={
+                    <div className="p-6 text-sm text-muted-foreground">
+                      Loading…
+                    </div>
+                  }
+                >
+                  <AdminCloudinaryUpload />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/asset-audit"
+              element={
+                <Suspense
+                  fallback={
+                    <div className="p-6 text-sm text-muted-foreground">
+                      Loading…
+                    </div>
+                  }
+                >
+                  <AssetAudit />
+                </Suspense>
+              }
+            />
+            {/* CMS-first pages (MUST come before catch-all) */}
+            <Route
+              path="/cms/*"
+              element={
+                <Suspense
+                  fallback={
+                    <div className="p-6 text-sm text-muted-foreground">
+                      Loading…
+                    </div>
+                  }
+                >
+                  <CmsFirstPage />
+                </Suspense>
+              }
+            />
+
+            {/* Dynamic page route for legacy / duplicated pages */}
+            <Route
+              path="/*"
+              element={
+                <Suspense
+                  fallback={
+                    <div className="p-6 text-sm text-muted-foreground">
+                      Loading…
+                    </div>
+                  }
+                >
+                  <DynamicPage />
+                </Suspense>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </AdminAuthProvider>
