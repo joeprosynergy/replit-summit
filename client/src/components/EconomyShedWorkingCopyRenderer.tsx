@@ -1,17 +1,17 @@
-import { useState, useCallback, useMemo } from 'react';
-import { getBackendClient } from '@/lib/backendClient';
-import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
-import { AdminEditMode } from '@/components/admin/AdminEditMode';
-import { EditModeProvider } from '@/contexts/EditModeContext';
-import { InlineEditable } from '@/components/admin/InlineEditable';
-import InlineEditableButton from '@/components/admin/InlineEditableButton';
-import { usePageManagement } from '@/hooks/usePageManagement';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
-import { PopulateLayoutConfigButton } from '@/components/admin/PopulateLayoutConfigButton';
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { getBackendClient } from "@/lib/backendClient";
+import { useAdminAuthContext } from "@/contexts/AdminAuthContext";
+import { AdminEditMode } from "@/components/admin/AdminEditMode";
+import { EditModeProvider } from "@/contexts/EditModeContext";
+import { InlineEditable } from "@/components/admin/InlineEditable";
+import InlineEditableButton from "@/components/admin/InlineEditableButton";
+import { usePageManagement } from "@/hooks/usePageManagement";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { toast } from "sonner";
+import { PopulateLayoutConfigButton } from "@/components/admin/PopulateLayoutConfigButton";
 
 interface PageData {
   id: string;
@@ -64,41 +64,48 @@ interface EditableSectionProps<T> {
   onUpdateField: (field: keyof T, value: string) => void;
 }
 
-function HeroSection({ content, isEditMode, onUpdateField }: EditableSectionProps<HeroContent>) {
+function HeroSection({
+  content,
+  isEditMode,
+  onUpdateField,
+}: EditableSectionProps<HeroContent>) {
   const sectionStyle: React.CSSProperties = {
     backgroundColor: content.backgroundColor,
     paddingTop: content.paddingTop,
     paddingBottom: content.paddingBottom,
   };
 
-  const alignmentClass = content.textAlignment === 'left' ? 'text-left' 
-    : content.textAlignment === 'right' ? 'text-right' 
-    : 'text-center';
+  const alignmentClass =
+    content.textAlignment === "left"
+      ? "text-left"
+      : content.textAlignment === "right"
+        ? "text-right"
+        : "text-center";
 
   return (
     <section style={sectionStyle}>
       <div className={`container mx-auto px-4 ${alignmentClass}`}>
         <InlineEditable
-          value={content.heading || ''}
+          value={content.heading || ""}
           fieldName="heading"
-          onChange={(value) => onUpdateField('heading', value)}
+          onChange={(value) => onUpdateField("heading", value)}
           isEditMode={isEditMode}
           as="h1"
           className="text-4xl md:text-5xl font-bold text-foreground mb-4"
         />
         <InlineEditable
-          value={content.tagline || ''}
+          value={content.tagline || ""}
           fieldName="tagline"
-          onChange={(value) => onUpdateField('tagline', value)}
+          onChange={(value) => onUpdateField("tagline", value)}
           isEditMode={isEditMode}
           as="p"
           className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4"
         />
         <InlineEditable
-          value={content.subheading || ''}
+          value={content.subheading || ""}
           fieldName="subheading"
           type="textarea"
-          onChange={(value) => onUpdateField('subheading', value)}
+          onChange={(value) => onUpdateField("subheading", value)}
           isEditMode={isEditMode}
           as="p"
           className="text-muted-foreground max-w-3xl mx-auto"
@@ -108,53 +115,66 @@ function HeroSection({ content, isEditMode, onUpdateField }: EditableSectionProp
   );
 }
 
-function CtaSection({ content, isEditMode, onUpdateField }: EditableSectionProps<CtaContent>) {
+function CtaSection({
+  content,
+  isEditMode,
+  onUpdateField,
+}: EditableSectionProps<CtaContent>) {
   const sectionStyle: React.CSSProperties = {
     backgroundColor: content.backgroundColor,
     paddingTop: content.paddingTop,
     paddingBottom: content.paddingBottom,
   };
 
-  const alignmentClass = content.textAlignment === 'left' ? 'text-left' 
-    : content.textAlignment === 'right' ? 'text-right' 
-    : 'text-center';
+  const alignmentClass =
+    content.textAlignment === "left"
+      ? "text-left"
+      : content.textAlignment === "right"
+        ? "text-right"
+        : "text-center";
 
   return (
     <section style={sectionStyle}>
       <div className={`container mx-auto px-4 ${alignmentClass}`}>
         <InlineEditable
-          value={content.heading || ''}
+          value={content.heading || ""}
           fieldName="heading"
-          onChange={(value) => onUpdateField('heading', value)}
+          onChange={(value) => onUpdateField("heading", value)}
           isEditMode={isEditMode}
           as="h2"
           className="text-3xl font-bold mb-4"
         />
         <InlineEditable
-          value={content.description || ''}
+          value={content.description || ""}
           fieldName="description"
           type="textarea"
-          onChange={(value) => onUpdateField('description', value)}
+          onChange={(value) => onUpdateField("description", value)}
           isEditMode={isEditMode}
           as="p"
           className="text-muted-foreground mb-8 max-w-2xl mx-auto"
         />
         <InlineEditableButton
-          text={content.button || ''}
-          href={content.buttonLink || ''}
-          onTextChange={(value) => onUpdateField('button', value)}
-          onHrefChange={(value) => onUpdateField('buttonLink', value)}
+          text={content.button || ""}
+          href={content.buttonLink || ""}
+          onTextChange={(value) => onUpdateField("button", value)}
+          onHrefChange={(value) => onUpdateField("buttonLink", value)}
           isEditMode={isEditMode}
-          isExternal={content.buttonTarget === '_blank'}
-          onExternalChange={(isExternal) => onUpdateField('buttonTarget', isExternal ? '_blank' : '_self')}
+          isExternal={content.buttonTarget === "_blank"}
+          onExternalChange={(isExternal) =>
+            onUpdateField("buttonTarget", isExternal ? "_blank" : "_self")
+          }
         >
           <Button asChild size="lg">
-            <a 
+            <a
               href={content.buttonLink}
-              target={content.buttonTarget || '_self'}
-              rel={content.buttonTarget === '_blank' ? 'noopener noreferrer' : undefined}
+              target={content.buttonTarget || "_self"}
+              rel={
+                content.buttonTarget === "_blank"
+                  ? "noopener noreferrer"
+                  : undefined
+              }
             >
-              {content.button || '[Add button text]'}
+              {content.button || "[Add button text]"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </a>
           </Button>
@@ -170,53 +190,106 @@ interface RenderSectionProps {
   onUpdateField: (sectionId: string, field: string, value: string) => void;
 }
 
-function RenderSection({ section, isEditMode, onUpdateField }: RenderSectionProps) {
-  const handleUpdateField = useCallback((field: string, value: string) => {
-    onUpdateField(section.id, field, value);
-  }, [section.id, onUpdateField]);
+function RenderSection({
+  section,
+  isEditMode,
+  onUpdateField,
+}: RenderSectionProps) {
+  const handleUpdateField = useCallback(
+    (field: string, value: string) => {
+      onUpdateField(section.id, field, value);
+    },
+    [section.id, onUpdateField],
+  );
 
   switch (section.section_name) {
-    case 'hero':
+    case "hero":
       return (
         <HeroSection
           key={section.id}
           content={section.content as HeroContent}
           isEditMode={isEditMode}
-          onUpdateField={handleUpdateField as (field: keyof HeroContent, value: string) => void}
+          onUpdateField={
+            handleUpdateField as (
+              field: keyof HeroContent,
+              value: string,
+            ) => void
+          }
         />
       );
-    case 'cta':
+    case "cta":
       return (
         <CtaSection
           key={section.id}
           content={section.content as CtaContent}
           isEditMode={isEditMode}
-          onUpdateField={handleUpdateField as (field: keyof CtaContent, value: string) => void}
+          onUpdateField={
+            handleUpdateField as (
+              field: keyof CtaContent,
+              value: string,
+            ) => void
+          }
         />
       );
     default:
-      console.warn(`[EconomyShedWorkingCopyRenderer] Unknown section_name: ${section.section_name}`);
+      console.warn(
+        `[EconomyShedWorkingCopyRenderer] Unknown section_name: ${section.section_name}`,
+      );
       return null;
   }
 }
 
-export function EconomyShedWorkingCopyRenderer({ 
-  pageSlug = 'economy-shed-working-copy',
+export function EconomyShedWorkingCopyRenderer({
+  pageSlug = "economy-shed-working-copy",
   initialPage,
   initialSections,
 }: EconomyShedWorkingCopyRendererProps) {
   const { isAdmin, isRevalidating } = useAdminAuthContext();
-  
+  // CMS-FIRST FETCH (only when mounted directly via /cms/*)
+  const [fetchedPage, setFetchedPage] = useState<PageData | null>(null);
+  const [fetchedSections, setFetchedSections] = useState<SectionRow[] | null>(
+    null,
+  );
+  const [isFetching, setIsFetching] = useState(false);
+
+  useEffect(() => {
+    if (initialPage && initialSections) return;
+    if (isFetching) return;
+
+    setIsFetching(true);
+
+    const fetchCmsPage = async () => {
+      try {
+        const res = await fetch(
+          `/api/cms-page/${encodeURIComponent(pageSlug)}`,
+        );
+        if (!res.ok) return;
+
+        const data = await res.json();
+        setFetchedPage(data.page);
+        setFetchedSections(data.sections);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchCmsPage();
+  }, [pageSlug, initialPage, initialSections, isFetching]);
+
   // CMS-FIRST IMMUTABLE DATA: Server-provided sections are the ONLY source of truth
   // DO NOT copy into mutable state - render directly from props
-  const hasServerData = !!(initialPage && initialSections && initialSections.length > 0);
-  
+  const pageSource = initialPage ?? fetchedPage;
+  const sectionSource = initialSections ?? fetchedSections;
+
   // Compute sorted sections from immutable server props (no state)
   const immutableSections = useMemo(() => {
-    if (!initialSections || initialSections.length === 0) return [];
-    const orderedSections = ['hero', 'cta'];
+    if (!sectionSource || sectionSource.length === 0) return [];
+    const orderedSections = ["hero", "cta"];
     return [...initialSections].sort((a, b) => {
-      return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
+      return (
+        orderedSections.indexOf(a.section_name) -
+        orderedSections.indexOf(b.section_name)
+      );
     });
   }, [initialSections]);
 
@@ -224,14 +297,17 @@ export function EconomyShedWorkingCopyRenderer({
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  
+
   // editedSections: Deep clone of immutable data, used ONLY during edit mode
   // Initialized once from server props, reset on cancel
   const [editedSections, setEditedSections] = useState<SectionRow[]>(() => {
-    if (!initialSections || initialSections.length === 0) return [];
-    const orderedSections = ['hero', 'cta'];
+    if (!sectionSource || sectionSource.length === 0) return [];
+    const orderedSections = ["hero", "cta"];
     const sorted = [...initialSections].sort((a, b) => {
-      return orderedSections.indexOf(a.section_name) - orderedSections.indexOf(b.section_name);
+      return (
+        orderedSections.indexOf(a.section_name) -
+        orderedSections.indexOf(b.section_name)
+      );
     });
     return JSON.parse(JSON.stringify(sorted));
   });
@@ -262,7 +338,7 @@ export function EconomyShedWorkingCopyRenderer({
   const handleSave = useCallback(async () => {
     const client = getBackendClient();
     if (!client) {
-      toast.error('Database not available');
+      toast.error("Database not available");
       return;
     }
 
@@ -271,16 +347,18 @@ export function EconomyShedWorkingCopyRenderer({
     try {
       for (const section of editedSections) {
         const { error } = await (client as any)
-          .from('section_content')
+          .from("section_content")
           .update({ content: section.content })
-          .eq('id', section.id);
+          .eq("id", section.id);
 
         if (error) {
-          throw new Error(`Failed to save ${section.section_name}: ${error.message}`);
+          throw new Error(
+            `Failed to save ${section.section_name}: ${error.message}`,
+          );
         }
       }
 
-      toast.success('Changes saved');
+      toast.success("Changes saved");
       // Store saved sections to display after save (without mutating immutable props)
       setSavedSections(JSON.parse(JSON.stringify(editedSections)));
       setHasChanges(false);
@@ -301,39 +379,47 @@ export function EconomyShedWorkingCopyRenderer({
     setIsEditMode(false);
   }, [savedSections, immutableSections]);
 
-  const handleUpdateSectionField = useCallback((sectionId: string, field: string, value: string) => {
-    setEditedSections(prev => {
-      const updated = prev.map(section => {
-        if (section.id === sectionId) {
-          return {
-            ...section,
-            content: {
-              ...section.content,
-              [field]: value,
-            },
-          };
-        }
-        return section;
+  const handleUpdateSectionField = useCallback(
+    (sectionId: string, field: string, value: string) => {
+      setEditedSections((prev) => {
+        const updated = prev.map((section) => {
+          if (section.id === sectionId) {
+            return {
+              ...section,
+              content: {
+                ...section.content,
+                [field]: value,
+              },
+            };
+          }
+          return section;
+        });
+        return updated;
       });
-      return updated;
-    });
-    setHasChanges(true);
-  }, []);
+      setHasChanges(true);
+    },
+    [],
+  );
 
   // IMMUTABLE RENDER: Use savedSections (after save) or immutableSections (from server props)
   // Only use editedSections during active edit mode
-  const sectionsToRender = isEditMode 
-    ? editedSections 
-    : (savedSections || immutableSections);
+  const sectionsToRender = isEditMode
+    ? editedSections
+    : savedSections || immutableSections;
 
   // CMS-FIRST: No loading state needed - server data is available immediately
   // No error state needed - errors are handled at the DynamicPage level
 
+  if (!pageSource || !sectionSource) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        Loading…
+      </div>
+    );
+  }
+
   return (
-    <EditModeProvider
-      initialContent={{}}
-      onSave={handleSave}
-    >
+    <EditModeProvider initialContent={{}} onSave={handleSave}>
       <AdminEditMode
         isAdmin={isAdmin}
         isRevalidating={isRevalidating}
@@ -357,13 +443,16 @@ export function EconomyShedWorkingCopyRenderer({
       />
       {isAdmin && !isEditMode && initialPage?.id && (
         <div className="fixed bottom-4 left-4 z-50">
-          <PopulateLayoutConfigButton pageSlug={pageSlug} pageId={initialPage.id} />
+          <PopulateLayoutConfigButton
+            pageSlug={pageSlug}
+            pageId={initialPage.id}
+          />
         </div>
       )}
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-grow">
-          {sectionsToRender.map(section => (
+          {sectionsToRender.map((section) => (
             <RenderSection
               key={section.id}
               section={section}
