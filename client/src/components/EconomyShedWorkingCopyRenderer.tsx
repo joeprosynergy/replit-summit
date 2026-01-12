@@ -250,58 +250,37 @@ export function EconomyShedWorkingCopyRenderer({
   const [fetchedSections, setFetchedSections] = useState<SectionRow[] | null>(
     null,
   );
-  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
-    console.log('[CMS FETCH] effect start', {
-      pageSlug,
-      initialPage,
-      initialSections,
-      isFetching,
-    });
+    if (initialPage && initialSections) return;
 
-    if (initialPage && initialSections) {
-      console.log('[CMS FETCH] skipped – initial data present');
-      return;
-    }
-
-    if (isFetching) {
-      console.log('[CMS FETCH] skipped – already fetching');
-      return;
-    }
-
-    setIsFetching(true);
+    let cancelled = false;
 
     const fetchCmsPage = async () => {
       try {
-        console.log('[CMS FETCH] fetching /api/cms-page/', pageSlug);
-
         const res = await fetch(
           `/api/cms-page/${encodeURIComponent(pageSlug)}`
         );
 
-        console.log('[CMS FETCH] response status', res.status);
-
-        if (!res.ok) {
-          console.log('[CMS FETCH] response not ok');
-          return;
-        }
+        if (!res.ok) return;
 
         const data = await res.json();
 
-        console.log('[CMS FETCH] data received', data);
-
-        setFetchedPage(data.page);
-        setFetchedSections(data.sections);
+        if (!cancelled) {
+          setFetchedPage(data.page);
+          setFetchedSections(data.sections);
+        }
       } catch (e) {
         console.error('[CMS FETCH] error', e);
-      } finally {
-        setIsFetching(false);
       }
     };
 
     fetchCmsPage();
-  }, [pageSlug, initialPage, initialSections, isFetching]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pageSlug, initialPage, initialSections]);
 
   // CMS-FIRST IMMUTABLE DATA: Server-provided sections are the ONLY source of truth
   // DO NOT copy into mutable state - render directly from props
