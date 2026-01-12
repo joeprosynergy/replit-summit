@@ -311,7 +311,14 @@ export function EconomyShedWorkingCopyRenderer({
     });
     return JSON.parse(JSON.stringify(sorted));
   });
+  // 🔁 HYDRATE EDITABLE STATE WHEN CMS DATA LOADS
+  useEffect(() => {
+    if (!sectionSource || sectionSource.length === 0) return;
 
+    setEditedSections(
+      JSON.parse(JSON.stringify(sectionSource))
+    );
+  }, [sectionSource]);
   // Track if we've saved changes (to show updated content without re-fetch)
   const [savedSections, setSavedSections] = useState<SectionRow[] | null>(null);
 
