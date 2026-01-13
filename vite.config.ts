@@ -7,13 +7,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => ({
-  base: "/", // ✅ REQUIRED FOR EXPRESS + RAILWAY
   plugins: [react()],
+
+  // ✅ THIS IS THE FIX
+  base: "/",  
+
   server: {
     host: "0.0.0.0",
     port: 5000,
-    allowedHosts: true,
   },
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "client", "src"),
@@ -21,7 +24,9 @@ export default defineConfig(({ mode }) => ({
       "@assets": path.resolve(__dirname, "attached_assets"),
     },
   },
+
   root: path.resolve(__dirname, "client"),
+
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
