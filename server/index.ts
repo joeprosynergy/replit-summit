@@ -12,6 +12,7 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false, limit: "50mb" }));
 
+// API routes first
 registerRoutes(app);
 
 // ---- SERVE VITE BUILD ----
@@ -20,9 +21,16 @@ const distPath = path.resolve(__dirname, "public");
 if (!fs.existsSync(distPath)) {
   console.error("❌ dist/public not found");
 } else {
+  // 1️⃣ Serve static assets
   app.use(express.static(distPath));
 
-  app.get("*", (_req, res) => {
+  // 2️⃣ SPA fallback (NO "*")
+  app.use((req, res, next) => {
+    // Skip API and asset requests
+    if (req.path.startsWith("/api") || req.path.includes(".")) {
+      return next();
+    }
+
     res.sendFile(path.join(distPath, "index.html"));
   });
 }
