@@ -1,0 +1,5 @@
+:{$PORT}
+
+route {
+  reverse_proxy localhost:3000
+}
