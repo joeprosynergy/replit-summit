@@ -21,10 +21,15 @@ const distPath = path.resolve(__dirname, "public");
 if (!fs.existsSync(distPath)) {
   console.error("❌ dist/public not found");
 } else {
+  // Serve static assets
   app.use(express.static(distPath));
 
-  // SPA fallback
-  app.get("*", (_req, res) => {
+  // SPA fallback — MUST use app.use (NOT app.get)
+  app.use((req, res, next) => {
+    if (req.path.includes(".")) {
+      return next(); // let 404 happen for missing assets
+    }
+
     res.sendFile(path.join(distPath, "index.html"));
   });
 }
