@@ -91,15 +91,7 @@ const App = () => (
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/3d-configurator" element={<Configurator3D />} />
 
-          {/* CMS-FIRST */}
-          <Route
-            path="/cms/:slug"
-            element={
-            <Suspense fallback={<div className="p-6 text-sm">Loading…</div>}>
-                <CmsFirstPage />
-              </Suspense>
-            }
-          />
+        
 
           {/* ADMIN (lazy only) */}
           <Route
@@ -147,6 +139,16 @@ const App = () => (
             }
           />
 
+          {/* CMS-FIRST */}
+          <Route
+            path="/cms/*"
+            element={
+              <Suspense fallback={<div className="p-6 text-sm">Loading…</div>}>
+                <CmsFirstPage />
+              </Suspense>
+            }
+          />
+          
           {/* LEGACY / FALLBACK */}
           <Route
             path="/*"
@@ -157,7 +159,6 @@ const App = () => (
             }
           />
 
-          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

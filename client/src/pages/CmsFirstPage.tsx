@@ -1,18 +1,11 @@
 import { useParams } from "react-router-dom";
-import { EconomyShedWorkingCopyRenderer } from "@/components/EconomyShedWorkingCopyRenderer";
+import { CmsPageRenderer } from "@/components/CmsPageRenderer";
 
 const CmsFirstPage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { "*": fullPath } = useParams();
+  const slug = fullPath ?? "";
 
-  if (!slug) {
-    return (
-      <div className="p-8 text-sm text-muted-foreground">
-        CMS page slug missing
-      </div>
-    );
-  }
-
-  return <EconomyShedWorkingCopyRenderer pageSlug={slug} />;
+  return <CmsPageRenderer slug={slug} />;
 };
 
 export default CmsFirstPage;
