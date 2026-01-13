@@ -73,10 +73,15 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // 1️⃣ Serve static assets FIRST
   app.use(express.static(distPath));
 
-  // SPA fallback
-  app.get("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  // 2️⃣ SPA fallback ONLY for non-file routes
+  app.use((req, res, next) => {
+    if (req.path.includes(".")) {
+      return next(); // let 404 happen for missing assets
+    }
+
+    res.sendFile(path.join(distPath, "index.html"));
   });
 }
