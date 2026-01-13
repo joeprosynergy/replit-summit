@@ -9,6 +9,7 @@ import { getBackendClient, isBackendAvailable } from "@/lib/backendClient";
 import { migrateAllContent, MigrationProgress, MigrationResult } from "@/lib/contentMigration";
 import { MigrateEconomyShedWorkingCopy } from "@/components/admin/MigrateEconomyShedWorkingCopy";
 import { toast } from "sonner";
+import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 
 // Helper to extract hostname for debug display
 function getBackendHost(): string {
@@ -494,4 +495,34 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+function AdminInner() {
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAdminAuth();
+
+  if (isLoading) {
+    return (
+      <div className="p-6 flex items-center gap-2 text-sm">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Checking admin access…
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  return (
+    <>
+      {/* YOUR EXISTING ADMIN UI GOES HERE */}
+    </>
+  );
+}
+
+export default function Admin() {
+  return (
+    <AdminAuthProvider>
+      <AdminInner />
+    </AdminAuthProvider>
+  );
+}
