@@ -37,7 +37,7 @@ const STATIC_PAGE_SLUGS = [
   'garage', 'carports', 'greenhouse', 'animal-shelters'
 ];
 
-const Admin = () => {
+function AdminDashboard() {
   const navigate = useNavigate();
   const { user, isAdmin, isLoading, error, recheckAdmin } = useAdminAuth();
   const client = getBackendClient();
@@ -495,34 +495,12 @@ const Admin = () => {
   );
 };
 
-function AdminInner() {
-  const navigate = useNavigate();
-  const { isAuthenticated, isLoading } = useAdminAuth();
 
-  if (isLoading) {
-    return (
-      <div className="p-6 flex items-center gap-2 text-sm">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        Checking admin access…
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
-  }
-
-  return (
-    <>
-      {/* YOUR EXISTING ADMIN UI GOES HERE */}
-    </>
-  );
-}
 
 export default function Admin() {
   return (
     <AdminAuthProvider>
-      <AdminInner />
+      <AdminDashboard />
     </AdminAuthProvider>
   );
 }
