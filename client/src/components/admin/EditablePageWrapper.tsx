@@ -1,7 +1,7 @@
 import React, { useCallback, ReactNode } from 'react';
 import { EditModeProvider } from '@/contexts/EditModeContext';
 import { AdminEditMode } from './AdminEditMode';
-import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
+import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 import { useSectionContent, SectionContent } from '@/hooks/useSectionContent';
 import { logAdminActivity } from '@/lib/adminActivityLog';
 import { usePageManagement } from '@/hooks/usePageManagement';
@@ -26,7 +26,7 @@ export function EditablePageWrapper<T extends SectionContent>({
   sectionName = 'main',
   pageSlug,
 }: EditablePageWrapperProps<T>) {
-  const { isAdmin, isRevalidating } = useAdminAuthContext();
+  const { isAdmin, isRevalidating } = useOptionalAdminAuth();
   const {
     content,
     isLoading,
