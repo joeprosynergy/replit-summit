@@ -1,6 +1,6 @@
-import React, { useCallback, ReactNode } from 'react';
+import React, { useCallback, ReactNode, Suspense } from 'react';
 import { EditModeProvider } from '@/contexts/EditModeContext';
-import { AdminEditMode } from './AdminEditMode';
+import { LazyAdminEditMode } from './useAdminUI';
 import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 import { useSectionContent, SectionContent } from '@/hooks/useSectionContent';
 import { logAdminActivity } from '@/lib/adminActivityLog';
@@ -90,28 +90,32 @@ export function EditablePageWrapper<T extends SectionContent>({
         await handleSave();
       }}
     >
-      {/* Admin controls - only show after auth resolves */}
-      <AdminEditMode
-        isAdmin={isAdmin}
-        isRevalidating={isRevalidating}
-        isEditMode={isEditMode}
-        hasChanges={hasChanges}
-        isSaving={isSaving}
-        onToggleEdit={handleStartEditing}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        pageSlug={effectivePageSlug}
-        showDuplicateDialog={showDuplicateDialog}
-        showDeleteDialog={showDeleteDialog}
-        newSlug={newSlug}
-        isDuplicating={isDuplicating}
-        isDeleting={isDeleting}
-        onSetNewSlug={setNewSlug}
-        onSetShowDuplicateDialog={setShowDuplicateDialog}
-        onSetShowDeleteDialog={setShowDeleteDialog}
-        onDuplicatePage={handleDuplicatePage}
-        onDeletePage={deletePage}
-      />
+      {/* Admin controls - lazy loaded, only show for admins */}
+      {isAdmin && (
+        <Suspense fallback={null}>
+          <LazyAdminEditMode
+            isAdmin={isAdmin}
+            isRevalidating={isRevalidating}
+            isEditMode={isEditMode}
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onToggleEdit={handleStartEditing}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            pageSlug={effectivePageSlug}
+            showDuplicateDialog={showDuplicateDialog}
+            showDeleteDialog={showDeleteDialog}
+            newSlug={newSlug}
+            isDuplicating={isDuplicating}
+            isDeleting={isDeleting}
+            onSetNewSlug={setNewSlug}
+            onSetShowDuplicateDialog={setShowDuplicateDialog}
+            onSetShowDeleteDialog={setShowDeleteDialog}
+            onDuplicatePage={handleDuplicatePage}
+            onDeletePage={deletePage}
+          />
+        </Suspense>
+      )}
       
       {/* Content always renders immediately */}
       {typeof children === 'function' 
