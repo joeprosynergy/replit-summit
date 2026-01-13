@@ -2,7 +2,6 @@ import { useParams, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getBackendClient } from "@/lib/backendClient";
 import { EditablePageWrapper } from "@/components/admin/EditablePageWrapper";
-import { EconomyShedWorkingCopyRenderer } from "@/components/EconomyShedWorkingCopyRenderer";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NotFound from "./NotFound";
@@ -40,17 +39,10 @@ const DynamicPage = () => {
   const { "*": fullPath } = useParams();
   const slug = fullPath || "";
 
-  // 🚨 CMS-FIRST ROUTE REDIRECT (FINAL MINIMAL FIX)
-  const cmsFirstSlugs = ["economy-shed-working-copy"];
-
-  if (cmsFirstSlugs.includes(slug)) {
-    return <Navigate to={`/cms/${slug}`} replace />;
-  }
-
   // legacy logic continues below
   const [exists, setExists] = useState<boolean | null>(null);
   const [pageData, setPageData] = useState<DynamicContent | null>(null);
-  const [isCmsFirstPage, setIsCmsFirstPage] = useState<boolean>(false);
+
   const [cmsPageData, setCmsPageData] = useState<CmsPageData | null>(null);
 
   useEffect(() => {
@@ -78,7 +70,6 @@ const DynamicPage = () => {
             console.log(`[DynamicPage] CMS-FIRST PAGE from server: ${slug}`);
             setCmsPageData(data);
             setPageData(data.page);
-            setIsCmsFirstPage(true);
             setExists(true);
             return;
           }
@@ -167,29 +158,12 @@ const DynamicPage = () => {
     cmsPageData && cmsPageData.sections.some((s) => s.section_name !== "main");
 
   if (hasCmsFirstData) {
-    console.log(
-      `[DynamicPage] Rendering CMS-first page: ${slug} (server data)`,
-    );
-    return (
-      <EconomyShedWorkingCopyRenderer
-        pageSlug={slug}
-        initialPage={cmsPageData.page}
-        initialSections={cmsPageData.sections}
-      />
-    );
+    return <Navigate to={`/cms/${slug}`} replace />;
   }
 
   // GUARD: Prevent legacy rendering if CMS-first state is set but data not yet available
   // This prevents EditablePageWrapper from running useSectionContent for CMS-first pages
-  if (isCmsFirstPage) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">
-          Loading CMS content...
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <EditablePageWrapper slug={slug} defaultContent={defaultContent}>
