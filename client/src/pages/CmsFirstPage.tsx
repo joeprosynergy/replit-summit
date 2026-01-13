@@ -2,8 +2,15 @@ import { useParams } from "react-router-dom";
 import { EconomyShedWorkingCopyRenderer } from "@/components/EconomyShedWorkingCopyRenderer";
 
 const CmsFirstPage = () => {
-  const { "*": fullPath } = useParams();
-  const slug = fullPath || "";
+  const { slug } = useParams<{ slug: string }>();
+
+  if (!slug) {
+    return (
+      <div className="p-8 text-sm text-muted-foreground">
+        CMS page slug missing
+      </div>
+    );
+  }
 
   return <EconomyShedWorkingCopyRenderer pageSlug={slug} />;
 };

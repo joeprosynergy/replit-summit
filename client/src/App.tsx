@@ -93,9 +93,9 @@ const App = () => (
 
           {/* CMS-FIRST */}
           <Route
-            path="/cms/*"
+            path="/cms/:slug"
             element={
-              <Suspense fallback={null}>
+            <Suspense fallback={<div className="p-6 text-sm">Loading…</div>}>
                 <CmsFirstPage />
               </Suspense>
             }
