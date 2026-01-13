@@ -47,11 +47,11 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  if (app.get("env") === "development") {
-    await setupVite(app);
-  } else {
-    serveStatic(app);
-  }
+  if (process.env.NODE_ENV === "development") {
+  await setupVite(app);
+} else {
+  serveStatic(app);
+}
 
   const port = Number(process.env.PORT) || 3000;
 app.listen(port, "0.0.0.0", () => {
