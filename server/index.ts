@@ -19,8 +19,8 @@ async function startServer() {
     await setupVite(app);
     console.log("🔧 Vite dev server middleware enabled");
   } else {
-    // Production: Serve static build
-    const { serveStatic } = await import("./vite");
+    // Production: Serve static build (no Vite dependency)
+    const { serveStatic } = await import("./static");
     try {
       serveStatic(app);
       console.log("📦 Serving static build from dist/public");
