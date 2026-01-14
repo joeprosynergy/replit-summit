@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useEditModeOptional } from '@/contexts/EditModeContext';
+import { useGlobalEditState } from '@/contexts/globalEditRegistry';
 
 interface AdminEditModeProps {
   isAdmin: boolean;
@@ -18,9 +18,9 @@ interface AdminEditModeProps {
 
 export function AdminEditMode({ isAdmin }: AdminEditModeProps) {
   const navigate = useNavigate();
-  const editContext = useEditModeOptional();
+  const editState = useGlobalEditState();
 
-  if (!isAdmin || !editContext) return null;
+  if (!isAdmin || !editState) return null;
 
   const {
     isEditMode,
@@ -30,7 +30,7 @@ export function AdminEditMode({ isAdmin }: AdminEditModeProps) {
     save,
     cancel,
     pageManagement,
-  } = editContext;
+  } = editState;
 
   const pm = pageManagement;
   const hasPageManagement = pm && pm.pageSlug;

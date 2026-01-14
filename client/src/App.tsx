@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "./components/ScrollToTop";
+import { useOptionalAdminAuth } from "@/contexts/useOptionalAdminAuth";
+import { LazyAdminEditMode } from "@/components/admin/useAdminUI";
 
 import Index from "./pages/Index";
 import AboutUs from "./pages/AboutUs";
@@ -45,6 +47,16 @@ const AdminCloudinaryUpload = lazy(() => import("./pages/AdminCloudinaryUpload")
 const AssetAudit = lazy(() => import("./pages/AssetAudit"));
 const DynamicPage = lazy(() => import("./pages/DynamicPage"));
 
+function GlobalAdminControls() {
+  const { isAdmin } = useOptionalAdminAuth();
+  if (!isAdmin) return null;
+  return (
+    <Suspense fallback={null}>
+      <LazyAdminEditMode isAdmin={isAdmin} />
+    </Suspense>
+  );
+}
+
 const App = () => (
   <HelmetProvider>
     <TooltipProvider>
@@ -53,6 +65,7 @@ const App = () => (
 
       <BrowserRouter>
         <ScrollToTop />
+        <GlobalAdminControls />
 
         <Routes>
           {/* PUBLIC ROUTES */}

@@ -1,9 +1,10 @@
-import React, { useCallback, ReactNode, useMemo } from 'react';
+import React, { useCallback, ReactNode, useMemo, useState } from 'react';
 import { EditModeProvider } from '@/contexts/EditModeContext';
 import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 import { useSectionContent, SectionContent } from '@/hooks/useSectionContent';
 import { logAdminActivity } from '@/lib/adminActivityLog';
 import { usePageManagement } from '@/hooks/usePageManagement';
+import { useRegisterEditState } from '@/contexts/globalEditRegistry';
 
 interface EditablePageWrapperProps<T extends SectionContent> {
   children: ReactNode | ((props: { 
@@ -52,6 +53,8 @@ export function EditablePageWrapper<T extends SectionContent>({
     deletePage,
   } = usePageManagement(effectivePageSlug);
 
+  const [isEditMode, setIsEditMode] = useState(false);
+
   const handleDuplicatePage = useCallback(async (targetSlug: string) => {
     return duplicatePage(targetSlug, content as Record<string, any>, pageMetadata.layoutConfig);
   }, [duplicatePage, content, pageMetadata.layoutConfig]);
@@ -64,8 +67,18 @@ export function EditablePageWrapper<T extends SectionContent>({
         action: 'update',
         fieldPath: sectionName,
       });
+      setIsEditMode(false);
     }
   }, [saveContent, slug, sectionName]);
+
+  const handleCancel = useCallback(() => {
+    reset();
+    setIsEditMode(false);
+  }, [reset]);
+
+  const handleStartEditing = useCallback(() => {
+    setIsEditMode(true);
+  }, []);
 
   const pageManagement = useMemo(() => ({
     pageSlug: effectivePageSlug,
@@ -95,6 +108,18 @@ export function EditablePageWrapper<T extends SectionContent>({
     deletePage,
   ]);
 
+  const editState = useMemo(() => ({
+    isEditMode,
+    hasChanges,
+    isSaving,
+    startEditing: handleStartEditing,
+    save: handleSave,
+    cancel: handleCancel,
+    pageManagement,
+  }), [isEditMode, hasChanges, isSaving, handleStartEditing, handleSave, handleCancel, pageManagement]);
+
+  useRegisterEditState(editState);
+
   return (
     <EditModeProvider
       initialContent={content as Record<string, unknown>}
@@ -104,7 +129,7 @@ export function EditablePageWrapper<T extends SectionContent>({
       {typeof children === 'function' 
         ? children({ 
             content, 
-            isEditMode: false,
+            isEditMode,
             updateField,
             updateDynamicField,
           })
