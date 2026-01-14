@@ -212,11 +212,21 @@ export function useSectionContent<T extends SectionContent>(
         return;
       }
 
-      const { data: pageData } = await (client as any)
+      const { data: pageData, error: pageError } = await (client as any)
         .from('page_content')
         .select('id, layout_config, is_canonical')
         .eq('slug', pageSlug)
         .maybeSingle();
+
+      // CMS FETCH FAILURE: If page_content fails (401/404/error), short-circuit to defaults
+      // Do NOT activate CMS-first mode - defaults remain authoritative
+      if (pageError) {
+        console.log(`[useSectionContent] CMS unavailable for ${pageSlug}/${sectionName}: ${pageError.code || pageError.message}`);
+        hasResolvedRef.current = true;
+        baselineContentRef.current = defaultContent;
+        setIsLoading(false);
+        return;
+      }
 
       const pageId = pageData?.id || null;
       const layoutConfig = pageData?.layout_config || null;
@@ -254,8 +264,13 @@ export function useSectionContent<T extends SectionContent>(
         error = result.error;
       }
 
+      // CMS FETCH FAILURE: If section_content fails (401/404/error), short-circuit to defaults
       if (error) {
-        console.error('[useSectionContent] Fetch error:', error);
+        console.log(`[useSectionContent] CMS section unavailable for ${pageSlug}/${sectionName}: ${error.code || error.message}`);
+        hasResolvedRef.current = true;
+        baselineContentRef.current = defaultContent;
+        setIsLoading(false);
+        return;
       }
 
       // Diagnostic guards for economy-shed-working-copy ONLY
