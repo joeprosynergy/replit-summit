@@ -6,6 +6,63 @@ export interface SectionContent {
   [key: string]: string | number | boolean | string[] | Record<string, unknown>;
 }
 
+/**
+ * CMS-safe merge: Only override defaults when CMS provides a meaningful (non-empty) value.
+ * Treats "", null, undefined as "unset" - these do NOT override defaults.
+ * Supports nested objects and arrays.
+ */
+function deepMergeWithDefaults<T>(defaults: T, cmsData: Partial<T>): T {
+  if (!cmsData || typeof cmsData !== 'object') {
+    return defaults;
+  }
+  
+  const result = { ...defaults } as Record<string, unknown>;
+  
+  for (const key of Object.keys(cmsData)) {
+    const cmsValue = (cmsData as Record<string, unknown>)[key];
+    const defaultValue = (defaults as Record<string, unknown>)[key];
+    
+    // Check if CMS value is "unset" (empty/null/undefined)
+    const isUnset = cmsValue === null || 
+                    cmsValue === undefined || 
+                    cmsValue === '';
+    
+    if (isUnset) {
+      // CMS value is empty - keep default
+      continue;
+    }
+    
+    // Handle arrays: merge items recursively if they're objects
+    if (Array.isArray(cmsValue) && Array.isArray(defaultValue)) {
+      result[key] = cmsValue.map((cmsItem, index) => {
+        const defaultItem = defaultValue[index];
+        if (cmsItem && typeof cmsItem === 'object' && !Array.isArray(cmsItem) &&
+            defaultItem && typeof defaultItem === 'object' && !Array.isArray(defaultItem)) {
+          return deepMergeWithDefaults(defaultItem, cmsItem);
+        }
+        // For primitive arrays or non-matching types, check if item is empty
+        if (cmsItem === null || cmsItem === undefined || cmsItem === '') {
+          return defaultItem;
+        }
+        return cmsItem;
+      });
+      continue;
+    }
+    
+    // Handle nested objects
+    if (cmsValue && typeof cmsValue === 'object' && !Array.isArray(cmsValue) &&
+        defaultValue && typeof defaultValue === 'object' && !Array.isArray(defaultValue)) {
+      result[key] = deepMergeWithDefaults(defaultValue, cmsValue);
+      continue;
+    }
+    
+    // CMS has a meaningful value - use it
+    result[key] = cmsValue;
+  }
+  
+  return result as T;
+}
+
 export interface PageMetadata {
   pageId: string | null;
   layoutConfig: Record<string, any> | null;
@@ -153,18 +210,12 @@ export function useSectionContent<T extends SectionContent>(
           }
         }
 
-        if (isCmsFirstPage) {
-          // CMS-first page: use ONLY section_content data, NO defaults
-          console.log(`[useSectionContent] CMS-FIRST PAGE: Using section_content ONLY (no defaults merge) - ${Object.keys(data.content).length} fields`);
-          setContent(data.content as T);
-          setEditedContent(data.content as T);
-        } else {
-          // Legacy page: merge defaults with database content
-          const merged = { ...defaultContent, ...(data.content as T) };
-          console.log(`[useSectionContent] Merged content has ${Object.keys(merged).length} fields`);
-          setContent(merged);
-          setEditedContent(merged);
-        }
+        // CMS-safe merge: Empty CMS values ("", null, undefined) do NOT override defaults
+        // This works for both CMS-first and legacy pages
+        const merged = deepMergeWithDefaults(defaultContent, data.content as Partial<T>);
+        console.log(`[useSectionContent] CMS-safe merged content has ${Object.keys(merged).length} fields (CMS-first: ${isCmsFirstPage})`);
+        setContent(merged);
+        setEditedContent(merged);
       } else {
         // No database content found
         // Check if this is a CMS-first page that should NOT use defaults

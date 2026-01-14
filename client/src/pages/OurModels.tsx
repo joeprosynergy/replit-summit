@@ -155,24 +155,8 @@ const OurModels = () => {
 
   useEffect(() => {
     if (categoriesContent?.categories) {
-      // Merge with default images as fallback for empty/missing image URLs
-      const mergedCategories = categoriesContent.categories.map((category, catIdx) => {
-        const defaultCategory = defaultCategories.categories[catIdx];
-        return {
-          ...category,
-          models: category.models?.map((model, modelIdx) => {
-            const defaultModel = defaultCategory?.models?.[modelIdx];
-            const imageUrl = model.image && model.image.trim() !== '' 
-              ? model.image 
-              : defaultModel?.image || '';
-            return {
-              ...model,
-              image: imageUrl,
-            };
-          }) || defaultCategory?.models || [],
-        };
-      });
-      setLocalCategories(mergedCategories);
+      // CMS-safe merge already handled by useSectionContent
+      setLocalCategories(categoriesContent.categories);
     }
   }, [categoriesContent]);
 
