@@ -7,8 +7,76 @@ export interface SectionContent {
 }
 
 /**
+ * Checks if a value is a valid image URL (not a bare filename).
+ * 
+ * The problem: CMS may store bare filenames like "greenhouse-1.jpg" which,
+ * when rendered on /styles/greenhouse, resolve to /styles/greenhouse/greenhouse-1.jpg
+ * and return 404s.
+ * 
+ * Valid (has path context):
+ * - Full URLs: https://cdn.example.com/image.jpg
+ * - Data URIs: data:image/png;base64,...
+ * - Absolute paths: /images/foo.jpg, /cms/uploads/bar.png
+ * 
+ * Invalid (bare filenames - no path context):
+ * - greenhouse.jpg
+ * - my-image.png  
+ * - image_123.webp
+ */
+function isValidImageUrl(value: unknown): boolean {
+  if (typeof value !== 'string' || !value.trim()) {
+    return false;
+  }
+  
+  const trimmed = value.trim();
+  
+  // Full URLs - always valid
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return true;
+  }
+  
+  // Data URIs - always valid
+  if (trimmed.startsWith('data:')) {
+    return true;
+  }
+  
+  // Absolute paths (start with /) - valid (has path context)
+  if (trimmed.startsWith('/')) {
+    return true;
+  }
+  
+  // Everything else is a bare filename or relative path without context - invalid
+  // Examples: "greenhouse.jpg", "images/foo.jpg", "../bar.png"
+  return false;
+}
+
+/**
+ * Checks if a field key represents an image field.
+ * Matches common image field naming patterns.
+ */
+function isImageField(key: string): boolean {
+  const lowerKey = key.toLowerCase();
+  return lowerKey === 'image' ||
+         lowerKey === 'src' ||
+         lowerKey === 'url' ||
+         lowerKey.endsWith('image') ||
+         lowerKey.endsWith('img') ||
+         lowerKey.endsWith('url') ||
+         lowerKey.endsWith('photo') ||
+         lowerKey.endsWith('picture') ||
+         lowerKey.endsWith('background') ||
+         lowerKey.endsWith('thumbnail') ||
+         lowerKey.endsWith('avatar') ||
+         lowerKey.endsWith('logo') ||
+         lowerKey.endsWith('icon') ||
+         lowerKey.includes('image') ||
+         lowerKey.includes('photo');
+}
+
+/**
  * CMS-safe merge: Only override defaults when CMS provides a meaningful (non-empty) value.
  * Treats "", null, undefined as "unset" - these do NOT override defaults.
+ * For image fields: Treats relative filenames as invalid and falls back to defaults.
  * Supports nested objects and arrays.
  */
 function deepMergeWithDefaults<T>(defaults: T, cmsData: Partial<T>): T {
@@ -32,9 +100,20 @@ function deepMergeWithDefaults<T>(defaults: T, cmsData: Partial<T>): T {
       continue;
     }
     
+    // IMAGE URL NORMALIZATION: For image fields, validate that URL is absolute
+    // Relative filenames (e.g., "greenhouse-1.jpg") are treated as invalid
+    // because they resolve to broken paths like /styles/greenhouse/greenhouse-1.jpg
+    if (isImageField(key) && typeof cmsValue === 'string') {
+      if (!isValidImageUrl(cmsValue)) {
+        // Invalid relative filename - fall back to default
+        continue;
+      }
+    }
+    
     // Handle arrays: merge items recursively if they're objects
     if (Array.isArray(cmsValue) && Array.isArray(defaultValue)) {
-      result[key] = cmsValue.map((cmsItem, index) => {
+      const isImageArray = isImageField(key);
+      const merged = cmsValue.map((cmsItem, index) => {
         const defaultItem = defaultValue[index];
         if (cmsItem && typeof cmsItem === 'object' && !Array.isArray(cmsItem) &&
             defaultItem && typeof defaultItem === 'object' && !Array.isArray(defaultItem)) {
@@ -44,8 +123,17 @@ function deepMergeWithDefaults<T>(defaults: T, cmsData: Partial<T>): T {
         if (cmsItem === null || cmsItem === undefined || cmsItem === '') {
           return defaultItem;
         }
+        // For image arrays (e.g., galleryImages), validate each string entry
+        if (isImageArray && typeof cmsItem === 'string') {
+          if (!isValidImageUrl(cmsItem)) {
+            // Invalid relative filename - fall back to default item (may be undefined)
+            return defaultItem;
+          }
+        }
         return cmsItem;
       });
+      // Filter out undefined entries (from CMS arrays longer than defaults with invalid URLs)
+      result[key] = merged.filter((item) => item !== undefined);
       continue;
     }
     
