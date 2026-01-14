@@ -7,12 +7,12 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useEditablePageContent, PageContent } from '@/hooks/useEditablePageContent';
 import { useSectionContent } from '@/hooks/useSectionContent';
 import { InlineEditable } from '@/components/admin/InlineEditable';
-import { AdminEditMode } from '@/components/admin/AdminEditMode';
 import { usePageManagement } from '@/hooks/usePageManagement';
 import InlineEditableLink from '@/components/admin/InlineEditableLink';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { useState, useEffect } from 'react';
+import { normalizeImageUrl } from '@/lib/utils';
 
 interface ModelItem {
   name: string;
@@ -155,7 +155,24 @@ const OurModels = () => {
 
   useEffect(() => {
     if (categoriesContent?.categories) {
-      setLocalCategories(categoriesContent.categories);
+      // Merge with default images as fallback for empty/missing image URLs
+      const mergedCategories = categoriesContent.categories.map((category, catIdx) => {
+        const defaultCategory = defaultCategories.categories[catIdx];
+        return {
+          ...category,
+          models: category.models?.map((model, modelIdx) => {
+            const defaultModel = defaultCategory?.models?.[modelIdx];
+            const imageUrl = model.image && model.image.trim() !== '' 
+              ? model.image 
+              : defaultModel?.image || '';
+            return {
+              ...model,
+              image: imageUrl,
+            };
+          }) || defaultCategory?.models || [],
+        };
+      });
+      setLocalCategories(mergedCategories);
     }
   }, [categoriesContent]);
 
@@ -229,27 +246,6 @@ const OurModels = () => {
       </Helmet>
 
       <Header />
-
-      <AdminEditMode
-        isAdmin={isAdmin}
-        isEditMode={isEditMode}
-        hasChanges={hasChanges}
-        isSaving={isSaving}
-        onToggleEdit={startEditing}
-        onSave={handleSave}
-        onCancel={handleReset}
-        pageSlug="types"
-        showDuplicateDialog={showDuplicateDialog}
-        showDeleteDialog={showDeleteDialog}
-        newSlug={newSlug}
-        isDuplicating={isDuplicating}
-        isDeleting={isDeleting}
-        onSetNewSlug={setNewSlug}
-        onSetShowDuplicateDialog={setShowDuplicateDialog}
-        onSetShowDeleteDialog={setShowDeleteDialog}
-        onDuplicatePage={duplicatePage}
-        onDeletePage={deletePage}
-      />
 
       <main className="pt-20">
         {/* Hero Section */}
@@ -356,7 +352,7 @@ const OurModels = () => {
                             >
                               <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                                 <img
-                                  src={model.image}
+                                  src={normalizeImageUrl(model.image)}
                                   alt={model.name}
                                   className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
                                 />
