@@ -326,9 +326,8 @@ const StylesBarn = () => {
   const isSaving = isPageSaving || isStorageSaving || isCabinsSaving || isOtherSaving || isHeadersSaving || isCtaSaving;
   const hasChanges = hasPageChanges || hasStorageChanges || hasCabinsChanges || hasOtherChanges || hasHeadersChanges || hasCtaChanges;
 
-  if (isLoading) {
-    return null;
-  }
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes.
 
   const renderOptionCard = (
     option: OptionItem,

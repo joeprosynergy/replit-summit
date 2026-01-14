@@ -284,7 +284,8 @@ const Financing = () => {
   const isSaving = isPageSaving || isHeroSaving || isHowSaving || isRtoSaving || isFinCardsSaving || isFinSaving || isCtaSaving;
   const hasChanges = hasPageChanges || hasHeroChanges || hasHowChanges || hasRtoChanges || hasFinCardsChanges || hasFinChanges || hasCtaChanges;
 
-  if (isLoading) return null;
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes.
 
   const stepIcons = [Home, FileText, CreditCard, Key];
 
