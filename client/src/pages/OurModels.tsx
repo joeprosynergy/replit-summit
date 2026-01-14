@@ -304,46 +304,45 @@ const OurModels = () => {
                           : 'grid-cols-2 md:grid-cols-4 max-w-4xl mx-auto'
                     }`}>
                       {category.models.map((model, modelIndex) => (
-                        <div key={`${category.id}-${modelIndex}`} className="text-center">
-                          {isEditMode ? (
-                            <>
-                              <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                                <InlineEditableImage
-                                  src={model.image}
-                                  alt={model.name}
-                                  onImageChange={(url) => updateModel(categoryIndex, modelIndex, 'image', url)}
-                                  isEditMode={isEditMode}
-                                  imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-cover"
-                                />
-                              </div>
-                              <InlineEditableLink
-                                text={model.name}
-                                href={model.link}
-                                onTextChange={(text) => updateModel(categoryIndex, modelIndex, 'name', text)}
-                                onHrefChange={(href) => updateModel(categoryIndex, modelIndex, 'link', href)}
+                        <div key={`${category.id}-${modelIndex}`} className="text-center group">
+                          <Link
+                            to={model.link}
+                            target={model.openInNewTab ? '_blank' : undefined}
+                            rel={model.openInNewTab ? 'noopener noreferrer' : undefined}
+                            className="block"
+                            tabIndex={isEditMode ? -1 : 0}
+                            aria-hidden={isEditMode}
+                            onClick={isEditMode ? (e) => e.preventDefault() : undefined}
+                          >
+                            <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                              <InlineEditableImage
+                                src={model.image}
+                                alt={model.name}
+                                onImageChange={(url) => updateModel(categoryIndex, modelIndex, 'image', url)}
                                 isEditMode={isEditMode}
-                                isExternal={model.openInNewTab}
-                                onExternalChange={(ext) => updateModel(categoryIndex, modelIndex, 'openInNewTab', ext)}
-                                className="font-heading font-bold text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
+                                imageClassName="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
                               />
-                            </>
+                            </div>
+                          </Link>
+                          {isEditMode ? (
+                            <InlineEditableLink
+                              text={model.name}
+                              href={model.link}
+                              onTextChange={(text) => updateModel(categoryIndex, modelIndex, 'name', text)}
+                              onHrefChange={(href) => updateModel(categoryIndex, modelIndex, 'link', href)}
+                              isEditMode={isEditMode}
+                              isExternal={model.openInNewTab}
+                              onExternalChange={(ext) => updateModel(categoryIndex, modelIndex, 'openInNewTab', ext)}
+                              className="font-heading font-bold text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
+                            />
                           ) : (
                             <Link
                               to={model.link}
                               target={model.openInNewTab ? '_blank' : undefined}
                               rel={model.openInNewTab ? 'noopener noreferrer' : undefined}
-                              className="block group cursor-pointer"
+                              className="font-heading font-bold text-foreground group-hover:text-secondary transition-colors uppercase tracking-wide"
                             >
-                              <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                                <img
-                                  src={normalizeImageUrl(model.image)}
-                                  alt={model.name}
-                                  className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
-                                />
-                              </div>
-                              <h3 className="font-heading font-bold text-foreground group-hover:text-secondary transition-colors uppercase tracking-wide">
-                                {model.name}
-                              </h3>
+                              {model.name}
                             </Link>
                           )}
                         </div>
