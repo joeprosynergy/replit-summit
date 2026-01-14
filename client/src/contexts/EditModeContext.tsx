@@ -1,5 +1,20 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
+interface PageManagement {
+  pageSlug: string;
+  isRevalidating: boolean;
+  showDuplicateDialog: boolean;
+  showDeleteDialog: boolean;
+  newSlug: string;
+  isDuplicating: boolean;
+  isDeleting: boolean;
+  setNewSlug: (slug: string) => void;
+  setShowDuplicateDialog: (show: boolean) => void;
+  setShowDeleteDialog: (show: boolean) => void;
+  duplicatePage: (targetSlug: string) => Promise<boolean>;
+  deletePage: () => Promise<boolean>;
+}
+
 interface EditModeContextValue {
   isEditMode: boolean;
   hasChanges: boolean;
@@ -9,6 +24,7 @@ interface EditModeContextValue {
   startEditing: () => void;
   save: () => Promise<void>;
   cancel: () => void;
+  pageManagement: PageManagement | null;
 }
 
 const EditModeContext = createContext<EditModeContextValue | null>(null);
@@ -29,12 +45,14 @@ interface EditModeProviderProps {
   children: ReactNode;
   initialContent: Record<string, unknown>;
   onSave: (content: Record<string, unknown>) => Promise<void>;
+  pageManagement?: PageManagement;
 }
 
 export const EditModeProvider: React.FC<EditModeProviderProps> = ({
   children,
   initialContent,
   onSave,
+  pageManagement,
 }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -84,6 +102,7 @@ export const EditModeProvider: React.FC<EditModeProviderProps> = ({
         startEditing,
         save,
         cancel,
+        pageManagement: pageManagement ?? null,
       }}
     >
       {children}
