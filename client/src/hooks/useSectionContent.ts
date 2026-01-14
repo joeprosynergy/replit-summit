@@ -243,12 +243,22 @@ export function useSectionContent<T extends SectionContent>(
         return;
       }
 
-      // CMS FETCH FAILURE: Supabase returns { data: null, error: null, status: 401 }
-      // We must check BOTH error object AND status code
-      // Treat any non-success status (>=400) as failure and short-circuit to defaults
-      const isHttpError = pageStatus >= 400;
-      if (pageError || isHttpError) {
-        console.log(`[useSectionContent] CMS unavailable for ${pageSlug}/${sectionName}: status=${pageStatus}, using defaults`);
+      // CMS ACTIVATION GATE: CMS data may ONLY be used when ALL conditions are true:
+      // 1. status === 200 (explicit success - NOT just "not an error")
+      // 2. data !== null (actual data returned)
+      // 3. No error object
+      const pageSuccess = pageStatus === 200 && pageData !== null && !pageError;
+      
+      console.log("[CMS DECISION] page_content", {
+        status: pageStatus,
+        hasData: !!pageData,
+        hasError: !!pageError,
+        cmsFirstActivated: pageSuccess,
+        source: pageSuccess ? "CMS" : "DEFAULTS"
+      });
+      
+      if (!pageSuccess) {
+        // CMS unavailable or not successful - use defaults, NO merge
         hasResolvedRef.current = true;
         baselineContentRef.current = defaultContent;
         setEditedContent(defaultContent);
@@ -256,9 +266,9 @@ export function useSectionContent<T extends SectionContent>(
         return;
       }
 
-      const pageId = pageData?.id || null;
-      const layoutConfig = pageData?.layout_config || null;
-      const isCanonical = pageData?.is_canonical || false;
+      const pageId = pageData.id || null;
+      const layoutConfig = pageData.layout_config || null;
+      const isCanonical = pageData.is_canonical || false;
 
       setPageMetadata({ pageId, layoutConfig, isCanonical });
 
@@ -280,16 +290,10 @@ export function useSectionContent<T extends SectionContent>(
         sectionStatus = result.status || 0;
       }
 
-      // If first query returned HTTP error, short-circuit immediately
-      if (sectionStatus >= 400) {
-        console.log(`[useSectionContent] CMS section unavailable for ${pageSlug}/${sectionName}: status=${sectionStatus}`);
-        hasResolvedRef.current = true;
-        baselineContentRef.current = defaultContent;
-        setEditedContent(defaultContent);
-        setIsLoading(false);
-        return;
-      }
-
+      // Section query success gate - same strict check
+      const sectionQuerySuccess = sectionStatus === 200;
+      
+      // If first query didn't find data (status could be 200 with null data), try fallback
       if (!data && !error) {
         const result = await (client as any)
           .from('section_content')
@@ -305,10 +309,20 @@ export function useSectionContent<T extends SectionContent>(
         sectionStatus = result.status || 0;
       }
 
-      // CMS FETCH FAILURE: Check both error object AND status code
-      const isSectionHttpError = sectionStatus >= 400;
-      if (error || isSectionHttpError) {
-        console.log(`[useSectionContent] CMS section unavailable for ${pageSlug}/${sectionName}: status=${sectionStatus}, error=${error?.code || error?.message || 'none'}`);
+      // CMS SECTION ACTIVATION GATE: Require status === 200, data present, no error
+      const sectionSuccess = sectionStatus === 200 && data !== null && data.content && !error;
+      
+      console.log("[CMS DECISION] section_content", {
+        status: sectionStatus,
+        hasData: !!data,
+        hasContent: !!(data?.content),
+        hasError: !!error,
+        cmsFirstActivated: sectionSuccess,
+        source: sectionSuccess ? "CMS" : "DEFAULTS"
+      });
+      
+      if (!sectionSuccess) {
+        // CMS section unavailable - use defaults, NO merge, NO "Resolved" log
         hasResolvedRef.current = true;
         baselineContentRef.current = defaultContent;
         setEditedContent(defaultContent);
@@ -357,24 +371,37 @@ export function useSectionContent<T extends SectionContent>(
         }
       }
 
-      // SINGLE RESOLUTION: Set content exactly once
-      if (data && !error && data.content) {
-        const cmsRaw = data.content as Partial<T>;
-        
-        // CMS-safe merge: Empty CMS values ("", null, undefined) do NOT override defaults
-        const merged = deepMergeWithDefaults(defaultContent, cmsRaw);
-        
-        console.log(`[useSectionContent] Resolved ${pageSlug}/${sectionName}: ${Object.keys(merged).length} fields`);
-        
-        // Set baseline ref (stable reference) and edited state
-        baselineContentRef.current = merged;
-        setEditedContent(merged);
-      } else {
-        // No database content found - use defaults
-        console.log(`[useSectionContent] Resolved ${pageSlug}/${sectionName}: using defaults (${Object.keys(defaultContent).length} fields)`);
+      // SINGLE RESOLUTION: We only reach here if sectionSuccess is true
+      // This means status === 200 AND data.content exists
+      const cmsRaw = data.content as Partial<T>;
+      
+      // CMS-safe merge: Empty CMS values ("", null, undefined) do NOT override defaults
+      const merged = deepMergeWithDefaults(defaultContent, cmsRaw);
+      
+      // SAFETY NET: Hard reject if any bare filename pattern exists in merged content
+      // Pattern matches: "something.jpg" but NOT "/path/to/something.jpg" or "https://..."
+      const mergedJson = JSON.stringify(merged);
+      const bareFilenamePattern = /"([^"/]+\.(jpg|jpeg|png|webp|gif))"/gi;
+      const bareMatches = mergedJson.match(bareFilenamePattern);
+      
+      if (bareMatches) {
+        console.error("[CMS SAFETY NET] INVALID BARE FILENAME DETECTED - REJECTING CMS DATA", {
+          matches: bareMatches,
+          section: `${pageSlug}/${sectionName}`
+        });
+        // DO NOT UPDATE STATE - use defaults
+        hasResolvedRef.current = true;
         baselineContentRef.current = defaultContent;
-        // editedContent already initialized with defaultContent
+        setEditedContent(defaultContent);
+        setIsLoading(false);
+        return;
       }
+      
+      console.log(`[useSectionContent] Resolved ${pageSlug}/${sectionName}: ${Object.keys(merged).length} fields from CMS`);
+      
+      // Set baseline ref (stable reference) and edited state
+      baselineContentRef.current = merged;
+      setEditedContent(merged);
       
       // Mark as resolved - no further state updates for this section lifecycle
       hasResolvedRef.current = true;
