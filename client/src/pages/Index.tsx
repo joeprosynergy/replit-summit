@@ -603,9 +603,9 @@ const Index = () => {
   const isSaving = isPageSaving || isStakesSaving || isGuideSaving || isHowItWorksSaving || isProductsSaving || isImagineSaving || isCTASaving || isLocationsSaving || isContactSaving || isHeroButtonsSaving || isTestimonialsHeaderSaving;
   const hasChanges = hasPageChanges || hasStakesChanges || hasGuideChanges || hasHowItWorksChanges || hasProductsChanges || hasImagineChanges || hasCTAChanges || hasLocationsChanges || hasContactChanges || hasTestimonialChanges || hasHeroButtonsChanges || hasTestimonialsHeaderChanges;
 
-  if (isLoading) {
-    return null;
-  }
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes. Render the structure
+  // always; content will update in place when CMS data resolves.
 
   return (
     <>

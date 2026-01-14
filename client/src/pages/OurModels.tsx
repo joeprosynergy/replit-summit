@@ -217,9 +217,9 @@ const OurModels = () => {
   const isSaving = isPageSaving || isCategoriesSaving || isCtaSaving;
   const hasChanges = hasPageChanges || hasCategoriesChanges || hasCtaChanges;
 
-  if (isLoading) {
-    return null;
-  }
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes. Render the structure
+  // always; content will update in place when CMS data resolves.
 
   return (
     <>
