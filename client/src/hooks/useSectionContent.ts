@@ -114,6 +114,7 @@ function deepMergeWithDefaults<T>(defaults: T, cmsData: Partial<T>): T {
     if (isImageField(key) && typeof cmsValue === 'string') {
       if (!isValidImageUrl(cmsValue)) {
         // Invalid relative filename - fall back to default
+        console.warn(`[CMS] Rejecting invalid image URL for ${key}: "${cmsValue}"`);
         continue;
       }
     }
@@ -247,7 +248,7 @@ export function useSectionContent<T extends SectionContent>(
       // Treat any non-success status (>=400) as failure and short-circuit to defaults
       const isHttpError = pageStatus >= 400;
       if (pageError || isHttpError) {
-        console.log(`[useSectionContent] CMS unavailable for ${pageSlug}/${sectionName}: status=${pageStatus}, error=${pageError?.code || pageError?.message || 'none'}`);
+        console.log(`[useSectionContent] CMS unavailable for ${pageSlug}/${sectionName}: status=${pageStatus}, using defaults`);
         hasResolvedRef.current = true;
         baselineContentRef.current = defaultContent;
         setEditedContent(defaultContent);
@@ -358,8 +359,11 @@ export function useSectionContent<T extends SectionContent>(
 
       // SINGLE RESOLUTION: Set content exactly once
       if (data && !error && data.content) {
+        const cmsRaw = data.content as Partial<T>;
+        
         // CMS-safe merge: Empty CMS values ("", null, undefined) do NOT override defaults
-        const merged = deepMergeWithDefaults(defaultContent, data.content as Partial<T>);
+        const merged = deepMergeWithDefaults(defaultContent, cmsRaw);
+        
         console.log(`[useSectionContent] Resolved ${pageSlug}/${sectionName}: ${Object.keys(merged).length} fields`);
         
         // Set baseline ref (stable reference) and edited state
