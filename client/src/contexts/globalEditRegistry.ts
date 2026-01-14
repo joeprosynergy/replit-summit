@@ -1,4 +1,4 @@
-import { useRef, useEffect, useSyncExternalStore, useCallback } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
 interface PageManagement {
   pageSlug: string;
@@ -57,13 +57,11 @@ export function useGlobalEditState(): EditState | null {
 }
 
 export function useRegisterEditState(state: EditState | null): void {
-  const stateRef = useRef(state);
-  stateRef.current = state;
-
   useEffect(() => {
     globalEditRegistry.setEditState(state);
+    const registeredState = state;
     return () => {
-      if (globalEditRegistry.getSnapshot() === stateRef.current) {
+      if (globalEditRegistry.getSnapshot() === registeredState) {
         globalEditRegistry.setEditState(null);
       }
     };
