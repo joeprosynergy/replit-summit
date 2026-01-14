@@ -9,7 +9,6 @@ import { getBackendClient, isBackendAvailable } from "@/lib/backendClient";
 import { migrateAllContent, MigrationProgress, MigrationResult } from "@/lib/contentMigration";
 import { MigrateEconomyShedWorkingCopy } from "@/components/admin/MigrateEconomyShedWorkingCopy";
 import { toast } from "sonner";
-import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 
 // Helper to extract hostname for debug display
 function getBackendHost(): string {
@@ -498,9 +497,5 @@ function AdminDashboard() {
 
 
 export default function Admin() {
-  return (
-    <AdminAuthProvider>
-      <AdminDashboard />
-    </AdminAuthProvider>
-  );
+  return <AdminDashboard />;
 }

@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "./components/ScrollToTop";
+import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { useOptionalAdminAuth } from "@/contexts/useOptionalAdminAuth";
 import { LazyAdminEditMode } from "@/components/admin/useAdminUI";
 
@@ -64,8 +65,9 @@ const App = () => (
       <Sonner />
 
       <BrowserRouter>
-        <ScrollToTop />
-        <GlobalAdminControls />
+        <AdminAuthProvider>
+          <ScrollToTop />
+          <GlobalAdminControls />
 
         <Routes>
           {/* PUBLIC ROUTES */}
@@ -173,6 +175,7 @@ const App = () => (
           />
 
         </Routes>
+        </AdminAuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </HelmetProvider>
