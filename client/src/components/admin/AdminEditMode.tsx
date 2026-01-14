@@ -20,37 +20,33 @@ export function AdminEditMode({ isAdmin }: AdminEditModeProps) {
   const navigate = useNavigate();
   const editState = useGlobalEditState();
 
-  if (!isAdmin || !editState) return null;
+  if (!isAdmin) return null;
 
-  const {
-    isEditMode,
-    hasChanges,
-    isSaving,
-    startEditing,
-    save,
-    cancel,
-    pageManagement,
-  } = editState;
-
-  const pm = pageManagement;
+  const isEditMode = editState?.isEditMode ?? false;
+  const hasChanges = editState?.hasChanges ?? false;
+  const isSaving = editState?.isSaving ?? false;
+  const pm = editState?.pageManagement;
   const hasPageManagement = pm && pm.pageSlug;
+  const isEditablePage = editState !== null;
 
   return (
     <>
       <div className="fixed bottom-6 right-6 z-50 flex gap-2" data-testid="admin-edit-controls">
+        {/* Back to Admin - always visible for admins */}
+        <Button
+          variant="outline"
+          onClick={() => navigate('/admin')}
+          disabled={isSaving}
+          data-testid="button-back-to-admin"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Admin
+        </Button>
+
         {isEditMode ? (
           <>
             {hasPageManagement && (
               <>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/admin')}
-                  disabled={isSaving}
-                  data-testid="button-back-to-admin"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Admin
-                </Button>
                 <Button
                   variant="outline"
                   onClick={() => pm.setShowDuplicateDialog(true)}
@@ -73,26 +69,26 @@ export function AdminEditMode({ isAdmin }: AdminEditModeProps) {
             )}
             <Button
               variant="outline"
-              onClick={cancel}
+              onClick={editState?.cancel}
               disabled={isSaving}
             >
               <X className="w-4 h-4 mr-2" />
               Cancel
             </Button>
             <Button
-              onClick={save}
+              onClick={editState?.save}
               disabled={!hasChanges || isSaving}
             >
               <Save className="w-4 h-4 mr-2" />
               {isSaving ? 'Saving...' : 'Save Changes'}
             </Button>
           </>
-        ) : (
-          <Button onClick={startEditing} disabled={pm?.isRevalidating}>
+        ) : isEditablePage ? (
+          <Button onClick={editState?.startEditing} disabled={pm?.isRevalidating}>
             <Pencil className="w-4 h-4 mr-2" />
             {pm?.isRevalidating ? 'Verifying...' : 'Edit Page'}
           </Button>
-        )}
+        ) : null}
       </div>
 
       {hasPageManagement && (
