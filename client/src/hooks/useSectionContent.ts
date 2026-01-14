@@ -217,28 +217,11 @@ export function useSectionContent<T extends SectionContent>(
         setContent(merged);
         setEditedContent(merged);
       } else {
-        // No database content found
-        // Check if this is a CMS-first page that should NOT use defaults
-        let isCmsFirstPage = false;
-        if (pageId) {
-          const { data: allSections } = await (client as any)
-            .from('section_content')
-            .select('section_name')
-            .eq('page_id', pageId);
-          
-          if (allSections && allSections.length > 0) {
-            isCmsFirstPage = allSections.some((s: { section_name: string }) => s.section_name !== 'main');
-          }
-        }
-
-        if (isCmsFirstPage) {
-          // CMS-first page with missing section: do NOT fall back to defaults
-          console.log(`[useSectionContent] CMS-FIRST PAGE: No section '${sectionName}' found, NOT using defaults`);
-          setContent({} as T);
-          setEditedContent({} as T);
-        } else {
-          console.log(`[useSectionContent] No DB content, using defaultContent with ${Object.keys(defaultContent).length} fields`);
-        }
+        // No database content found - use defaults
+        // CMS-safe merge with empty object = keep all defaults
+        // This ensures consistent behavior: empty/missing CMS values never override defaults
+        console.log(`[useSectionContent] No DB content, using defaultContent with ${Object.keys(defaultContent).length} fields`);
+        // Content already initialized with defaultContent, no change needed
       }
       setIsLoading(false);
     };
