@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getBackendClient, isBackendAvailable } from '@/lib/backendClient';
 import { toast } from 'sonner';
 
@@ -74,7 +74,13 @@ export function useSectionContent<T extends SectionContent>(
   sectionName: string,
   defaultContent: T
 ) {
-  const [content, setContent] = useState<T>(defaultContent);
+  // Lifecycle guard: ensures merged content is set exactly once per section lifecycle
+  const hasResolvedRef = useRef(false);
+  // Stable baseline content ref - holds the resolved content without causing re-renders
+  const baselineContentRef = useRef<T>(defaultContent);
+  // Track current section identity to reset on navigation
+  const sectionIdentityRef = useRef(`${pageSlug}/${sectionName}`);
+
   const [editedContent, setEditedContent] = useState<T>(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -83,16 +89,37 @@ export function useSectionContent<T extends SectionContent>(
     layoutConfig: null,
     isCanonical: false,
   });
+  // Version counter to force hasChanges recalculation after save
+  const [baselineVersion, setBaselineVersion] = useState(0);
+
+  // Reset lifecycle state when section identity changes (navigation)
+  const currentIdentity = `${pageSlug}/${sectionName}`;
+  if (sectionIdentityRef.current !== currentIdentity) {
+    sectionIdentityRef.current = currentIdentity;
+    hasResolvedRef.current = false;
+    baselineContentRef.current = defaultContent;
+  }
 
   useEffect(() => {
     const fetchContent = async () => {
+      // LIFECYCLE GUARD: If already resolved, do not re-fetch or re-merge
+      if (hasResolvedRef.current) {
+        return;
+      }
+
       if (!isBackendAvailable()) {
+        // Mark resolved with defaults
+        hasResolvedRef.current = true;
+        baselineContentRef.current = defaultContent;
         setIsLoading(false);
         return;
       }
 
       const client = getBackendClient();
       if (!client) {
+        // Mark resolved with defaults
+        hasResolvedRef.current = true;
+        baselineContentRef.current = defaultContent;
         setIsLoading(false);
         return;
       }
@@ -143,16 +170,6 @@ export function useSectionContent<T extends SectionContent>(
         console.error('[useSectionContent] Fetch error:', error);
       }
 
-      console.log(`[useSectionContent] Fetch result for ${pageSlug}/${sectionName}:`, {
-        hasData: !!data,
-        hasError: !!error,
-        hasContent: !!(data?.content),
-        contentFieldCount: data?.content ? Object.keys(data.content).length : 0,
-        defaultContentFieldCount: Object.keys(defaultContent).length,
-        pageId,
-        usedPageId: !!data?.page_id,
-      });
-
       // Diagnostic guards for economy-shed-working-copy ONLY
       if (pageSlug === 'economy-shed-working-copy') {
         const isLayoutConfigMissing = !layoutConfig || 
@@ -194,42 +211,32 @@ export function useSectionContent<T extends SectionContent>(
         }
       }
 
+      // SINGLE RESOLUTION: Set content exactly once
       if (data && !error && data.content) {
-        // CMS-FIRST GUARD: If section_content exists for this page_id,
-        // the page is authoritative and must NOT be merged with defaults
-        // Check if this page has CMS-first sections (sections other than 'main')
-        let isCmsFirstPage = false;
-        if (pageId) {
-          const { data: allSections } = await (client as any)
-            .from('section_content')
-            .select('section_name')
-            .eq('page_id', pageId);
-          
-          if (allSections && allSections.length > 0) {
-            isCmsFirstPage = allSections.some((s: { section_name: string }) => s.section_name !== 'main');
-          }
-        }
-
         // CMS-safe merge: Empty CMS values ("", null, undefined) do NOT override defaults
-        // This works for both CMS-first and legacy pages
         const merged = deepMergeWithDefaults(defaultContent, data.content as Partial<T>);
-        console.log(`[useSectionContent] CMS-safe merged content has ${Object.keys(merged).length} fields (CMS-first: ${isCmsFirstPage})`);
-        setContent(merged);
+        console.log(`[useSectionContent] Resolved ${pageSlug}/${sectionName}: ${Object.keys(merged).length} fields`);
+        
+        // Set baseline ref (stable reference) and edited state
+        baselineContentRef.current = merged;
         setEditedContent(merged);
       } else {
         // No database content found - use defaults
-        // CMS-safe merge with empty object = keep all defaults
-        // This ensures consistent behavior: empty/missing CMS values never override defaults
-        console.log(`[useSectionContent] No DB content, using defaultContent with ${Object.keys(defaultContent).length} fields`);
-        // Content already initialized with defaultContent, no change needed
+        console.log(`[useSectionContent] Resolved ${pageSlug}/${sectionName}: using defaults (${Object.keys(defaultContent).length} fields)`);
+        baselineContentRef.current = defaultContent;
+        // editedContent already initialized with defaultContent
       }
+      
+      // Mark as resolved - no further state updates for this section lifecycle
+      hasResolvedRef.current = true;
       setIsLoading(false);
     };
 
     fetchContent();
   }, [pageSlug, sectionName]);
 
-  const hasChanges = JSON.stringify(content) !== JSON.stringify(editedContent);
+  // Compare against stable baseline ref (baselineVersion forces recalc after save)
+  const hasChanges = JSON.stringify(baselineContentRef.current) !== JSON.stringify(editedContent);
 
   const save = useCallback(async () => {
     const client = getBackendClient();
@@ -305,7 +312,9 @@ export function useSectionContent<T extends SectionContent>(
 
       console.log('[useSectionContent] Successfully wrote row:', writtenRow);
       toast.success('Section saved');
-      setContent(editedContent);
+      // Update baseline ref (stable, no re-render) and bump version to recalc hasChanges
+      baselineContentRef.current = JSON.parse(JSON.stringify(editedContent));
+      setBaselineVersion(v => v + 1);
       setIsSaving(false);
       return true;
     } catch (err: any) {
@@ -317,8 +326,8 @@ export function useSectionContent<T extends SectionContent>(
   }, [pageSlug, sectionName, editedContent, pageMetadata]);
 
   const reset = useCallback(() => {
-    setEditedContent(content);
-  }, [content]);
+    setEditedContent(baselineContentRef.current);
+  }, []);
 
   const updateField = useCallback(<K extends keyof T>(field: K, value: T[K]) => {
     setEditedContent(prev => ({ ...prev, [field]: value }));
@@ -328,9 +337,12 @@ export function useSectionContent<T extends SectionContent>(
     setEditedContent(prev => ({ ...prev, [field]: value } as T));
   }, []);
 
+  // Include baselineVersion in the return to ensure React re-renders when it changes
+  void baselineVersion;
+
   return {
     content: editedContent,
-    originalContent: content,
+    originalContent: baselineContentRef.current,
     isLoading,
     isSaving,
     hasChanges,
