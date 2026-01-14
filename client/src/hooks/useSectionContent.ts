@@ -51,16 +51,24 @@ function isValidImageUrl(value: unknown): boolean {
 }
 
 /**
- * Checks if a field key represents an image field.
- * Matches common image field naming patterns.
+ * Checks if a field key represents an image URL field.
+ * Matches common image field naming patterns but EXCLUDES alt text fields.
  */
 function isImageField(key: string): boolean {
   const lowerKey = key.toLowerCase();
+  
+  // EXCLUDE alt text fields - these contain descriptions, not URLs
+  if (lowerKey.endsWith('alt')) {
+    return false;
+  }
+  
   return lowerKey === 'image' ||
          lowerKey === 'src' ||
          lowerKey === 'url' ||
          lowerKey.endsWith('image') ||
+         lowerKey.endsWith('images') ||
          lowerKey.endsWith('img') ||
+         lowerKey.endsWith('src') ||
          lowerKey.endsWith('url') ||
          lowerKey.endsWith('photo') ||
          lowerKey.endsWith('picture') ||
@@ -69,8 +77,8 @@ function isImageField(key: string): boolean {
          lowerKey.endsWith('avatar') ||
          lowerKey.endsWith('logo') ||
          lowerKey.endsWith('icon') ||
-         lowerKey.includes('image') ||
-         lowerKey.includes('photo');
+         (lowerKey.includes('image') && !lowerKey.includes('alt')) ||
+         (lowerKey.includes('photo') && !lowerKey.includes('alt'));
 }
 
 /**
@@ -212,18 +220,37 @@ export function useSectionContent<T extends SectionContent>(
         return;
       }
 
-      const { data: pageData, error: pageError } = await (client as any)
-        .from('page_content')
-        .select('id, layout_config, is_canonical')
-        .eq('slug', pageSlug)
-        .maybeSingle();
-
-      // CMS FETCH FAILURE: If page_content fails (401/404/error), short-circuit to defaults
-      // Do NOT activate CMS-first mode - defaults remain authoritative
-      if (pageError) {
-        console.log(`[useSectionContent] CMS unavailable for ${pageSlug}/${sectionName}: ${pageError.code || pageError.message}`);
+      let pageData = null;
+      let pageError = null;
+      let pageStatus = 0;
+      
+      try {
+        const pageResult = await (client as any)
+          .from('page_content')
+          .select('id, layout_config, is_canonical')
+          .eq('slug', pageSlug)
+          .maybeSingle();
+        pageData = pageResult.data;
+        pageError = pageResult.error;
+        pageStatus = pageResult.status || 0;
+      } catch (e: any) {
+        console.log(`[useSectionContent] CMS exception for ${pageSlug}/${sectionName}: ${e.message}`);
         hasResolvedRef.current = true;
         baselineContentRef.current = defaultContent;
+        setEditedContent(defaultContent);
+        setIsLoading(false);
+        return;
+      }
+
+      // CMS FETCH FAILURE: Supabase returns { data: null, error: null, status: 401 }
+      // We must check BOTH error object AND status code
+      // Treat any non-success status (>=400) as failure and short-circuit to defaults
+      const isHttpError = pageStatus >= 400;
+      if (pageError || isHttpError) {
+        console.log(`[useSectionContent] CMS unavailable for ${pageSlug}/${sectionName}: status=${pageStatus}, error=${pageError?.code || pageError?.message || 'none'}`);
+        hasResolvedRef.current = true;
+        baselineContentRef.current = defaultContent;
+        setEditedContent(defaultContent);
         setIsLoading(false);
         return;
       }
@@ -236,6 +263,7 @@ export function useSectionContent<T extends SectionContent>(
 
       let data = null;
       let error = null;
+      let sectionStatus = 0;
 
       if (pageId) {
         const result = await (client as any)
@@ -248,6 +276,17 @@ export function useSectionContent<T extends SectionContent>(
           .maybeSingle();
         data = result.data;
         error = result.error;
+        sectionStatus = result.status || 0;
+      }
+
+      // If first query returned HTTP error, short-circuit immediately
+      if (sectionStatus >= 400) {
+        console.log(`[useSectionContent] CMS section unavailable for ${pageSlug}/${sectionName}: status=${sectionStatus}`);
+        hasResolvedRef.current = true;
+        baselineContentRef.current = defaultContent;
+        setEditedContent(defaultContent);
+        setIsLoading(false);
+        return;
       }
 
       if (!data && !error) {
@@ -262,13 +301,16 @@ export function useSectionContent<T extends SectionContent>(
           .maybeSingle();
         data = result.data;
         error = result.error;
+        sectionStatus = result.status || 0;
       }
 
-      // CMS FETCH FAILURE: If section_content fails (401/404/error), short-circuit to defaults
-      if (error) {
-        console.log(`[useSectionContent] CMS section unavailable for ${pageSlug}/${sectionName}: ${error.code || error.message}`);
+      // CMS FETCH FAILURE: Check both error object AND status code
+      const isSectionHttpError = sectionStatus >= 400;
+      if (error || isSectionHttpError) {
+        console.log(`[useSectionContent] CMS section unavailable for ${pageSlug}/${sectionName}: status=${sectionStatus}, error=${error?.code || error?.message || 'none'}`);
         hasResolvedRef.current = true;
         baselineContentRef.current = defaultContent;
+        setEditedContent(defaultContent);
         setIsLoading(false);
         return;
       }
