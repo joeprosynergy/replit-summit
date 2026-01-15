@@ -141,8 +141,25 @@ function deepMergeWithDefaults<T>(defaults: T, cmsData: Partial<T>): T {
         }
         return cmsItem;
       });
+
       // Filter out undefined entries (from CMS arrays longer than defaults with invalid URLs)
-      result[key] = merged.filter((item) => item !== undefined);
+      const filtered = merged.filter((item) => item !== undefined);
+
+      // Treat empty/invalid arrays as "unset" so we keep defaults
+      if (filtered.length === 0) {
+        console.warn(`[CMS] Array fallback to defaults for ${key}: empty or invalid entries`);
+        result[key] = defaultValue;
+        continue;
+      }
+
+      // If CMS provides fewer items than defaults, append remaining defaults
+      if (filtered.length < defaultValue.length) {
+        console.warn(`[CMS] Array shorter than defaults for ${key}: filling with defaults`);
+        result[key] = [...filtered, ...defaultValue.slice(filtered.length)];
+        continue;
+      }
+
+      result[key] = filtered;
       continue;
     }
     
