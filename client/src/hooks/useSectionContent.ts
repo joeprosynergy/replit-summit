@@ -40,9 +40,15 @@ function isValidImageUrl(value: unknown): boolean {
     return true;
   }
   
-  // Absolute paths (start with /) - valid (has path context)
+  // Absolute paths (start with /) - only valid when they include a folder segment.
+  // Reject bare filenames like "/greenhouse-1.jpg" which resolve to 404s in prod.
   if (trimmed.startsWith('/')) {
-    return true;
+    const hasFolderSegment = trimmed.indexOf('/', 1) !== -1;
+    if (hasFolderSegment) {
+      return true;
+    }
+    console.warn(`[CMS] Rejecting root-level image path with no folder: "${trimmed}"`);
+    return false;
   }
   
   // Everything else is a bare filename or relative path without context - invalid
