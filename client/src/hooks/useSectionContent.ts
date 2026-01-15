@@ -66,9 +66,6 @@ function isValidImageUrl(value: unknown): boolean {
   
   // Everything else is a bare filename or relative path without context - invalid
   // Examples: "greenhouse.jpg", "images/foo.jpg", "../bar.png"
-  // #region agent log
-  console.warn(`[CMS] ❌ Rejected bare filename: "${trimmed}"`);
-  // #endregion
   return false;
 }
 
@@ -220,26 +217,6 @@ export function useSectionContent<T extends SectionContent>(
   const [editedContent, setEditedContent] = useState<T>(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  // #region agent log
-  React.useEffect(() => {
-    console.log(`[CMS TRACE] editedContent changed for ${pageSlug}/${sectionName}`, {
-      heroImage: (editedContent as any).heroImage,
-      galleryImage1: (editedContent as any).galleryImage1,
-      galleryImage2: (editedContent as any).galleryImage2,
-      galleryImage3: (editedContent as any).galleryImage3,
-      galleryImage4: (editedContent as any).galleryImage4,
-    });
-    
-    // RUNTIME ASSERTION: Detect bare filenames entering state
-    const contentJson = JSON.stringify(editedContent);
-    const hasBareFilename = contentJson.match(/["'](?!https?:\/\/)(?!data:)(?!\/)([^"'\/]+\.(jpg|jpeg|png|webp|gif))["']/i);
-    if (hasBareFilename) {
-      console.error("❌ INVALID IMAGE VALUE IN STATE:", hasBareFilename[0]);
-      console.error("Full content:", editedContent);
-    }
-  }, [editedContent, pageSlug, sectionName]);
-  // #endregion
   const [pageMetadata, setPageMetadata] = useState<PageMetadata>({
     pageId: null,
     layoutConfig: null,
@@ -251,16 +228,6 @@ export function useSectionContent<T extends SectionContent>(
   // Reset lifecycle state when section identity changes (navigation)
   const currentIdentity = `${pageSlug}/${sectionName}`;
   if (sectionIdentityRef.current !== currentIdentity) {
-    // #region agent log
-    console.log(`[CMS TRACE] 🔄 Section identity changed`, {
-      oldIdentity: sectionIdentityRef.current,
-      newIdentity: currentIdentity,
-      defaultImages: {
-        heroImage: (defaultContent as any).heroImage,
-        galleryImage1: (defaultContent as any).galleryImage1,
-      }
-    });
-    // #endregion
     sectionIdentityRef.current = currentIdentity;
     hasResolvedRef.current = false;
     baselineContentRef.current = defaultContent;
@@ -268,17 +235,8 @@ export function useSectionContent<T extends SectionContent>(
 
   useEffect(() => {
     const fetchContent = async () => {
-      // #region agent log
-      console.log(`[CMS TRACE] fetchContent called for ${pageSlug}/${sectionName}`, {
-        hasResolved: hasResolvedRef.current,
-        currentIdentity: sectionIdentityRef.current,
-      });
-      // #endregion
       // LIFECYCLE GUARD: If already resolved, do not re-fetch or re-merge
       if (hasResolvedRef.current) {
-        // #region agent log
-        console.log(`[CMS TRACE] Early return - already resolved ${pageSlug}/${sectionName}`);
-        // #endregion
         return;
       }
 
@@ -390,25 +348,6 @@ export function useSectionContent<T extends SectionContent>(
       // CMS SECTION ACTIVATION GATE: Require status === 200, data present, no error
       const sectionSuccess = sectionStatus === 200 && data !== null && data.content && !error;
       
-      // #region agent log
-      console.group(`[CMS TRACE] Section query result ${pageSlug}/${sectionName}`);
-      console.log("Status:", sectionStatus);
-      console.log("Has data:", !!data);
-      console.log("Has content:", !!(data?.content));
-      console.log("Has error:", !!error);
-      console.log("Section success:", sectionSuccess);
-      if (data?.content) {
-        console.log("CMS Raw Content (images):", {
-          heroImage: (data.content as any).heroImage,
-          galleryImage1: (data.content as any).galleryImage1,
-          galleryImage2: (data.content as any).galleryImage2,
-          galleryImage3: (data.content as any).galleryImage3,
-          galleryImage4: (data.content as any).galleryImage4,
-        });
-      }
-      console.groupEnd();
-      // #endregion
-      
       console.log("[CMS DECISION] section_content", {
         status: sectionStatus,
         hasData: !!data,
@@ -417,17 +356,6 @@ export function useSectionContent<T extends SectionContent>(
         cmsFirstActivated: sectionSuccess,
         source: sectionSuccess ? "CMS" : "DEFAULTS"
       });
-      
-      // CRITICAL: Log the actual CMS image values
-      if (data?.content) {
-        console.warn("🚨 CMS RAW IMAGE VALUES:", {
-          heroImage: (data.content as any).heroImage,
-          galleryImage1: (data.content as any).galleryImage1,
-          galleryImage2: (data.content as any).galleryImage2,
-          galleryImage3: (data.content as any).galleryImage3,
-          galleryImage4: (data.content as any).galleryImage4,
-        });
-      }
       
       if (!sectionSuccess) {
         // CMS section unavailable - use defaults, NO merge, NO "Resolved" log
@@ -483,50 +411,13 @@ export function useSectionContent<T extends SectionContent>(
       // This means status === 200 AND data.content exists
       const cmsRaw = data.content as Partial<T>;
       
-      // #region agent log
-      console.group(`[CMS TRACE] BEFORE MERGE ${pageSlug}/${sectionName}`);
-      console.log("DEFAULT images:", {
-        heroImage: (defaultContent as any).heroImage,
-        galleryImage1: (defaultContent as any).galleryImage1,
-        galleryImage2: (defaultContent as any).galleryImage2,
-        galleryImage3: (defaultContent as any).galleryImage3,
-        galleryImage4: (defaultContent as any).galleryImage4,
-      });
-      console.log("CMS RAW images:", {
-        heroImage: (cmsRaw as any).heroImage,
-        galleryImage1: (cmsRaw as any).galleryImage1,
-        galleryImage2: (cmsRaw as any).galleryImage2,
-        galleryImage3: (cmsRaw as any).galleryImage3,
-        galleryImage4: (cmsRaw as any).galleryImage4,
-      });
-      console.groupEnd();
-      // #endregion
-      
       // CMS-safe merge: Empty CMS values ("", null, undefined) do NOT override defaults
       const merged = deepMergeWithDefaults(defaultContent, cmsRaw);
-      
-      // #region agent log
-      console.group(`[CMS TRACE] AFTER MERGE ${pageSlug}/${sectionName}`);
-      console.log("MERGED images:", {
-        heroImage: (merged as any).heroImage,
-        galleryImage1: (merged as any).galleryImage1,
-        galleryImage2: (merged as any).galleryImage2,
-        galleryImage3: (merged as any).galleryImage3,
-        galleryImage4: (merged as any).galleryImage4,
-      });
-      console.groupEnd();
-      // #endregion
       
       // SAFETY NET: Hard reject if any invalid image path exists in merged content
       // Valid patterns: https://..., data:..., /assets/..., /uploads/...
       // Invalid patterns: src/assets/..., greenhouse-1.jpg, ../images/...
       const mergedJson = JSON.stringify(merged);
-      
-      // #region agent log
-      console.log(`[CMS SAFETY NET] Checking merged content for invalid image paths...`);
-      // #endregion
-      
-      // Check for image extensions that aren't part of valid URLs
       const imageExtensions = /\.(jpg|jpeg|png|webp|gif)"/gi;
       const matches = mergedJson.match(new RegExp(`"[^"]*${imageExtensions.source}`, 'gi'));
       
@@ -560,19 +451,6 @@ export function useSectionContent<T extends SectionContent>(
       
       console.log(`[useSectionContent] Resolved ${pageSlug}/${sectionName}: ${Object.keys(merged).length} fields from CMS`);
       
-      // CRITICAL: Log what we're about to put in state
-      console.error("🚨 FINAL MERGED IMAGE VALUES GOING INTO STATE:", {
-        heroImage: (merged as any).heroImage,
-        galleryImage1: (merged as any).galleryImage1,
-        galleryImage2: (merged as any).galleryImage2,
-        galleryImage3: (merged as any).galleryImage3,
-        galleryImage4: (merged as any).galleryImage4,
-      });
-      
-      // #region agent log
-      console.log(`[CMS TRACE] ⚠️ ABOUT TO SET STATE with merged content for ${pageSlug}/${sectionName}`);
-      // #endregion
-      
       // Set baseline ref (stable reference) and edited state
       baselineContentRef.current = merged;
       setEditedContent(merged);
@@ -580,10 +458,6 @@ export function useSectionContent<T extends SectionContent>(
       // Mark as resolved - no further state updates for this section lifecycle
       hasResolvedRef.current = true;
       setIsLoading(false);
-      
-      // #region agent log
-      console.log(`[CMS TRACE] ✅ State updated and marked as resolved for ${pageSlug}/${sectionName}`);
-      // #endregion
     };
 
     fetchContent();
