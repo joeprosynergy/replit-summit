@@ -30,9 +30,22 @@ function isValidImageUrl(value: unknown): boolean {
   
   const trimmed = value.trim();
   
-  // Full URLs - always valid
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-    return true;
+  // Full URLs - validate to avoid same-origin HTML routes
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('//')) {
+    try {
+      const url = new URL(trimmed.startsWith('//') ? `https:${trimmed}` : trimmed);
+      const pathname = url.pathname || '';
+      const isCloudinary = url.hostname.includes('res.cloudinary.com');
+      const isStaticAsset = pathname.includes('/assets/') || pathname.includes('/uploads/');
+      // If same-origin and not clearly an asset folder, reject (prevents /greenhouse-1.jpg routing to HTML)
+      if (typeof window !== 'undefined' && url.origin === window.location.origin && !isStaticAsset) {
+        console.warn(`[CMS] Rejecting same-origin image without asset path: "${trimmed}"`);
+        return false;
+      }
+      return isCloudinary || isStaticAsset || url.origin !== (typeof window !== 'undefined' ? window.location.origin : '');
+    } catch {
+      return false;
+    }
   }
   
   // Data URIs - always valid
@@ -40,14 +53,14 @@ function isValidImageUrl(value: unknown): boolean {
     return true;
   }
   
-  // Absolute paths (start with /) - only valid when they include a folder segment.
-  // Reject bare filenames like "/greenhouse-1.jpg" which resolve to 404s in prod.
+  // Absolute paths (start with /) - only valid when they include a folder segment AND look like assets/uploads
   if (trimmed.startsWith('/')) {
     const hasFolderSegment = trimmed.indexOf('/', 1) !== -1;
-    if (hasFolderSegment) {
+    const isStaticAsset = trimmed.includes('/assets/') || trimmed.includes('/uploads/');
+    if (hasFolderSegment && isStaticAsset) {
       return true;
     }
-    console.warn(`[CMS] Rejecting root-level image path with no folder: "${trimmed}"`);
+    console.warn(`[CMS] Rejecting root-level image path with no asset folder: "${trimmed}"`);
     return false;
   }
   
