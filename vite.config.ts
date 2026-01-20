@@ -9,7 +9,6 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
 
-  // ✅ THIS IS THE FIX
   base: "/",  
 
   server: {
@@ -30,31 +29,18 @@ export default defineConfig(({ mode }) => ({
   // Load .env files from project root instead of client/
   envDir: path.resolve(__dirname),
 
+  // Optimize dependency pre-bundling
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js'],
+  },
+
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
-    sourcemap: mode === "development",
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          // Only split vendor chunks - let Vite handle app code automatically
-          if (id.includes('node_modules')) {
-            // Core React libraries
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'vendor-react';
-            }
-            // UI component libraries
-            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
-              return 'vendor-ui';
-            }
-            // All other vendors
-            return 'vendor';
-          }
-          // Let Vite handle all app code chunking automatically
-          return undefined;
-        },
-      },
-    },
+    sourcemap: true, // Enable source maps to debug production issues
     chunkSizeWarningLimit: 1000,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
   },
 }));

@@ -6,7 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "./components/ScrollToTop";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
-import { GlobalEditToolbar } from "@/components/admin/GlobalEditToolbar";
+
+// Lazy-load admin components to avoid initialization issues
+const GlobalEditToolbar = lazy(() => import("@/components/admin/GlobalEditToolbar").then(m => ({ default: m.GlobalEditToolbar })));
 
 import Index from "./pages/Index";
 import AboutUs from "./pages/AboutUs";
@@ -54,7 +56,9 @@ const App = () => (
       <BrowserRouter>
         <AdminAuthProvider>
           <ScrollToTop />
-          <GlobalEditToolbar />
+          <Suspense fallback={null}>
+            <GlobalEditToolbar />
+          </Suspense>
 
         <Routes>
           {/* PUBLIC ROUTES */}
