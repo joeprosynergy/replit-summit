@@ -4,7 +4,6 @@ import { EconomyShedWorkingCopyRenderer } from "@/components/EconomyShedWorkingC
 const CmsFirstPage = () => {
   const { "*": fullPath } = useParams();
   const slug = fullPath || "";
-
   return <EconomyShedWorkingCopyRenderer pageSlug={slug} />;
 };
 

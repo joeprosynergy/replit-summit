@@ -7,12 +7,12 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useEditablePageContent, PageContent } from '@/hooks/useEditablePageContent';
 import { useSectionContent } from '@/hooks/useSectionContent';
 import { InlineEditable } from '@/components/admin/InlineEditable';
-import { AdminEditMode } from '@/components/admin/AdminEditMode';
 import { usePageManagement } from '@/hooks/usePageManagement';
 import InlineEditableLink from '@/components/admin/InlineEditableLink';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { useState, useEffect } from 'react';
+import { normalizeImageUrl } from '@/lib/utils';
 
 interface ModelItem {
   name: string;
@@ -155,6 +155,7 @@ const OurModels = () => {
 
   useEffect(() => {
     if (categoriesContent?.categories) {
+      // CMS-safe merge already handled by useSectionContent
       setLocalCategories(categoriesContent.categories);
     }
   }, [categoriesContent]);
@@ -216,9 +217,9 @@ const OurModels = () => {
   const isSaving = isPageSaving || isCategoriesSaving || isCtaSaving;
   const hasChanges = hasPageChanges || hasCategoriesChanges || hasCtaChanges;
 
-  if (isLoading) {
-    return null;
-  }
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes. Render the structure
+  // always; content will update in place when CMS data resolves.
 
   return (
     <>
@@ -229,27 +230,6 @@ const OurModels = () => {
       </Helmet>
 
       <Header />
-
-      <AdminEditMode
-        isAdmin={isAdmin}
-        isEditMode={isEditMode}
-        hasChanges={hasChanges}
-        isSaving={isSaving}
-        onToggleEdit={startEditing}
-        onSave={handleSave}
-        onCancel={handleReset}
-        pageSlug="types"
-        showDuplicateDialog={showDuplicateDialog}
-        showDeleteDialog={showDeleteDialog}
-        newSlug={newSlug}
-        isDuplicating={isDuplicating}
-        isDeleting={isDeleting}
-        onSetNewSlug={setNewSlug}
-        onSetShowDuplicateDialog={setShowDuplicateDialog}
-        onSetShowDeleteDialog={setShowDeleteDialog}
-        onDuplicatePage={duplicatePage}
-        onDeletePage={deletePage}
-      />
 
       <main className="pt-20">
         {/* Hero Section */}
@@ -324,46 +304,45 @@ const OurModels = () => {
                           : 'grid-cols-2 md:grid-cols-4 max-w-4xl mx-auto'
                     }`}>
                       {category.models.map((model, modelIndex) => (
-                        <div key={`${category.id}-${modelIndex}`} className="text-center">
-                          {isEditMode ? (
-                            <>
-                              <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                                <InlineEditableImage
-                                  src={model.image}
-                                  alt={model.name}
-                                  onImageChange={(url) => updateModel(categoryIndex, modelIndex, 'image', url)}
-                                  isEditMode={isEditMode}
-                                  imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-cover"
-                                />
-                              </div>
-                              <InlineEditableLink
-                                text={model.name}
-                                href={model.link}
-                                onTextChange={(text) => updateModel(categoryIndex, modelIndex, 'name', text)}
-                                onHrefChange={(href) => updateModel(categoryIndex, modelIndex, 'link', href)}
+                        <div key={`${category.id}-${modelIndex}`} className="text-center group">
+                          <Link
+                            to={model.link}
+                            target={model.openInNewTab ? '_blank' : undefined}
+                            rel={model.openInNewTab ? 'noopener noreferrer' : undefined}
+                            className="block"
+                            tabIndex={isEditMode ? -1 : 0}
+                            aria-hidden={isEditMode}
+                            onClick={isEditMode ? (e) => e.preventDefault() : undefined}
+                          >
+                            <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                              <InlineEditableImage
+                                src={model.image}
+                                alt={model.name}
+                                onImageChange={(url) => updateModel(categoryIndex, modelIndex, 'image', url)}
                                 isEditMode={isEditMode}
-                                isExternal={model.openInNewTab}
-                                onExternalChange={(ext) => updateModel(categoryIndex, modelIndex, 'openInNewTab', ext)}
-                                className="font-heading font-bold text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
+                                imageClassName="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
                               />
-                            </>
+                            </div>
+                          </Link>
+                          {isEditMode ? (
+                            <InlineEditableLink
+                              text={model.name}
+                              href={model.link}
+                              onTextChange={(text) => updateModel(categoryIndex, modelIndex, 'name', text)}
+                              onHrefChange={(href) => updateModel(categoryIndex, modelIndex, 'link', href)}
+                              isEditMode={isEditMode}
+                              isExternal={model.openInNewTab}
+                              onExternalChange={(ext) => updateModel(categoryIndex, modelIndex, 'openInNewTab', ext)}
+                              className="font-heading font-bold text-foreground hover:text-secondary transition-colors uppercase tracking-wide"
+                            />
                           ) : (
                             <Link
                               to={model.link}
                               target={model.openInNewTab ? '_blank' : undefined}
                               rel={model.openInNewTab ? 'noopener noreferrer' : undefined}
-                              className="block group cursor-pointer"
+                              className="font-heading font-bold text-foreground group-hover:text-secondary transition-colors uppercase tracking-wide"
                             >
-                              <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                                <img
-                                  src={model.image}
-                                  alt={model.name}
-                                  className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
-                                />
-                              </div>
-                              <h3 className="font-heading font-bold text-foreground group-hover:text-secondary transition-colors uppercase tracking-wide">
-                                {model.name}
-                              </h3>
+                              {model.name}
                             </Link>
                           )}
                         </div>

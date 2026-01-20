@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getBackendClient } from "@/lib/backendClient";
-import { useAdminAuthContext } from "@/contexts/AdminAuthContext";
+import { useOptionalAdminAuth } from "@/contexts/useOptionalAdminAuth";
 import { AdminEditMode } from "@/components/admin/AdminEditMode";
 import { EditModeProvider } from "@/contexts/EditModeContext";
 import { InlineEditable } from "@/components/admin/InlineEditable";
@@ -244,7 +244,7 @@ export function EconomyShedWorkingCopyRenderer({
   initialPage,
   initialSections,
 }: EconomyShedWorkingCopyRendererProps) {
-  const { isAdmin, isRevalidating } = useAdminAuthContext();
+  const { isAdmin, isRevalidating } = useOptionalAdminAuth();
   // CMS-FIRST FETCH (only when mounted directly via /cms/*)
   const [fetchedPage, setFetchedPage] = useState<PageData | null>(null);
   const [fetchedSections, setFetchedSections] = useState<SectionRow[] | null>(

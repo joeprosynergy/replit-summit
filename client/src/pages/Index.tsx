@@ -603,9 +603,9 @@ const Index = () => {
   const isSaving = isPageSaving || isStakesSaving || isGuideSaving || isHowItWorksSaving || isProductsSaving || isImagineSaving || isCTASaving || isLocationsSaving || isContactSaving || isHeroButtonsSaving || isTestimonialsHeaderSaving;
   const hasChanges = hasPageChanges || hasStakesChanges || hasGuideChanges || hasHowItWorksChanges || hasProductsChanges || hasImagineChanges || hasCTAChanges || hasLocationsChanges || hasContactChanges || hasTestimonialChanges || hasHeroButtonsChanges || hasTestimonialsHeaderChanges;
 
-  if (isLoading) {
-    return null;
-  }
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes. Render the structure
+  // always; content will update in place when CMS data resolves.
 
   return (
     <>
@@ -837,18 +837,28 @@ const Index = () => {
                 <div className="p-6 md:p-10">
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
                     {localProducts.styles.map((style, index) => (
-                      <div key={style.id} className="text-center">
+                      <div key={style.id} className="text-center group">
+                        <Link
+                          to={style.link}
+                          target={style.openInNewTab ? '_blank' : undefined}
+                          rel={style.openInNewTab ? 'noopener noreferrer' : undefined}
+                          className="block"
+                          tabIndex={isEditMode ? -1 : 0}
+                          aria-hidden={isEditMode}
+                          onClick={isEditMode ? (e) => e.preventDefault() : undefined}
+                        >
+                          <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
+                            <InlineEditableImage
+                              src={style.image}
+                              alt={style.name}
+                              onImageChange={(url) => updateProductStyle(index, 'image', url)}
+                              isEditMode={isEditMode}
+                              imageClassName="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
+                            />
+                          </div>
+                        </Link>
                         {isEditMode ? (
                           <>
-                            <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                              <InlineEditableImage
-                                src={style.image}
-                                alt={style.name}
-                                onImageChange={(url) => updateProductStyle(index, 'image', url)}
-                                isEditMode={isEditMode}
-                                imageClassName="w-full h-full transition-transform duration-300 hover:scale-105 object-cover"
-                              />
-                            </div>
                             <InlineEditableLink
                               text={style.name}
                               href={style.link}
@@ -873,15 +883,8 @@ const Index = () => {
                             to={style.link} 
                             target={style.openInNewTab ? '_blank' : undefined}
                             rel={style.openInNewTab ? 'noopener noreferrer' : undefined}
-                            className="block cursor-pointer group"
+                            className="block"
                           >
-                            <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                              <img
-                                src={style.image}
-                                alt={style.name}
-                                className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
-                              />
-                            </div>
                             <h4 className="font-heading font-bold text-lg text-foreground group-hover:text-secondary transition-colors uppercase tracking-wide">
                               {style.name}
                             </h4>

@@ -1,0 +1,173 @@
+BLOCKING CMS IMAGE DISAPPEARANCE — ARCHITECTURAL FIX REQUIRED
+
+We have conclusive network-level evidence that this is NOT a React lifecycle, remount, or UI issue.
+It is a CMS merge contract violation that is still active.
+
+✅ Proven Facts (from Network tab)
+	1.	Default images load correctly first
+
+greenhouse-1-CanACH_M.jpg   200
+greenhouse-2-BkwjWJv.jpg    200
+greenhouse-3-CTJKYuTd.jpg   200
+greenhouse-4-iKIrDin.jpg    200
+
+
+	2.	CMS endpoints fail
+
+/page_content     401
+/section_content  401
+
+
+	3.	After CMS failure, invalid image requests appear
+
+greenhouse-1.jpg   404
+greenhouse-2.jpg   404
+greenhouse-3.jpg   404
+greenhouse-4.jpg   404
+
+
+
+This proves that CMS image values like "greenhouse-1.jpg" are still overriding defaults even when CMS fetch fails.
+
+That is the bug.
+Nothing else should be investigated.
+
+⸻
+
+❌ What Is Architecturally Wrong
+
+At least ONE of these is still happening in useSectionContent.ts:
+	•	CMS-first mode activates after fetch completion instead of fetch success
+	•	CMS data is merged even when HTTP status is 401 / 403 / 404
+	•	Bare filenames ("greenhouse-1.jpg") are allowed to overwrite valid defaults
+	•	CMS arrays replace default arrays wholesale instead of being validated element-by-element
+
+Any of the above violates CMS-first single-source-of-truth rules.
+
+⸻
+
+🎯 Required Fix (Strict, Non-Negotiable)
+
+1️⃣ CMS-First Activation Rule (MANDATORY)
+
+CMS-first mode must ONLY activate when:
+	•	Fetch succeeds (200)
+	•	Data is present
+	•	Data passes validation
+
+If CMS returns 401 / 403 / 404 / error:
+	•	CMS-first = false
+	•	Defaults remain authoritative
+	•	CMS content is ignored completely
+
+There must be no merge path after a failed CMS fetch.
+
+⸻
+
+2️⃣ Image Validation at Merge Layer (MANDATORY)
+
+At the single merge layer (useSectionContent.ts):
+	•	CMS image values MUST be validated before merge
+	•	Invalid values MUST be ignored
+
+Reject:
+	•	"greenhouse-1.jpg"
+	•	"image.png"
+	•	""
+	•	null
+	•	undefined
+
+Accept ONLY:
+	•	Absolute URLs (https://…)
+	•	Root-absolute paths (/assets/...)
+	•	Data URLs (data:image/...)
+
+Invalid CMS values must never overwrite defaults.
+
+⸻
+
+3️⃣ Array Merge Rules (MANDATORY)
+
+CMS arrays (e.g. image galleries):
+	•	Must be merged index-by-index
+	•	CMS elements override defaults only if valid
+	•	Invalid CMS elements are skipped
+	•	Defaults remain intact when CMS array is shorter or invalid
+
+Under no circumstances may this occur:
+
+images: cms.images
+
+
+⸻
+
+4️⃣ Enforce “CMS Unavailable” Short-Circuit
+
+If CMS endpoints fail:
+	•	Log "CMS unavailable – using defaults"
+	•	Do NOT mark CMS as resolved
+	•	Do NOT update CMS-based state
+	•	Do NOT trigger CMS-first mode
+
+CMS failure ≠ CMS resolution.
+
+⸻
+
+🧪 Acceptance Criteria (Must All Pass)
+
+Replit must verify ALL of the following:
+
+Network Tab
+	•	❌ ZERO requests for:
+
+greenhouse-1.jpg
+greenhouse-2.jpg
+greenhouse-3.jpg
+greenhouse-4.jpg
+
+
+	•	❌ ZERO relative image path requests caused by CMS
+
+Visual
+	•	Images load once and never disappear
+	•	Works on:
+	•	/
+	•	/types
+	•	/styles/greenhouse
+	•	Deep product routes
+
+Console
+	•	CMS resolution logs appear once
+	•	CMS failure logs explicitly state fallback to defaults
+	•	No silent CMS activation after 401/404
+
+Architecture
+	•	Fix exists only in useSectionContent.ts
+	•	No page-level fallbacks
+	•	No component-level hacks
+	•	No UI timeouts
+	•	CMS-first evolution preserved
+
+⸻
+
+⛔ Explicitly Out of Scope (Do NOT Touch)
+	•	Admin auth
+	•	Admin editing registry
+	•	GlobalAdminControls
+	•	EditablePageWrapper
+	•	Supabase schema
+	•	Page components
+	•	InlineEditableImage UI logic
+
+This is purely a CMS content resolution fix.
+
+⸻
+
+🧠 Summary
+
+This bug is 100% data-layer.
+
+Defaults load → CMS fails → CMS still overrides → images disappear.
+
+Fix the merge contract.
+Everything else is already correct.

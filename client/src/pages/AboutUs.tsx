@@ -270,7 +270,8 @@ const AboutUs = () => {
   const isSaving = isPageSaving || isHeroSaving || isMissionSaving || isFamilyOwnedSaving || isValuesSectionSaving || isValuesSaving || isCraftsmenSaving || isFeaturesSaving || isServiceAreasSectionSaving || isServiceAreasSaving || isCtaSaving;
   const hasChanges = hasPageChanges || hasHeroChanges || hasMissionChanges || hasFamilyOwnedChanges || hasValuesSectionChanges || hasValuesChanges || hasCraftsmenChanges || hasFeaturesChanges || hasServiceAreasSectionChanges || hasServiceAreasChanges || hasCtaChanges;
 
-  if (isLoading) return null;
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes.
 
   return (
     <>

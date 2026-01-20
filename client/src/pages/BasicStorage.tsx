@@ -306,9 +306,8 @@ const BasicStorage = () => {
   const isSaving = isPageSaving || isModelsSaving || isQuickNavSaving || isCtaSaving;
   const hasChanges = hasPageChanges || hasModelsChanges || hasQuickNavChanges || hasCtaChanges;
 
-  if (isLoading) {
-    return null;
-  }
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes.
 
   return (
     <>

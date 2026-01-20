@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, normalizeImageUrl } from '@/lib/utils';
 import { Camera, Upload, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -145,28 +145,38 @@ const InlineEditableImage = ({
     e.preventDefault();
   };
 
-  if (!isEditMode) {
-    return (
-      <div className={className}>
-        <img src={src} alt={alt} className={imageClassName} />
-      </div>
-    );
-  }
+  const normalizedSrc = normalizeImageUrl(src);
 
+  // CRITICAL: Always render the same component structure to prevent React remounting
+  // The edit UI is layered on top, not conditionally swapping parent elements
   return (
     <>
       <div 
-        className={cn('relative group cursor-pointer', className)}
-        onClick={() => setIsDialogOpen(true)}
+        className={cn('relative', isEditMode && 'group cursor-pointer', className)}
+        onClick={isEditMode ? () => setIsDialogOpen(true) : undefined}
       >
-        <img src={src} alt={alt} className={imageClassName} />
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <img src={normalizedSrc} alt={alt} className={imageClassName} />
+        {/* Edit mode overlay - visibility controlled, not conditionally rendered */}
+        <div 
+          className={cn(
+            "absolute inset-0 bg-black/50 transition-opacity flex items-center justify-center",
+            isEditMode ? "opacity-0 group-hover:opacity-100" : "opacity-0 pointer-events-none"
+          )}
+          aria-hidden={!isEditMode}
+        >
           <div className="bg-primary text-primary-foreground px-4 py-2 rounded-lg flex items-center gap-2">
             <Camera className="w-5 h-5" />
             <span className="font-medium">Change Image</span>
           </div>
         </div>
-        <div className="absolute top-2 right-2 bg-primary text-primary-foreground p-1 rounded-full">
+        {/* Edit mode badge - visibility controlled */}
+        <div 
+          className={cn(
+            "absolute top-2 right-2 bg-primary text-primary-foreground p-1 rounded-full transition-opacity",
+            isEditMode ? "opacity-100" : "opacity-0 pointer-events-none"
+          )}
+          aria-hidden={!isEditMode}
+        >
           <Camera className="w-4 h-4" />
         </div>
       </div>
@@ -182,7 +192,7 @@ const InlineEditableImage = ({
             <div className="text-sm text-muted-foreground">Current image:</div>
             <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
               <img 
-                src={previewUrl || src} 
+                src={previewUrl || normalizedSrc} 
                 alt={alt} 
                 className="w-full h-full object-cover"
               />

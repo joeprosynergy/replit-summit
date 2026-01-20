@@ -36,7 +36,7 @@ const STATIC_PAGE_SLUGS = [
   'garage', 'carports', 'greenhouse', 'animal-shelters'
 ];
 
-const Admin = () => {
+function AdminDashboard() {
   const navigate = useNavigate();
   const { user, isAdmin, isLoading, error, recheckAdmin } = useAdminAuth();
   const client = getBackendClient();
@@ -494,4 +494,8 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+
+
+export default function Admin() {
+  return <AdminDashboard />;
+}

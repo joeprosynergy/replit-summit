@@ -1,10 +1,10 @@
-import React, { useCallback, ReactNode } from 'react';
+import React, { useCallback, ReactNode, useMemo, useState } from 'react';
 import { EditModeProvider } from '@/contexts/EditModeContext';
-import { AdminEditMode } from './AdminEditMode';
-import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
+import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 import { useSectionContent, SectionContent } from '@/hooks/useSectionContent';
 import { logAdminActivity } from '@/lib/adminActivityLog';
 import { usePageManagement } from '@/hooks/usePageManagement';
+import { useRegisterEditState } from '@/contexts/globalEditRegistry';
 
 interface EditablePageWrapperProps<T extends SectionContent> {
   children: ReactNode | ((props: { 
@@ -26,7 +26,7 @@ export function EditablePageWrapper<T extends SectionContent>({
   sectionName = 'main',
   pageSlug,
 }: EditablePageWrapperProps<T>) {
-  const { isAdmin, isRevalidating } = useAdminAuthContext();
+  const { isAdmin, isRevalidating } = useOptionalAdminAuth();
   const {
     content,
     isLoading,
@@ -53,16 +53,15 @@ export function EditablePageWrapper<T extends SectionContent>({
     deletePage,
   } = usePageManagement(effectivePageSlug);
 
+  const [isEditMode, setIsEditMode] = useState(false);
+
   const handleDuplicatePage = useCallback(async (targetSlug: string) => {
     return duplicatePage(targetSlug, content as Record<string, any>, pageMetadata.layoutConfig);
   }, [duplicatePage, content, pageMetadata.layoutConfig]);
 
-  const [isEditMode, setIsEditMode] = React.useState(false);
-
   const handleSave = useCallback(async () => {
     const success = await saveContent();
     if (success) {
-      // Log activity (fire-and-forget)
       logAdminActivity({
         pageSlug: slug,
         action: 'update',
@@ -81,43 +80,56 @@ export function EditablePageWrapper<T extends SectionContent>({
     setIsEditMode(true);
   }, []);
 
-  // Content renders immediately (non-blocking)
-  // Admin controls appear asynchronously after auth check
+  const pageManagement = useMemo(() => ({
+    pageSlug: effectivePageSlug,
+    isRevalidating,
+    showDuplicateDialog,
+    showDeleteDialog,
+    newSlug,
+    isDuplicating,
+    isDeleting,
+    setNewSlug,
+    setShowDuplicateDialog,
+    setShowDeleteDialog,
+    duplicatePage: handleDuplicatePage,
+    deletePage,
+  }), [
+    effectivePageSlug,
+    isRevalidating,
+    showDuplicateDialog,
+    showDeleteDialog,
+    newSlug,
+    isDuplicating,
+    isDeleting,
+    setNewSlug,
+    setShowDuplicateDialog,
+    setShowDeleteDialog,
+    handleDuplicatePage,
+    deletePage,
+  ]);
+
+  const editState = useMemo(() => ({
+    isEditMode,
+    hasChanges,
+    isSaving,
+    startEditing: handleStartEditing,
+    save: handleSave,
+    cancel: handleCancel,
+    pageManagement,
+  }), [isEditMode, hasChanges, isSaving, handleStartEditing, handleSave, handleCancel, pageManagement]);
+
+  useRegisterEditState(editState);
+
   return (
     <EditModeProvider
       initialContent={content as Record<string, unknown>}
-      onSave={async () => {
-        await handleSave();
-      }}
+      onSave={handleSave}
+      pageManagement={pageManagement}
     >
-      {/* Admin controls - only show after auth resolves */}
-      <AdminEditMode
-        isAdmin={isAdmin}
-        isRevalidating={isRevalidating}
-        isEditMode={isEditMode}
-        hasChanges={hasChanges}
-        isSaving={isSaving}
-        onToggleEdit={handleStartEditing}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        pageSlug={effectivePageSlug}
-        showDuplicateDialog={showDuplicateDialog}
-        showDeleteDialog={showDeleteDialog}
-        newSlug={newSlug}
-        isDuplicating={isDuplicating}
-        isDeleting={isDeleting}
-        onSetNewSlug={setNewSlug}
-        onSetShowDuplicateDialog={setShowDuplicateDialog}
-        onSetShowDeleteDialog={setShowDeleteDialog}
-        onDuplicatePage={handleDuplicatePage}
-        onDeletePage={deletePage}
-      />
-      
-      {/* Content always renders immediately */}
       {typeof children === 'function' 
         ? children({ 
             content, 
-            isEditMode, 
+            isEditMode,
             updateField,
             updateDynamicField,
           })

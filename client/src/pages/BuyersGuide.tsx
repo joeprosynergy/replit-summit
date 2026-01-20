@@ -154,7 +154,8 @@ const BuyersGuide = () => {
     }
   };
 
-  if (isLoading) return null;
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes.
 
   return (
     <>

@@ -298,9 +298,8 @@ const Styles = () => {
   const isSaving = isPageSaving || isRoofSaving || isSpecialtySaving || isCtaSaving || isHeadersSaving;
   const hasChanges = hasPageChanges || hasRoofChanges || hasSpecialtyChanges || hasCtaChanges || hasHeadersChanges;
 
-  if (isLoading) {
-    return null;
-  }
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes.
 
   return (
     <>

@@ -11,7 +11,7 @@ interface AdminAuthContextValue {
   recheckAdmin: () => Promise<void>;
 }
 
-const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
+export const AdminAuthContext = createContext<AdminAuthContextValue | null>(null);
 
 export function useAdminAuthContext(): AdminAuthContextValue {
   const context = useContext(AdminAuthContext);

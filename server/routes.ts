@@ -271,9 +271,10 @@ export function registerRoutes(app: Express): void {
 
       // Fetch section_content by page_id
       const { data: sectionsData, error: sectionsError } = await supabase
-        .from("section_content")
-        .select("*")
-        .eq("page_id", pageId);
+  .from("section_content")
+  .select("*")
+  .eq("page_id", pageId)
+  .order("order_index", { ascending: true });
 
       if (sectionsError) {
         console.error("[cms-page] Error fetching section_content:", sectionsError);

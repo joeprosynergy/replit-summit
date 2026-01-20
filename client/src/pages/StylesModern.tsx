@@ -217,9 +217,8 @@ const StylesModern = () => {
   const isSaving = isPageSaving || isOptionsSaving || isCtaSaving || isHeadersSaving;
   const hasChanges = hasPageChanges || hasOptionsChanges || hasCtaChanges || hasHeadersChanges;
 
-  if (isLoading) {
-    return null;
-  }
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes.
 
   return (
     <>

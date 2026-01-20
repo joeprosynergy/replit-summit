@@ -5,7 +5,7 @@ integrations = ["javascript_database:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["gut"]
+packages = ["gut", "uwhoisd"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -28,13 +28,17 @@ args = "Start application"
 name = "Start application"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
 
-[workflows.workflow.metadata]
-outputType = "webview"
+[[ports]]
+localPort = 3000
+externalPort = 3001
 
 [[ports]]
 localPort = 5000
@@ -42,4 +46,4 @@ externalPort = 80
 
 [[ports]]
 localPort = 24678
-externalPort = 3000
+externalPort = 3002

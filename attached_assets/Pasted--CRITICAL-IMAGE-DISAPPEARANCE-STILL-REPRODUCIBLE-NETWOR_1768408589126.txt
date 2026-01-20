@@ -1,0 +1,165 @@
+
+🚨 CRITICAL: IMAGE DISAPPEARANCE STILL REPRODUCIBLE — NETWORK EVIDENCE CONTRADICTS CLAIMED FIX
+
+Your recap does not match reality.
+Images are still disappearing, and the network logs prove the fix is NOT working.
+
+We must pause refactoring and move into forensic verification mode.
+
+⸻
+
+🔍 Ground Truth (Non-Negotiable Evidence)
+
+1️⃣ Network tab (attached screenshots)
+
+The following requests are still occurring after initial render:
+
+GET /greenhouse-1.jpg   404
+GET /greenhouse-2.jpg   404
+GET /greenhouse-3.jpg   404
+GET /greenhouse-4.jpg   404
+
+These requests must never exist if defaults are preserved.
+
+At the same time, valid images load first:
+
+greenhouse-1-CanACH_M.jpg   200
+greenhouse-2-BkwjWJv.jpg    200
+
+This proves:
+
+Defaults render → something overwrites them → browser retries invalid CMS paths → images disappear
+
+⸻
+
+2️⃣ CMS endpoints are failing
+
+GET /page_content     401
+GET /section_content  401
+
+Despite this, CMS data is still influencing rendering.
+
+That is an architectural violation.
+
+⸻
+
+3️⃣ DOM inspection
+
+When images disappear:
+	•	<img> elements are removed from the DOM
+	•	This is NOT opacity / CSS
+	•	This is NOT loading state
+	•	This is NOT Cloudinary
+
+This means React state is changing to invalid image values.
+
+⸻
+
+❌ What Is NOT Accepted Anymore
+
+You may NOT:
+	•	Assert “no invalid requests” without pointing to network entries
+	•	Use screenshots as proof
+	•	Refactor components
+	•	Touch InlineEditableImage
+	•	Touch page components
+	•	Add more guards without proving which one was missing
+
+The bug is still active.
+
+⸻
+
+🎯 Mandatory Next Step: Instrumentation, Not Refactoring
+
+Before any more fixes, you MUST do the following.
+
+⸻
+
+1️⃣ Add Hard Instrumentation (REQUIRED)
+
+In useSectionContent.ts, log every image value transition:
+
+console.group(`[CMS TRACE] ${pageSlug}/${sectionSlug}`)
+console.log("DEFAULT:", defaultContent)
+console.log("CMS RAW:", cmsData)
+console.log("MERGED:", mergedContent)
+console.log("CMS-FIRST:", isCmsFirstPage)
+console.log("CMS STATUS:", cmsStatus)
+console.groupEnd()
+
+This must run:
+	•	Before merge
+	•	After merge
+	•	Before setEditedContent
+	•	Before any early returns
+
+We need to see exactly when greenhouse-1.jpg enters state.
+
+⸻
+
+2️⃣ Prove This Invariant (Binary Pass/Fail)
+
+You must prove one of the following, with logs:
+
+✅ Case A (Correct)
+
+No state update ever contains "greenhouse-1.jpg"
+
+OR
+
+❌ Case B (Bug Exists)
+
+Identify the exact line where "greenhouse-1.jpg" enters React state
+
+No other outcome is acceptable.
+
+⸻
+
+3️⃣ Enforce a Runtime Assertion (TEMPORARY)
+
+Add a hard runtime assertion:
+
+if (JSON.stringify(content).includes(".jpg") && !JSON.stringify(content).includes("http")) {
+  throw new Error("INVALID CMS IMAGE VALUE ENTERED STATE");
+}
+
+If this throws, we have definitive proof of the violation.
+
+⸻
+
+4️⃣ Do NOT Modify Anything Else Yet
+
+Until we know where the invalid value enters:
+	•	❌ No additional fixes
+	•	❌ No component changes
+	•	❌ No CSS changes
+	•	❌ No further architectural rewrites
+
+This is a data corruption bug, not a UI bug.
+
+⸻
+
+✅ Acceptance Criteria for THIS Step
+
+This task is complete ONLY when:
+	•	We see exact logs showing where invalid image paths enter state
+	•	OR logs conclusively prove they never do (and then we inspect why the browser still requests them)
+
+Until then, the issue is unresolved.
+
+⸻
+
+🧠 Why This Matters
+
+Right now we are debugging blind.
+
+You already did the right architectural work:
+	•	CMS-safe merge
+	•	CMS-first rules
+	•	Defaults authority
+
+But one invariant is still broken, and we need proof, not confidence.
+
+⸻
+
+Once this is identified, the final fix will likely be 1–3 lines, not another rewrite.

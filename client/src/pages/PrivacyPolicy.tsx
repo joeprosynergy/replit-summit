@@ -422,7 +422,8 @@ const PrivacyPolicy = () => {
   const isSaving = isPageSaving || isIntroSaving || isInterpSaving || isCollectSaving || isTrackSaving || isUseSaving || isRetentSaving || isTransferSaving || isDeleteSaving || isDisclosureSaving || isSecuritySaving || isLinksSaving || isChildrenSaving || isChangesSaving || isContactSaving;
   const hasChanges = hasPageChanges || hasIntroChanges || hasInterpChanges || hasCollectChanges || hasTrackChanges || hasUseChanges || hasRetentChanges || hasTransferChanges || hasDeleteChanges || hasDisclosureChanges || hasSecurityChanges || hasLinksChanges || hasChildrenChanges || hasChangesChanges || hasContactChanges;
 
-  if (isLoading) return null;
+  // CRITICAL: Do NOT return null during loading - this unmounts the entire tree
+  // and causes images to disappear when loading completes.
 
   return (
     <>
