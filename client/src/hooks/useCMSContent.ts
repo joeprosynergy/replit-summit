@@ -35,6 +35,38 @@ export function useCMSContent<T extends Record<string, unknown> = Record<string,
   // Track if content has been modified
   const hasChanges = JSON.stringify(content) !== JSON.stringify(originalContent);
 
+  // Helper: Check if a value is a valid image path for the current environment
+  const isValidImagePath = (value: unknown): boolean => {
+    if (typeof value !== 'string' || !value) return false;
+    
+    // Cloudinary URLs are always valid
+    if (value.includes('cloudinary.com') || value.includes('res.cloudinary')) return true;
+    
+    // External URLs are valid
+    if (value.startsWith('http://') || value.startsWith('https://')) return true;
+    
+    // Production build paths (contain hash like -CanACH_M) don't work in dev
+    // Source paths (/src/assets/) don't work in production build
+    const isProductionPath = value.startsWith('/assets/') && /-[A-Za-z0-9_]{6,}\.(jpg|jpeg|png|gif|webp|svg)$/i.test(value);
+    const isSourcePath = value.startsWith('/src/assets/');
+    
+    // In development, source paths work; in production, built paths work
+    const isDev = import.meta.env.DEV;
+    
+    if (isDev && isProductionPath) return false; // Production paths don't work in dev
+    if (!isDev && isSourcePath) return false; // Source paths don't work in production
+    
+    return true;
+  };
+
+  // Helper: Check if a key is an image-related field
+  const isImageField = (key: string): boolean => {
+    const imageFieldPatterns = [
+      /image/i, /img/i, /photo/i, /picture/i, /src$/i, /thumbnail/i, /avatar/i, /logo/i, /icon/i, /banner/i
+    ];
+    return imageFieldPatterns.some(pattern => pattern.test(key));
+  };
+
   // Helper: Deep merge CMS data with defaults (handles nested objects)
   const deepMergeWithDefaults = (cmsData: Partial<T>): T => {
     const result = { ...defaults } as any;
@@ -43,6 +75,27 @@ export function useCMSContent<T extends Record<string, unknown> = Record<string,
       if (cmsData.hasOwnProperty(key)) {
         const cmsValue = (cmsData as any)[key];
         const defaultValue = (defaults as any)[key];
+        
+        // Special handling for image fields - validate path works in current environment
+        if (isImageField(key) && typeof cmsValue === 'string') {
+          if (!isValidImagePath(cmsValue)) {
+            continue; // Skip this CMS value, keep default
+          }
+        }
+        
+        // Special handling for galleryImages array - validate each image
+        if (key === 'galleryImages' && Array.isArray(cmsValue)) {
+          const validatedImages = cmsValue.map((img: any, idx: number) => {
+            if (img && typeof img.src === 'string' && !isValidImagePath(img.src)) {
+              // Use default image for this index if available
+              const defaultImg = Array.isArray(defaultValue) ? defaultValue[idx] : null;
+              return defaultImg || img;
+            }
+            return img;
+          });
+          result[key] = validatedImages;
+          continue;
+        }
         
         // If both are objects (not arrays), merge recursively
         if (
