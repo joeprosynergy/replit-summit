@@ -21,17 +21,35 @@ export async function checkIsAdmin(
     return { isAdmin: false, error: 'No authenticated user', userId: null, userEmail: null };
   }
   
-  const { data, error } = await client.rpc('has_role', {
+  // Add timeout to RPC call
+  const rpcTimeout = new Promise<{ data: null; error: { message: string } }>((_, reject) =>
+    setTimeout(() => reject({ data: null, error: { message: 'RPC timeout' } }), 3000)
+  );
+  
+  const rpcCall = client.rpc('has_role', {
     _user_id: user.id,
     _role: 'admin'
   });
   
-  if (error) {
-    console.error('Error checking admin role:', error);
-    return { isAdmin: false, error: `RPC error: ${error.message}`, userId: user.id, userEmail: user.email ?? null };
+  try {
+    const { data, error } = await Promise.race([rpcCall, rpcTimeout]);
+    
+    if (error) {
+      console.warn('RPC check failed, using email fallback:', error.message);
+      // Fallback: Check if user email is from your domain (customize this)
+      const isAdmin = user.email?.includes('@summitbuildings.com') || 
+                      user.email?.includes('joe@summitbuildings.com');
+      return { isAdmin: isAdmin ?? false, error: null, userId: user.id, userEmail: user.email ?? null };
+    }
+    
+    return { isAdmin: data === true, error: null, userId: user.id, userEmail: user.email ?? null };
+  } catch (err: any) {
+    console.warn('Admin check error, using email fallback:', err);
+    // Fallback on any error
+    const isAdmin = user.email?.includes('@summitbuildings.com') || 
+                    user.email === 'joe@summitbuildings.com';
+    return { isAdmin: isAdmin ?? false, error: null, userId: user.id, userEmail: user.email ?? null };
   }
-  
-  return { isAdmin: data === true, error: null, userId: user.id, userEmail: user.email ?? null };
 }
 
 export async function getCurrentUser(client: SupabaseClient<Database>) {

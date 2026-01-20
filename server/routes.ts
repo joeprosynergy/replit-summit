@@ -16,6 +16,10 @@ function getSupabaseClient() {
 }
 
 export function registerRoutes(app: Express): void {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/routes.ts:18',message:'registerRoutes called',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+  // #endregion
+  
   app.get("/api/page-content/:slug", async (req, res) => {
     const { slug } = req.params;
     const content = await storage.getPageContent(slug);

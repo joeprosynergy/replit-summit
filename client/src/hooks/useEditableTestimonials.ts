@@ -61,24 +61,28 @@ export function useEditableTestimonials() {
         return;
       }
 
-      // Use any to bypass strict typing for tables not in generated types
-      const { data, error } = await (client as any)
-        .from('testimonials')
-        .select('*')
-        .order('display_order', { ascending: true });
+      try {
+        const { data, error } = await (client as any)
+          .from('testimonials')
+          .select('*')
+          .order('display_order', { ascending: true });
 
-      if (data && !error && data.length > 0) {
-        const mapped = data.map((t: any) => ({
-          id: t.id,
-          name: t.name,
-          rating: t.rating,
-          text: t.text,
-          source: t.source || 'Google Review',
-          display_order: t.display_order,
-          is_visible: t.is_visible ?? true,
-        }));
-        setTestimonials(mapped);
-        setEditedTestimonials(mapped);
+        if (data && !error && data.length > 0) {
+          const mapped = data.map((t: any) => ({
+            id: t.id,
+            name: t.name,
+            rating: t.rating,
+            text: t.text,
+            source: t.source || 'Google Review',
+            display_order: t.display_order,
+            is_visible: t.is_visible ?? true,
+          }));
+          setTestimonials(mapped);
+          setEditedTestimonials(mapped);
+        }
+        // If no data, keep using defaults (already set in initial state)
+      } catch (err) {
+        console.log('[useEditableTestimonials] Using default testimonials');
       }
       setIsLoading(false);
     };

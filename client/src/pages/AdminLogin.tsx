@@ -16,10 +16,16 @@ const AdminLogin = () => {
       const { getBackendClient } = await import("@/lib/backendClient");
       const supabase = getBackendClient();
       
+      if (supabase === null) {
+        setMessage({ type: "error", text: "Supabase not configured - check environment variables" });
+        setIsLoading(false);
+        return;
+      }
+      
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/admin/auth/callback`,
         },
       });
 

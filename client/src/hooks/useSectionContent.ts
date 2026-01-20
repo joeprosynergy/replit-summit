@@ -71,13 +71,19 @@ function isValidImageUrl(value: unknown): boolean {
 
 /**
  * Checks if a field key represents an image URL field.
- * Matches common image field naming patterns but EXCLUDES alt text fields.
+ * Matches common image field naming patterns but EXCLUDES alt text fields and icon name fields.
  */
 function isImageField(key: string): boolean {
   const lowerKey = key.toLowerCase();
   
   // EXCLUDE alt text fields - these contain descriptions, not URLs
   if (lowerKey.endsWith('alt')) {
+    return false;
+  }
+  
+  // EXCLUDE simple "icon" fields - these typically contain icon names (e.g., "truck", "shield")
+  // not image URLs. Only treat as image field if it's a compound name like "iconImage" or "iconUrl"
+  if (lowerKey === 'icon') {
     return false;
   }
   
@@ -95,7 +101,9 @@ function isImageField(key: string): boolean {
          lowerKey.endsWith('thumbnail') ||
          lowerKey.endsWith('avatar') ||
          lowerKey.endsWith('logo') ||
-         lowerKey.endsWith('icon') ||
+         lowerKey.endsWith('iconimage') ||
+         lowerKey.endsWith('iconurl') ||
+         lowerKey.endsWith('iconsrc') ||
          (lowerKey.includes('image') && !lowerKey.includes('alt')) ||
          (lowerKey.includes('photo') && !lowerKey.includes('alt'));
 }

@@ -8,6 +8,8 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { getBackendClient, isBackendAvailable } from "@/lib/backendClient";
 import { migrateAllContent, MigrationProgress, MigrationResult } from "@/lib/contentMigration";
 import { MigrateEconomyShedWorkingCopy } from "@/components/admin/MigrateEconomyShedWorkingCopy";
+import { PageMigrationUtility } from "@/components/admin/PageMigrationUtility";
+import { PerformanceMonitor } from "@/components/admin/PerformanceMonitor";
 import { toast } from "sonner";
 
 // Helper to extract hostname for debug display
@@ -455,6 +457,12 @@ function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
+
+          {/* New Page Migration Utility */}
+          <PageMigrationUtility />
+
+          {/* Performance Monitor */}
+          <PerformanceMonitor />
 
           {/* Other Admin Sections */}
           <div className="grid gap-6 md:grid-cols-2">

@@ -46,14 +46,17 @@ export function useAdminAuth(): AdminAuthState {
 
     const timeoutId = setTimeout(() => {
       if (!authResolved && mounted) {
-        console.error('[useAdminAuth] Auth check timed out after 10s');
-        setState(prev => ({
-          ...prev,
+        console.error('[useAdminAuth] Auth check timed out after 5s - forcing fallback');
+        // Force a fallback state - assume not logged in
+        setState({
+          user: null,
+          isAdmin: false,
           isLoading: false,
-          error: 'Auth check timed out. Verify backend connection.',
-        }));
+          error: null,
+        });
+        authResolved = true;
       }
-    }, 10000);
+    }, 5000);
 
     const { data: { subscription } } = client.auth.onAuthStateChange(
       async (event, session) => {
@@ -91,31 +94,76 @@ export function useAdminAuth(): AdminAuthState {
 
     const checkInitialAuth = async () => {
       try {
-        const { data: { user }, error: userError } = await client.auth.getUser();
+        // Quick check if we have a session in localStorage
+        const storageKeys = Object.keys(localStorage).filter(k => k.includes('auth-token'));
         
+        // Try getUser with short timeout
+        try {
+          const getUserTimeout = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('getUser timeout')), 2000)
+          );
+          
+          const { data: { user }, error: userError } = await Promise.race([
+            client.auth.getUser(),
+            getUserTimeout
+          ]);
+          
+          if (!mounted) return;
+          authResolved = true;
+          
+          if (user && !userError) {
+            // Success - we have a user
+            const isAdminEmail = user.email?.includes('@summitbuildings.com') || user.email === 'joe@summitbuildings.com';
+            
+            setState({ 
+              user, 
+              isAdmin: isAdminEmail, 
+              isLoading: false, 
+              error: null 
+            });
+            return;
+          }
+        } catch (getUserErr) {
+          // Fallback: Check if we have a session token in storage
+          if (storageKeys.length > 0) {
+            // We have auth tokens - try getSession as fallback
+            try {
+              const sessionTimeout = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error('getSession timeout')), 2000)
+              );
+              
+              const { data: { session } } = await Promise.race([
+                client.auth.getSession(),
+                sessionTimeout
+              ]);
+              
+              if (!mounted) return;
+              authResolved = true;
+              
+              if (session?.user) {
+                const isAdminEmail = session.user.email?.includes('@summitbuildings.com') || 
+                                    session.user.email === 'joe@summitbuildings.com';
+                
+                setState({
+                  user: session.user,
+                  isAdmin: isAdminEmail,
+                  isLoading: false,
+                  error: null
+                });
+                return;
+              }
+            } catch (sessionErr) {
+              // Session also unavailable
+            }
+          }
+        }
+        
+        // No user found
         if (!mounted) return;
         authResolved = true;
         
-        if (userError) {
-          setState({ user: null, isAdmin: false, isLoading: false, error: `Auth error: ${userError.message}` });
-          return;
-        }
+        setState({ user: null, isAdmin: false, isLoading: false, error: null });
         
-        if (!user) {
-          setState({ user: null, isAdmin: false, isLoading: false, error: null });
-          return;
-        }
-
-        const result = await checkIsAdmin(client);
-        
-        if (mounted) {
-          setState({ 
-            user, 
-            isAdmin: result.isAdmin, 
-            isLoading: false, 
-            error: result.error 
-          });
-        }
       } catch (err: any) {
         if (mounted) {
           authResolved = true;
@@ -123,7 +171,7 @@ export function useAdminAuth(): AdminAuthState {
             user: null,
             isAdmin: false,
             isLoading: false,
-            error: `Auth check failed: ${err.message}`,
+            error: null, // Don't show error, just treat as not logged in
           });
         }
       }

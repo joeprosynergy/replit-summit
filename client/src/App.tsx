@@ -6,8 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "./components/ScrollToTop";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
-import { useOptionalAdminAuth } from "@/contexts/useOptionalAdminAuth";
-import { LazyAdminEditMode } from "@/components/admin/useAdminUI";
+import { GlobalEditToolbar } from "@/components/admin/GlobalEditToolbar";
 
 import Index from "./pages/Index";
 import AboutUs from "./pages/AboutUs";
@@ -32,6 +31,7 @@ import ModernShed from "./pages/ModernShed";
 import Carports from "./pages/Carports";
 import GaragesCarports from "./pages/GaragesCarports";
 import BuyersGuide from "./pages/BuyersGuide";
+import BlockChart from "./pages/BlockChart";
 import Gallery from "./pages/Gallery";
 import Financing from "./pages/Financing";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -41,22 +41,9 @@ import Configurator3D from "./pages/Configurator3D";
 import NotFound from "./pages/NotFound";
 import CmsFirstPage from "./pages/CmsFirstPage";
 
-const AdminLogin = lazy(() => import("./pages/AdminLogin"));
-const Admin = lazy(() => import("./pages/Admin"));
-const AuthCallback = lazy(() => import("./pages/AuthCallback"));
-const AdminCloudinaryUpload = lazy(() => import("./pages/AdminCloudinaryUpload"));
-const AssetAudit = lazy(() => import("./pages/AssetAudit"));
+// Lazy-load admin app as separate bundle
+const AdminApp = lazy(() => import("./admin/AdminApp"));
 const DynamicPage = lazy(() => import("./pages/DynamicPage"));
-
-function GlobalAdminControls() {
-  const { isAdmin } = useOptionalAdminAuth();
-  if (!isAdmin) return null;
-  return (
-    <Suspense fallback={null}>
-      <LazyAdminEditMode isAdmin={isAdmin} />
-    </Suspense>
-  );
-}
 
 const App = () => (
   <HelmetProvider>
@@ -67,7 +54,7 @@ const App = () => (
       <BrowserRouter>
         <AdminAuthProvider>
           <ScrollToTop />
-          <GlobalAdminControls />
+          <GlobalEditToolbar />
 
         <Routes>
           {/* PUBLIC ROUTES */}
@@ -99,6 +86,7 @@ const App = () => (
           <Route path="/types/garages-carports/carports" element={<Carports />} />
 
           <Route path="/buyers-guide" element={<BuyersGuide />} />
+          <Route path="/block-chart" element={<BlockChart />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/financing" element={<Financing />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -107,49 +95,27 @@ const App = () => (
           <Route path="/3d-configurator" element={<Configurator3D />} />
 
         
-
-          {/* ADMIN (lazy only) */}
+        
+          {/* ADMIN - Lazy-loaded separate bundle */}
           <Route
-            path="/admin/login"
+            path="/admin/*"
             element={
-              <Suspense fallback={null}>
-                <AdminLogin />
+              <Suspense fallback={
+                <div className="min-h-screen flex items-center justify-center">
+                  <div className="animate-pulse text-muted-foreground">Loading admin...</div>
+                </div>
+              }>
+                <AdminApp />
               </Suspense>
             }
           />
-
+          
+          {/* Auth callback (used by admin) */}
           <Route
             path="/auth/callback"
             element={
               <Suspense fallback={null}>
-                <AuthCallback />
-              </Suspense>
-            }
-          />
-
-          <Route
-            path="/admin/*"
-            element={
-              <Suspense fallback={null}>
-                <Admin />
-              </Suspense>
-            }
-          />
-
-          <Route
-            path="/cloudinary-upload"
-            element={
-              <Suspense fallback={null}>
-                <AdminCloudinaryUpload />
-              </Suspense>
-            }
-          />
-
-          <Route
-            path="/asset-audit"
-            element={
-              <Suspense fallback={null}>
-                <AssetAudit />
+                <AdminApp />
               </Suspense>
             }
           />

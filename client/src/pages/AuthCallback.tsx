@@ -20,32 +20,51 @@ const AuthCallback = () => {
 
       try {
         if (code) {
-          console.log('[AuthCallback] Exchanging code for session...');
           const { data, error: exchangeError } = await client.auth.exchangeCodeForSession(code);
           
           if (exchangeError) {
-            console.error('[AuthCallback] Exchange error:', exchangeError);
             setError(exchangeError.message);
             return;
           }
+        } else if (hash && hash.includes('access_token')) {
+          // Supabase processes hash automatically on page load
+          // Poll for session to be ready
+          let sessionEstablished = false;
           
-          console.log('[AuthCallback] Session established:', !!data?.session);
-        } else if (hash) {
-          console.log('[AuthCallback] Getting session from hash...');
-          const { error: sessionError } = await client.auth.getSession();
-          
-          if (sessionError) {
-            console.error('[AuthCallback] Session error:', sessionError);
-            setError(sessionError.message);
-            return;
+          for (let i = 0; i < 10; i++) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            try {
+              const { data } = await client.auth.getSession();
+              if (data.session) {
+                sessionEstablished = true;
+                break;
+              }
+            } catch (err) {
+              // Continue polling
+            }
           }
+
+          if (!sessionEstablished) {
+            console.warn('[AuthCallback] Session not established after polling');
+          }
+        } else if (hash && hash.includes('error')) {
+          const params = new URLSearchParams(hash.substring(1));
+          const error = params.get('error');
+          const errorDesc = params.get('error_description');
+          
+          setError(errorDesc || error || 'Authentication failed');
+          return;
+        } else {
+          setError('No authentication data received');
+          return;
         }
 
+        // Small delay before redirect
         await new Promise(resolve => setTimeout(resolve, 500));
         
         navigate('/admin', { replace: true });
       } catch (err) {
-        console.error('[AuthCallback] Unexpected error:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
       }
     };
