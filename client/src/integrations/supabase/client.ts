@@ -12,6 +12,9 @@ export const supabase =
           storage: localStorage,
           persistSession: true,
           autoRefreshToken: true,
+          // Use implicit flow for magic links - works across browsers/devices
+          // PKCE requires the same browser session which breaks email magic links
+          flowType: 'implicit',
         },
       })
     : null;
