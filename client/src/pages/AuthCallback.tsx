@@ -9,80 +9,95 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleCallback = async () => {
       // #region agent log
-      console.log('[DEBUG-A,B,C,D] AuthCallback loaded - URL info:', JSON.stringify({href:window.location.href,origin:window.location.origin,pathname:window.location.pathname,search:window.location.search,hash:window.location.hash,hasCode:new URLSearchParams(window.location.search).has('code'),hasAccessToken:window.location.hash.includes('access_token'),hasError:window.location.hash.includes('error')}));
+      console.log('[DEBUG] AuthCallback loaded - URL info:', JSON.stringify({href:window.location.href,origin:window.location.origin,pathname:window.location.pathname,search:window.location.search,hash:window.location.hash}));
       // #endregion
 
       const client = getBackendClient();
-      // #region agent log
-      console.log('[DEBUG-E] Supabase client check:', JSON.stringify({clientExists:!!client,supabaseUrl:import.meta.env.VITE_SUPABASE_URL ? 'set' : 'missing',supabaseKey:import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'set' : 'missing'}));
-      // #endregion
       if (!client) {
         setError('Backend not configured');
         return;
       }
 
-      const searchParams = new URLSearchParams(window.location.search);
-      const code = searchParams.get('code');
-      const hash = window.location.hash;
-
       try {
+        // FIRST: Check if Supabase already auto-processed the auth tokens
+        // Supabase client detects #access_token in URL and processes it automatically,
+        // then clears the hash. So we check for existing session first.
         // #region agent log
-        console.log('[DEBUG-B,C] Branch check - which auth path:', JSON.stringify({hasCode:!!code,codeValue:code,hashLength:hash?.length,hashStart:hash?.substring(0,50)}));
+        console.log('[DEBUG] Checking for existing session (Supabase may have auto-processed tokens)...');
         // #endregion
-        if (code) {
+        
+        const { data: sessionData, error: sessionError } = await client.auth.getSession();
+        
+        // #region agent log
+        console.log('[DEBUG] Session check result:', JSON.stringify({hasSession:!!sessionData?.session,userId:sessionData?.session?.user?.id,error:sessionError?.message}));
+        // #endregion
+        
+        if (sessionData?.session) {
+          // Session exists! Supabase already processed the auth tokens.
           // #region agent log
-          console.log('[DEBUG-C] PKCE code path - exchanging code:', JSON.stringify({codeLength:code.length}));
+          console.log('[DEBUG] Session found - redirecting to admin');
           // #endregion
-          const { data, error: exchangeError } = await client.auth.exchangeCodeForSession(code);
-          
-          if (exchangeError) {
-            // #region agent log
-            console.log('[DEBUG-C] Code exchange failed:', JSON.stringify({error:exchangeError.message}));
-            // #endregion
-            setError(exchangeError.message);
-            return;
-          }
-        } else if (hash && hash.includes('access_token')) {
-          // Supabase processes hash automatically on page load
-          // Poll for session to be ready
-          let sessionEstablished = false;
-          
-          for (let i = 0; i < 10; i++) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            try {
-              const { data } = await client.auth.getSession();
-              if (data.session) {
-                sessionEstablished = true;
-                break;
-              }
-            } catch (err) {
-              // Continue polling
-            }
-          }
-
-          if (!sessionEstablished) {
-            console.warn('[AuthCallback] Session not established after polling');
-          }
-        } else if (hash && hash.includes('error')) {
-          const params = new URLSearchParams(hash.substring(1));
-          const error = params.get('error');
-          const errorDesc = params.get('error_description');
-          
-          setError(errorDesc || error || 'Authentication failed');
-          return;
-        } else {
-          // #region agent log
-          console.log('[DEBUG-A,B,C,D] NO AUTH DATA - falling through to error:', JSON.stringify({fullUrl:window.location.href,search:window.location.search,hash:window.location.hash,allSearchParams:Object.fromEntries(new URLSearchParams(window.location.search))}));
-          // #endregion
-          setError('No authentication data received');
+          navigate('/admin', { replace: true });
           return;
         }
 
-        // Small delay before redirect
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        navigate('/admin', { replace: true });
+        // If no session yet, check URL parameters
+        const searchParams = new URLSearchParams(window.location.search);
+        const code = searchParams.get('code');
+        const hash = window.location.hash;
+
+        // #region agent log
+        console.log('[DEBUG] No session yet, checking URL params:', JSON.stringify({hasCode:!!code,hashLength:hash?.length}));
+        // #endregion
+
+        if (code) {
+          // PKCE flow - exchange code for session
+          const { error: exchangeError } = await client.auth.exchangeCodeForSession(code);
+          
+          if (exchangeError) {
+            setError(exchangeError.message);
+            return;
+          }
+          
+          navigate('/admin', { replace: true });
+        } else if (hash && hash.includes('access_token')) {
+          // Implicit flow - Supabase should auto-process, but poll just in case
+          for (let i = 0; i < 10; i++) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            const { data } = await client.auth.getSession();
+            if (data.session) {
+              navigate('/admin', { replace: true });
+              return;
+            }
+          }
+          setError('Session not established');
+        } else if (hash && hash.includes('error')) {
+          const params = new URLSearchParams(hash.substring(1));
+          const errorDesc = params.get('error_description');
+          setError(errorDesc || 'Authentication failed');
+        } else {
+          // No URL params AND no session - this could mean:
+          // 1. Supabase already processed tokens and we missed the session check (retry)
+          // 2. Actually no auth data
+          // #region agent log
+          console.log('[DEBUG] No URL params - retrying session check...');
+          // #endregion
+          
+          // Give Supabase a moment to process, then check again
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const { data: retrySession } = await client.auth.getSession();
+          
+          // #region agent log
+          console.log('[DEBUG] Retry session result:', JSON.stringify({hasSession:!!retrySession?.session}));
+          // #endregion
+          
+          if (retrySession?.session) {
+            navigate('/admin', { replace: true });
+            return;
+          }
+          
+          setError('No authentication data received');
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Authentication failed');
       }
