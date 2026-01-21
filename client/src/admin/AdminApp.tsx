@@ -15,6 +15,7 @@ const AdminLogin = lazy(() => import('@/pages/AdminLogin'));
 const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
 const AdminCloudinaryUpload = lazy(() => import('@/pages/AdminCloudinaryUpload'));
 const AssetAudit = lazy(() => import('@/pages/AssetAudit'));
+const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
 
 function AdminLoadingFallback() {
   return (
@@ -71,6 +72,14 @@ export default function AdminApp() {
           element={
             <ProtectedRoute>
               <AssetAudit />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <AdminUsers />
             </ProtectedRoute>
           }
         />

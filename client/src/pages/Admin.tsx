@@ -470,13 +470,13 @@ function AdminDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="w-5 h-5" />
-                  Users
+                  User Management
                 </CardTitle>
-                <CardDescription>View and manage user accounts</CardDescription>
+                <CardDescription>Approve or reject admin access requests</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="secondary" className="w-full" disabled>
-                  Coming Soon
+                <Button variant="secondary" className="w-full" onClick={() => navigate('/admin/users')}>
+                  Manage Users
                 </Button>
               </CardContent>
             </Card>

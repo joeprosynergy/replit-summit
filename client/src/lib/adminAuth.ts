@@ -51,8 +51,3 @@ export async function checkIsAdmin(
     return { isAdmin: isAdmin ?? false, error: null, userId: user.id, userEmail: user.email ?? null };
   }
 }
-
-export async function getCurrentUser(client: SupabaseClient<Database>) {
-  const { data: { user } } = await client.auth.getUser();
-  return user;
-}

@@ -46,6 +46,8 @@ import CmsFirstPage from "./pages/CmsFirstPage";
 // Lazy-load admin app as separate bundle
 const AdminApp = lazy(() => import("./admin/AdminApp"));
 const DynamicPage = lazy(() => import("./pages/DynamicPage"));
+const Signup = lazy(() => import("./pages/Signup"));
+const SignupCallback = lazy(() => import("./pages/SignupCallback"));
 
 const App = () => (
   <HelmetProvider>
@@ -98,8 +100,32 @@ const App = () => (
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/3d-configurator" element={<Configurator3D />} />
 
-        
-        
+          {/* SIGNUP ROUTES */}
+          <Route
+            path="/signup"
+            element={
+              <Suspense fallback={
+                <div className="min-h-screen flex items-center justify-center">
+                  <div className="animate-pulse text-muted-foreground">Loading...</div>
+                </div>
+              }>
+                <Signup />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/signup/callback"
+            element={
+              <Suspense fallback={
+                <div className="min-h-screen flex items-center justify-center">
+                  <div className="animate-pulse text-muted-foreground">Processing...</div>
+                </div>
+              }>
+                <SignupCallback />
+              </Suspense>
+            }
+          />
+
           {/* ADMIN - Lazy-loaded separate bundle */}
           <Route
             path="/admin/*"

@@ -4,7 +4,7 @@
  */
 
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { InlineEditable } from '@/components/admin/InlineEditable';
@@ -15,6 +15,9 @@ import { EditablePageWrapper } from '@/components/admin/EditablePageWrapper';
 import { stylesModernDefaults, StylesModernContent, OptionItem } from './defaults/stylesModernDefaults';
 
 const StylesModern = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
     <EditablePageWrapper<StylesModernContent>
       slug="styles-modern"
@@ -155,6 +158,7 @@ const StylesModern = () => {
                             ) : (
                               <Link
                                 to={option.link}
+                                state={{ from: currentPath }}
                                 target={option.openInNewTab ? '_blank' : undefined}
                                 rel={option.openInNewTab ? 'noopener noreferrer' : undefined}
                                 className="block"

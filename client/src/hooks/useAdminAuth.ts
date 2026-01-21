@@ -1,15 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { getBackendClient } from '@/lib/backendClient';
-import { checkIsAdmin } from '@/lib/adminAuth';
 
 interface AdminAuthState {
   user: User | null;
   isAdmin: boolean;
   isLoading: boolean;
   error: string | null;
+  approvalStatus: 'pending' | 'approved' | 'rejected' | null;
   recheckAdmin: () => Promise<void>;
 }
+
+// Super admin email that bypasses all checks
+const SUPER_ADMIN_EMAIL = 'joe@summitbuildings.com';
 
 export function useAdminAuth(): AdminAuthState {
   const [state, setState] = useState<Omit<AdminAuthState, 'recheckAdmin'>>({
@@ -17,27 +20,72 @@ export function useAdminAuth(): AdminAuthState {
     isAdmin: false,
     isLoading: true,
     error: null,
+    approvalStatus: null,
   });
+
+  const checkApprovalStatus = useCallback(async (client: any, userId: string, email: string): Promise<{
+    isAdmin: boolean;
+    approvalStatus: 'pending' | 'approved' | 'rejected' | null;
+  }> => {
+    // Super admin always has access
+    if (email === SUPER_ADMIN_EMAIL) {
+      return { isAdmin: true, approvalStatus: 'approved' };
+    }
+
+    try {
+      // Check profile for approval status
+      const { data: profile, error } = await client
+        .from('profiles')
+        .select('approval_status')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.warn('Failed to check approval status:', error);
+        return { isAdmin: false, approvalStatus: null };
+      }
+
+      if (!profile) {
+        // No profile yet - user hasn't completed signup
+        return { isAdmin: false, approvalStatus: null };
+      }
+
+      const approvalStatus = profile.approval_status as 'pending' | 'approved' | 'rejected';
+      const isAdmin = approvalStatus === 'approved';
+
+      return { isAdmin, approvalStatus };
+    } catch (err) {
+      console.error('Error checking approval status:', err);
+      return { isAdmin: false, approvalStatus: null };
+    }
+  }, []);
 
   const recheckAdmin = useCallback(async () => {
     const client = getBackendClient();
     if (!client || !state.user) return;
     
     setState(prev => ({ ...prev, isLoading: true, error: null }));
-    const result = await checkIsAdmin(client);
+    
+    const { isAdmin, approvalStatus } = await checkApprovalStatus(
+      client, 
+      state.user.id, 
+      state.user.email || ''
+    );
+    
     setState(prev => ({ 
       ...prev, 
-      isAdmin: result.isAdmin, 
+      isAdmin, 
+      approvalStatus,
       isLoading: false, 
-      error: result.error 
+      error: null 
     }));
-  }, [state.user]);
+  }, [state.user, checkApprovalStatus]);
 
   useEffect(() => {
     const client = getBackendClient();
     
     if (!client) {
-      setState({ user: null, isAdmin: false, isLoading: false, error: 'Backend not configured' });
+      setState({ user: null, isAdmin: false, isLoading: false, error: 'Backend not configured', approvalStatus: null });
       return;
     }
 
@@ -47,12 +95,12 @@ export function useAdminAuth(): AdminAuthState {
     const timeoutId = setTimeout(() => {
       if (!authResolved && mounted) {
         console.error('[useAdminAuth] Auth check timed out after 5s - forcing fallback');
-        // Force a fallback state - assume not logged in
         setState({
           user: null,
           isAdmin: false,
           isLoading: false,
           error: null,
+          approvalStatus: null,
         });
         authResolved = true;
       }
@@ -64,19 +112,25 @@ export function useAdminAuth(): AdminAuthState {
         authResolved = true;
         
         if (!session?.user) {
-          setState({ user: null, isAdmin: false, isLoading: false, error: null });
+          setState({ user: null, isAdmin: false, isLoading: false, error: null, approvalStatus: null });
           return;
         }
 
         try {
-          const result = await checkIsAdmin(client);
+          // Check approval status from profiles table
+          const { isAdmin, approvalStatus } = await checkApprovalStatus(
+            client,
+            session.user.id,
+            session.user.email || ''
+          );
           
           if (mounted) {
             setState({ 
               user: session.user, 
-              isAdmin: result.isAdmin, 
+              isAdmin, 
               isLoading: false, 
-              error: result.error 
+              error: null,
+              approvalStatus,
             });
           }
         } catch (err: any) {
@@ -86,6 +140,7 @@ export function useAdminAuth(): AdminAuthState {
               isAdmin: false,
               isLoading: false,
               error: `Admin check failed: ${err.message}`,
+              approvalStatus: null,
             });
           }
         }
@@ -94,9 +149,6 @@ export function useAdminAuth(): AdminAuthState {
 
     const checkInitialAuth = async () => {
       try {
-        // Quick check if we have a session in localStorage
-        const storageKeys = Object.keys(localStorage).filter(k => k.includes('auth-token'));
-        
         // Try getUser with short timeout
         try {
           const getUserTimeout = new Promise<never>((_, reject) =>
@@ -112,21 +164,26 @@ export function useAdminAuth(): AdminAuthState {
           authResolved = true;
           
           if (user && !userError) {
-            // Success - we have a user
-            const isAdminEmail = user.email?.includes('@summitbuildings.com') || user.email === 'joe@summitbuildings.com';
+            // Check approval status
+            const { isAdmin, approvalStatus } = await checkApprovalStatus(
+              client,
+              user.id,
+              user.email || ''
+            );
             
             setState({ 
               user, 
-              isAdmin: isAdminEmail, 
+              isAdmin, 
               isLoading: false, 
-              error: null 
+              error: null,
+              approvalStatus,
             });
             return;
           }
         } catch (getUserErr) {
           // Fallback: Check if we have a session token in storage
+          const storageKeys = Object.keys(localStorage).filter(k => k.includes('auth-token'));
           if (storageKeys.length > 0) {
-            // We have auth tokens - try getSession as fallback
             try {
               const sessionTimeout = new Promise<never>((_, reject) =>
                 setTimeout(() => reject(new Error('getSession timeout')), 2000)
@@ -141,14 +198,18 @@ export function useAdminAuth(): AdminAuthState {
               authResolved = true;
               
               if (session?.user) {
-                const isAdminEmail = session.user.email?.includes('@summitbuildings.com') || 
-                                    session.user.email === 'joe@summitbuildings.com';
+                const { isAdmin, approvalStatus } = await checkApprovalStatus(
+                  client,
+                  session.user.id,
+                  session.user.email || ''
+                );
                 
                 setState({
                   user: session.user,
-                  isAdmin: isAdminEmail,
+                  isAdmin,
                   isLoading: false,
-                  error: null
+                  error: null,
+                  approvalStatus,
                 });
                 return;
               }
@@ -162,7 +223,7 @@ export function useAdminAuth(): AdminAuthState {
         if (!mounted) return;
         authResolved = true;
         
-        setState({ user: null, isAdmin: false, isLoading: false, error: null });
+        setState({ user: null, isAdmin: false, isLoading: false, error: null, approvalStatus: null });
         
       } catch (err: any) {
         if (mounted) {
@@ -171,7 +232,8 @@ export function useAdminAuth(): AdminAuthState {
             user: null,
             isAdmin: false,
             isLoading: false,
-            error: null, // Don't show error, just treat as not logged in
+            error: null,
+            approvalStatus: null,
           });
         }
       }
@@ -184,7 +246,7 @@ export function useAdminAuth(): AdminAuthState {
       clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
-  }, []);
+  }, [checkApprovalStatus]);
 
   return { ...state, recheckAdmin };
 }

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const appRoleEnum = pgEnum("app_role", ["admin", "editor"]);
 export const pageStatusEnum = pgEnum("page_status", ["draft", "published", "archived"]);
+export const userApprovalStatusEnum = pgEnum("user_approval_status", ["pending", "approved", "rejected"]);
 
 export const pageContent = pgTable("page_content", {
   id: text("id").primaryKey().default("gen_random_uuid()"),
@@ -44,6 +45,10 @@ export const profiles = pgTable("profiles", {
   id: text("id").primaryKey().default("gen_random_uuid()"),
   userId: text("user_id").notNull().unique(),
   email: varchar("email", { length: 255 }).notNull(),
+  displayName: varchar("display_name", { length: 255 }),
+  approvalStatus: userApprovalStatusEnum("approval_status").default("pending"),
+  approvedBy: text("approved_by"),
+  approvedAt: timestamp("approved_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -86,7 +91,11 @@ export const insertSectionContentSchema = z.object({
 export const insertProfileSchema = z.object({
   userId: z.string(),
   email: z.string(),
+  displayName: z.string().optional(),
+  approvalStatus: z.enum(["pending", "approved", "rejected"]).optional(),
 });
+
+export type UserApprovalStatus = "pending" | "approved" | "rejected";
 
 export const insertUserRoleSchema = z.object({
   userId: z.string(),

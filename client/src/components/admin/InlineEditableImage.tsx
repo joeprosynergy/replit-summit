@@ -4,6 +4,7 @@ import { Camera, Upload, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { authFetch } from '@/lib/authFetch';
 
 interface InlineEditableImageProps {
   src: string;
@@ -81,8 +82,8 @@ const InlineEditableImage = ({
       const fileNameWithoutExt = selectedFile.name.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9-_]/g, '-');
       const publicId = `${fileNameWithoutExt}-${Date.now()}`;
 
-      // Upload to Cloudinary via Express API endpoint
-      const response = await fetch('/api/cloudinary/upload', {
+      // Upload to Cloudinary via Express API endpoint (requires auth)
+      const response = await authFetch('/api/cloudinary/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

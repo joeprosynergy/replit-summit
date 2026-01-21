@@ -8,8 +8,8 @@ const Footer = () => {
       { label: 'Basic Storage', href: '/types/basic-storage' },
       { label: 'Deluxe & Cabins', href: '/types/deluxe-storage-cabins' },
       { label: 'Garages & Carports', href: '/types/garages-carports' },
-      { label: 'Greenhouse', href: '/types/greenhouse' },
-      { label: 'Animal Shelters', href: '/types/animal-shelters' },
+      { label: 'Greenhouse', href: '/styles/greenhouse' },
+      { label: 'Animal Shelters', href: '/styles/animal-shelters' },
     ],
     exploreByStyle: [
       { label: 'Utility (Traditional A-Frame)', href: '/styles/utility' },
@@ -26,7 +26,7 @@ const Footer = () => {
       { label: 'Gallery', href: '/gallery' },
       { label: 'Financing', href: '/financing#financing' },
       { label: 'Rent-to-Own', href: '/financing#rent-to-own' },
-      { label: 'Warranty Info', href: '#' },
+      { label: 'Warranty Info', href: '#', disabled: true },
     ],
     about: [
       { label: 'Home', href: '/' },
@@ -107,12 +107,18 @@ const Footer = () => {
             <ul className="space-y-2">
               {links.resources.map((link) => (
                 <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-primary-foreground/70 hover:text-primary-foreground text-sm transition-colors"
-                  >
-                    {link.label}
-                  </Link>
+                  {link.disabled ? (
+                    <span className="text-primary-foreground/40 text-sm cursor-not-allowed">
+                      {link.label}
+                    </span>
+                  ) : (
+                    <Link
+                      to={link.href}
+                      className="text-primary-foreground/70 hover:text-primary-foreground text-sm transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

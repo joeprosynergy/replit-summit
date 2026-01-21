@@ -84,6 +84,13 @@ const AdminLogin = () => {
               {message.text}
             </p>
           )}
+          
+          <p className="text-sm text-muted-foreground text-center pt-4 border-t">
+            Don't have an account?{" "}
+            <a href="/signup" className="text-primary hover:underline">
+              Request access
+            </a>
+          </p>
         </div>
       </div>
     </div>

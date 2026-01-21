@@ -117,7 +117,7 @@ export const greenhouseDefaults: ProductPageContent = {
 
   // === BACK PATH CONFIGURATION ===
   backPath: {
-    defaultPath: '/types',
-    defaultLabel: '← Back to All Models',
+    defaultPath: '/styles',
+    defaultLabel: '← Back to Styles',
   },
 };

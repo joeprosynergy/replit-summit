@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { isBackendAvailable, getBackendClient } from '@/lib/backendClient';
 import { toast } from 'sonner';
-import { useLocation } from 'wouter';
+import { useNavigate } from 'react-router-dom';
 import { duplicateCanonicalPage } from '@/lib/canonicalization';
 
 export function usePageManagement(currentSlug: string) {
@@ -10,7 +10,7 @@ export function usePageManagement(currentSlug: string) {
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [newSlug, setNewSlug] = useState('');
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
 
   const duplicatePage = useCallback(async (
     targetSlug: string, 
@@ -86,14 +86,14 @@ export function usePageManagement(currentSlug: string) {
       toast.success('Page content deleted');
       setShowDeleteDialog(false);
       setIsDeleting(false);
-      setLocation('/');
+      navigate('/');
       return true;
     } catch (err: any) {
       toast.error(`Deletion failed: ${err.message || 'Unknown error'}`);
       setIsDeleting(false);
       return false;
     }
-  }, [currentSlug, setLocation]);
+  }, [currentSlug, navigate]);
 
   return {
     isDuplicating,

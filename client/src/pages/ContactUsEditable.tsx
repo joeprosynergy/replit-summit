@@ -260,7 +260,7 @@ export default function ContactUsEditable({ initialContent }: ContactUsEditableP
               </section>
 
               {/* FAQ Section */}
-              <section className="py-16 bg-muted/30">
+              <section id="faq" className="py-16 bg-muted/30 scroll-mt-24">
                 <div className="container-custom">
                   <div className="text-center mb-12">
                     <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
