@@ -8,6 +8,7 @@ interface AdminAuthContextValue {
   isLoading: boolean;
   isRevalidating: boolean;
   error: string | null;
+  approvalStatus: 'pending' | 'approved' | 'rejected' | null;
   recheckAdmin: () => Promise<void>;
 }
 

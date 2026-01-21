@@ -8,6 +8,7 @@ export function useOptionalAdminAuth() {
     isLoading: false,
     user: null,
     error: null,
+    approvalStatus: null,
     recheckAdmin: async () => {},
   };
 }

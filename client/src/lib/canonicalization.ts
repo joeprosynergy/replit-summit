@@ -1,452 +1,478 @@
-import { getBackendClient } from '@/lib/backendClient';
+import { getBackendClient } from './backendClient';
+import { toast } from 'sonner';
 
-const PAGE_CONTENT_LOADERS: Record<string, () => Promise<Record<string, any>>> = {
-  'economy-shed': async () => (await import('@/pages/EconomyShed')).defaultContent,
-  'budget-pro-utility': async () => (await import('@/pages/BudgetProUtility')).defaultContent,
-  'budget-pro-lofted-barn': async () => (await import('@/pages/BudgetProLoftedBarn')).defaultContent,
-  'utility-shed': async () => (await import('@/pages/UtilityShed')).defaultContent,
-  'pro-lofted-barn': async () => (await import('@/pages/ProLoftedBarn')).defaultContent,
-  'cabin': async () => (await import('@/pages/Cabin')).defaultContent,
-  'barn-cabin': async () => (await import('@/pages/BarnCabin')).defaultContent,
-  'modern-shed': async () => (await import('@/pages/ModernShed')).defaultContent,
-  'garage': async () => (await import('@/pages/Garage')).defaultContent,
-  'carports': async () => (await import('@/pages/Carports')).defaultContent,
-  'greenhouse': async () => (await import('@/pages/Greenhouse')).defaultContent,
-  'animal-shelters': async () => (await import('@/pages/AnimalShelters')).defaultContent,
-  'home': async () => (await import('@/pages/Index')).defaultContent,
-  'about-us': async () => (await import('@/pages/AboutUs')).defaultContent,
-  'buyers-guide': async () => (await import('@/pages/BuyersGuide')).defaultContent,
-  'gallery': async () => (await import('@/pages/Gallery')).defaultContent,
-  'financing': async () => (await import('@/pages/Financing')).defaultContent,
-  'privacy-policy': async () => (await import('@/pages/PrivacyPolicy')).defaultContent,
-  'styles': async () => (await import('@/pages/Styles')).defaultContent,
-  'styles-utility': async () => (await import('@/pages/StylesUtility')).defaultContent,
-  'styles-barn': async () => (await import('@/pages/StylesBarn')).defaultContent,
-  'styles-modern': async () => (await import('@/pages/StylesModern')).defaultContent,
-  'types': async () => (await import('@/pages/OurModels')).defaultContent,
-  'basic-storage': async () => (await import('@/pages/BasicStorage')).defaultContent,
-  'deluxe-storage-cabins': async () => (await import('@/pages/DeluxeStorageCabins')).defaultContent,
-  'garages-carports': async () => (await import('@/pages/GaragesCarports')).defaultContent,
-};
+/**
+ * Canonicalization Service
+ * Extracts default content from code-based pages and persists to CMS database
+ * to create fully hydrated canonical pages.
+ */
+
+export interface PageDefaults {
+  slug: string;
+  templateType?: string;
+  heading?: string;
+  subheading?: string;
+  tagline?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  ctaHeading?: string;
+  ctaDescription?: string;
+  ctaButton?: string;
+  layoutConfig?: Record<string, any>;
+  seoConfig?: Record<string, any>;
+}
+
+export interface SectionDefaults {
+  sectionName: string;
+  sectionType?: string;
+  orderIndex: number;
+  content: Record<string, any>;
+  layoutConfig?: Record<string, any>;
+  isVisible?: boolean;
+}
 
 export interface CanonicalPageData {
-  slug: string;
-  pageId: string | null;
-  sectionName: string;
-  content: Record<string, any>;
-  layoutConfig: Record<string, any> | null;
-  isCanonical: boolean;
+  page: PageDefaults;
+  sections: SectionDefaults[];
 }
 
-export function isStaticPage(slug: string): boolean {
-  return slug in PAGE_CONTENT_LOADERS;
+export interface CanonicalizeResult {
+  success: boolean;
+  pageId?: string;
+  error?: string;
+  message: string;
 }
 
-export async function getStaticDefaultContent(slug: string): Promise<Record<string, any> | null> {
-  const loader = PAGE_CONTENT_LOADERS[slug];
-  if (!loader) {
-    return null;
-  }
-  try {
-    return await loader();
-  } catch (err) {
-    console.error(`[canonicalization] Failed to load default content for ${slug}:`, err);
-    return null;
-  }
-}
-
-function deepMerge(defaults: Record<string, any>, overrides: Record<string, any>): Record<string, any> {
-  const result = { ...defaults };
-  
-  for (const key of Object.keys(overrides)) {
-    const overrideValue = overrides[key];
-    const defaultValue = defaults[key];
-    
-    if (overrideValue === null || overrideValue === undefined) {
-      continue;
-    }
-    
-    if (
-      typeof overrideValue === 'object' && 
-      !Array.isArray(overrideValue) &&
-      typeof defaultValue === 'object' && 
-      !Array.isArray(defaultValue) &&
-      defaultValue !== null
-    ) {
-      result[key] = deepMerge(defaultValue, overrideValue);
-    } else {
-      result[key] = overrideValue;
-    }
-  }
-  
-  return result;
-}
-
-export async function ensureCanonicalPage(slug: string): Promise<CanonicalPageData | null> {
+/**
+ * Canonicalize a page by extracting its defaults and persisting to CMS.
+ * This creates a fully hydrated page in the database that can be rendered
+ * without any code-based defaults.
+ */
+export async function canonicalizePage(
+  slug: string,
+  pageData: CanonicalPageData,
+  options: { overwrite?: boolean } = {}
+): Promise<CanonicalizeResult> {
   const client = getBackendClient();
   if (!client) {
-    console.error('[canonicalization] No database client available');
-    return null;
+    return {
+      success: false,
+      error: 'Backend not available',
+      message: 'Cannot canonicalize: database not configured',
+    };
   }
 
-  const { data: existingPage } = await (client as any)
-    .from('page_content')
-    .select('id, layout_config, is_canonical')
-    .eq('slug', slug)
-    .maybeSingle();
-
-  const pageId = existingPage?.id || null;
-  const layoutConfig = existingPage?.layout_config || null;
-  const isAlreadyCanonical = existingPage?.is_canonical || false;
-
-  let existingSection = null;
-  
-  if (pageId) {
-    const { data } = await (client as any)
-      .from('section_content')
-      .select('*')
-      .eq('page_id', pageId)
-      .eq('section_name', 'main')
+  try {
+    // Check if page already exists
+    const { data: existingPage, error: checkError } = await (client as any)
+      .from('page_content')
+      .select('id, is_canonical')
+      .eq('slug', slug)
       .maybeSingle();
-    existingSection = data;
-  }
-  
-  if (!existingSection) {
-    const { data } = await (client as any)
-      .from('section_content')
-      .select('*')
-      .eq('page_slug', slug)
-      .eq('section_name', 'main')
-      .maybeSingle();
-    existingSection = data;
-  }
 
-  const staticDefaults = await getStaticDefaultContent(slug);
-  const dbContent = existingSection?.content || {};
-
-  let canonicalContent: Record<string, any>;
-
-  if (staticDefaults && Object.keys(staticDefaults).length > 0) {
-    canonicalContent = deepMerge(staticDefaults, dbContent);
-    
-    const staticKeyCount = Object.keys(staticDefaults).length;
-    const dbKeyCount = Object.keys(dbContent).length;
-    const mergedKeyCount = Object.keys(canonicalContent).length;
-    
-    console.log(`[canonicalization] Page ${slug}: static=${staticKeyCount} keys, db=${dbKeyCount} keys, merged=${mergedKeyCount} keys`);
-    
-    const needsUpdate = !existingSection || mergedKeyCount > dbKeyCount || JSON.stringify(dbContent) !== JSON.stringify(canonicalContent);
-    
-    let finalPageId = pageId;
-    let finalLayoutConfig = layoutConfig;
-    
-    if (needsUpdate || !isAlreadyCanonical) {
-      console.log(`[canonicalization] Persisting canonical content for ${slug}`);
-
-      const pagePayload: Record<string, any> = {
-        slug,
-        heading: canonicalContent.title || canonicalContent.heading || slug,
-        tagline: canonicalContent.subtitle || canonicalContent.tagline || '',
-        subheading: canonicalContent.description || canonicalContent.subheading || '',
-        meta_title: canonicalContent.metaTitle || `${slug} | Summit Portable Buildings`,
-        meta_description: canonicalContent.metaDescription || '',
-        is_canonical: true,
+    if (checkError) {
+      console.error('[Canonicalization] Error checking existing page:', checkError);
+      return {
+        success: false,
+        error: checkError.message,
+        message: `Failed to check existing page: ${checkError.message}`,
       };
-
-      if (!layoutConfig && canonicalContent) {
-        pagePayload.layout_config = {
-          heroBackground: canonicalContent.heroBackground || null,
-          heroLayout: canonicalContent.heroLayout || null,
-          backgroundColor: canonicalContent.backgroundColor || null,
-          theme: canonicalContent.theme || null,
-        };
-        finalLayoutConfig = pagePayload.layout_config;
-      }
-
-      if (!existingPage) {
-        const { data: insertedPage, error: pageInsertError } = await (client as any)
-          .from('page_content')
-          .insert(pagePayload)
-          .select('id')
-          .single();
-        
-        if (pageInsertError) {
-          console.error(`[canonicalization] Failed to insert page_content for ${slug}:`, pageInsertError);
-        } else {
-          finalPageId = insertedPage?.id || null;
-        }
-      } else {
-        await (client as any)
-          .from('page_content')
-          .update({ ...pagePayload, layout_config: pagePayload.layout_config || layoutConfig })
-          .eq('id', pageId);
-        finalPageId = pageId;
-      }
-
-      const sectionPayload: Record<string, any> = {
-        page_slug: slug,
-        section_name: 'main',
-        content: canonicalContent,
-      };
-      
-      if (finalPageId) {
-        sectionPayload.page_id = finalPageId;
-      }
-      
-      if (existingSection) {
-        const { error } = await (client as any)
-          .from('section_content')
-          .update({ content: canonicalContent, page_id: finalPageId })
-          .eq('id', existingSection.id);
-        
-        if (error) {
-          console.error(`[canonicalization] Failed to update section_content for ${slug}:`, error);
-          return null;
-        }
-      } else {
-        const { error } = await (client as any)
-          .from('section_content')
-          .insert(sectionPayload);
-        
-        if (error) {
-          console.error(`[canonicalization] Failed to insert section_content for ${slug}:`, error);
-          return null;
-        }
-      }
-    } else {
-      console.log(`[canonicalization] Page ${slug} already fully canonical`);
     }
 
-    return {
-      slug,
-      pageId: finalPageId,
-      sectionName: 'main',
-      content: canonicalContent,
-      layoutConfig: finalLayoutConfig,
-      isCanonical: true,
-    };
-  }
+    // If page exists and is canonical, skip unless overwrite is true
+    if (existingPage && existingPage.is_canonical && !options.overwrite) {
+      return {
+        success: true,
+        pageId: existingPage.id,
+        message: `Page ${slug} is already canonical`,
+      };
+    }
 
-  if (existingSection && existingSection.content && Object.keys(existingSection.content).length > 0) {
-    console.log(`[canonicalization] Page ${slug} is dynamic (no static defaults), using DB content`);
-    return {
-      slug,
+    let pageId = existingPage?.id;
+
+    // Prepare page data
+    const pagePayload = {
+      slug: pageData.page.slug,
+      heading: pageData.page.heading,
+      subheading: pageData.page.subheading,
+      tagline: pageData.page.tagline,
+      meta_title: pageData.page.metaTitle,
+      meta_description: pageData.page.metaDescription,
+      cta_heading: pageData.page.ctaHeading,
+      cta_description: pageData.page.ctaDescription,
+      cta_button: pageData.page.ctaButton,
+      layout_config: pageData.page.layoutConfig || {},
+      is_canonical: true,
+      template_type: pageData.page.templateType || 'default',
+      status: 'published',
+      seo_config: pageData.page.seoConfig || {},
+      updated_at: new Date().toISOString(),
+    };
+
+    if (existingPage) {
+      // Update existing page
+      const { error: updateError } = await (client as any)
+        .from('page_content')
+        .update(pagePayload)
+        .eq('id', existingPage.id);
+
+      if (updateError) {
+        console.error('[Canonicalization] Error updating page:', updateError);
+        return {
+          success: false,
+          error: updateError.message,
+          message: `Failed to update page: ${updateError.message}`,
+        };
+      }
+    } else {
+      // Insert new page
+      const { data: insertedPage, error: insertError } = await (client as any)
+        .from('page_content')
+        .insert(pagePayload)
+        .select('id')
+        .single();
+
+      if (insertError) {
+        console.error('[Canonicalization] Error inserting page:', insertError);
+        return {
+          success: false,
+          error: insertError.message,
+          message: `Failed to insert page: ${insertError.message}`,
+        };
+      }
+
+      pageId = insertedPage.id;
+    }
+
+    // Delete existing sections if overwriting
+    if (options.overwrite && pageId) {
+      const { error: deleteError } = await (client as any)
+        .from('section_content')
+        .delete()
+        .eq('page_id', pageId);
+
+      if (deleteError) {
+        console.warn('[Canonicalization] Error deleting old sections:', deleteError);
+      }
+    }
+
+    // Insert sections
+    const sectionInserts = pageData.sections.map((section) => ({
+      page_id: pageId,
+      page_slug: slug,
+      section_name: section.sectionName,
+      section_type: section.sectionType || section.sectionName,
+      order_index: section.orderIndex,
+      content: section.content,
+      layout_config: section.layoutConfig || {},
+      is_visible: section.isVisible !== false,
+    }));
+
+    if (sectionInserts.length > 0) {
+      const { error: sectionsError } = await (client as any)
+        .from('section_content')
+        .insert(sectionInserts);
+
+      if (sectionsError) {
+        console.error('[Canonicalization] Error inserting sections:', sectionsError);
+        return {
+          success: false,
+          error: sectionsError.message,
+          message: `Page created but sections failed: ${sectionsError.message}`,
+          pageId,
+        };
+      }
+    }
+
+    console.log(`[Canonicalization] Successfully canonicalized ${slug}`, {
       pageId,
-      sectionName: 'main',
-      content: existingSection.content,
-      layoutConfig,
-      isCanonical: true,
+      sectionCount: sectionInserts.length,
+    });
+
+    return {
+      success: true,
+      pageId,
+      message: `Successfully canonicalized ${slug} with ${sectionInserts.length} sections`,
+    };
+  } catch (err: any) {
+    console.error('[Canonicalization] Unexpected error:', err);
+    return {
+      success: false,
+      error: err.message || 'Unknown error',
+      message: `Canonicalization failed: ${err.message || 'Unknown error'}`,
     };
   }
-
-  console.warn(`[canonicalization] No content found for ${slug} (not static, not in DB)`);
-  return null;
 }
 
+/**
+ * Validate that a canonical page renders correctly by comparing
+ * CMS data with expected defaults.
+ */
+export async function validateCanonicalPage(
+  slug: string,
+  expectedDefaults: CanonicalPageData
+): Promise<{ valid: boolean; missingFields: string[]; errors: string[] }> {
+  const client = getBackendClient();
+  if (!client) {
+    return {
+      valid: false,
+      missingFields: [],
+      errors: ['Backend not available'],
+    };
+  }
+
+  const missingFields: string[] = [];
+  const errors: string[] = [];
+
+  try {
+    // Fetch page from CMS
+    const { data: page, error: pageError } = await (client as any)
+      .from('page_content')
+      .select('*')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (pageError || !page) {
+      errors.push(`Page not found in CMS: ${pageError?.message || 'Not found'}`);
+      return { valid: false, missingFields, errors };
+    }
+
+    if (!page.is_canonical) {
+      errors.push('Page is not marked as canonical');
+    }
+
+    // Fetch sections
+    const { data: sections, error: sectionsError } = await (client as any)
+      .from('section_content')
+      .select('*')
+      .eq('page_id', page.id)
+      .order('order_index', { ascending: true });
+
+    if (sectionsError) {
+      errors.push(`Failed to fetch sections: ${sectionsError.message}`);
+      return { valid: false, missingFields, errors };
+    }
+
+    // Validate sections match expected
+    const expectedSectionNames = expectedDefaults.sections.map((s) => s.sectionName);
+    const actualSectionNames = (sections || []).map((s: any) => s.section_name);
+
+    const missingSections = expectedSectionNames.filter(
+      (name) => !actualSectionNames.includes(name)
+    );
+    if (missingSections.length > 0) {
+      errors.push(`Missing sections: ${missingSections.join(', ')}`);
+    }
+
+    // Validate each section has content
+    for (const section of sections || []) {
+      const expectedSection = expectedDefaults.sections.find(
+        (s) => s.sectionName === section.section_name
+      );
+      if (!expectedSection) continue;
+
+      const expectedKeys = Object.keys(expectedSection.content);
+      const actualKeys = Object.keys(section.content || {});
+
+      const missingKeys = expectedKeys.filter((key) => !actualKeys.includes(key));
+      if (missingKeys.length > 0) {
+        missingFields.push(
+          ...missingKeys.map((key) => `${section.section_name}.${key}`)
+        );
+      }
+    }
+
+    const valid = errors.length === 0 && missingFields.length === 0;
+
+    if (valid) {
+      console.log(`[Validation] ✅ ${slug} is fully canonical`);
+    } else {
+      console.warn(`[Validation] ⚠️ ${slug} has issues:`, { missingFields, errors });
+    }
+
+    return { valid, missingFields, errors };
+  } catch (err: any) {
+    errors.push(`Validation error: ${err.message || 'Unknown error'}`);
+    return { valid: false, missingFields, errors };
+  }
+}
+
+/**
+ * Duplicate a canonical page with a new slug.
+ * Copies page content and all sections from source to target.
+ */
 export async function duplicateCanonicalPage(
   sourceSlug: string,
   targetSlug: string,
-  providedContent?: Record<string, any>,
-  providedLayoutConfig?: Record<string, any> | null
-): Promise<{ success: boolean; message: string }> {
+  contentOverrides?: Record<string, any>,
+  layoutConfigOverride?: Record<string, any> | null
+): Promise<CanonicalizeResult> {
   const client = getBackendClient();
   if (!client) {
-    return { success: false, message: 'Database client not available' };
+    return {
+      success: false,
+      error: 'Backend not available',
+      message: 'Cannot duplicate: database not configured',
+    };
   }
 
-  const { data: existingPageTarget } = await (client as any)
-    .from('page_content')
-    .select('id')
-    .eq('slug', targetSlug)
-    .maybeSingle();
-
-  if (existingPageTarget) {
-    return { success: false, message: 'A page with this slug already exists' };
-  }
-
-  // Fetch source page to get its page_id
-  const { data: sourcePage } = await (client as any)
-    .from('page_content')
-    .select('id, layout_config, is_canonical, heading, tagline, subheading, meta_title, meta_description')
-    .eq('slug', sourceSlug)
-    .maybeSingle();
-
-  const sourcePageId = sourcePage?.id || null;
-
-  // Check if this is a CMS-first page (has multiple sections with different section_names)
-  let allSourceSections: any[] = [];
-  if (sourcePageId) {
-    const { data: sections } = await (client as any)
-      .from('section_content')
+  try {
+    // Fetch source page
+    const { data: sourcePage, error: sourceError } = await (client as any)
+      .from('page_content')
       .select('*')
-      .eq('page_id', sourcePageId);
-    allSourceSections = sections || [];
-  }
+      .eq('slug', sourceSlug)
+      .maybeSingle();
 
-  // If no sections found by page_id, try by page_slug
-  if (allSourceSections.length === 0) {
-    const { data: sections } = await (client as any)
-      .from('section_content')
-      .select('*')
-      .eq('page_slug', sourceSlug);
-    allSourceSections = sections || [];
-  }
+    if (sourceError || !sourcePage) {
+      return {
+        success: false,
+        error: 'Source page not found',
+        message: `Cannot find page ${sourceSlug}`,
+      };
+    }
 
-  // Determine if this is a CMS-first page (has sections other than 'main')
-  // CMS-first pages use ONLY section_content as source of truth
-  const isCmsFirstPage = allSourceSections.some(s => s.section_name !== 'main');
+    // Check if target slug already exists
+    const { data: existingTarget, error: checkError } = await (client as any)
+      .from('page_content')
+      .select('id')
+      .eq('slug', targetSlug)
+      .maybeSingle();
 
-  console.log(`[canonicalization] Source ${sourceSlug}: ${allSourceSections.length} sections, CMS-first: ${isCmsFirstPage}`);
-  console.log(`[canonicalization] Section names found:`, allSourceSections.map(s => s.section_name));
+    if (existingTarget) {
+      return {
+        success: false,
+        error: 'Target slug exists',
+        message: `Page with slug ${targetSlug} already exists`,
+      };
+    }
 
-  // CMS-FIRST DUPLICATION: Use ONLY section_content as source of truth
-  // Do NOT call ensureCanonicalPage, do NOT hydrate from static defaults
-  if (isCmsFirstPage && allSourceSections.length > 0) {
-    console.log(`[canonicalization] CMS-FIRST DUPLICATION: ${sourceSlug} -> ${targetSlug}`);
-    console.log(`[canonicalization] Duplicating ${allSourceSections.length} sections EXACTLY as-is from section_content`);
-
-    // Create page_content row
-    const pagePayload: Record<string, any> = {
+    // Create new page with target slug
+    const newPagePayload = {
       slug: targetSlug,
-      heading: sourcePage?.heading || targetSlug,
-      tagline: sourcePage?.tagline || '',
-      subheading: sourcePage?.subheading || '',
-      meta_title: sourcePage?.meta_title || `${targetSlug} | Summit Portable Buildings`,
-      meta_description: sourcePage?.meta_description || '',
-      is_canonical: true,
-      layout_config: sourcePage?.layout_config ? JSON.parse(JSON.stringify(sourcePage.layout_config)) : null,
+      heading: contentOverrides?.heading || sourcePage.heading,
+      subheading: contentOverrides?.subheading || sourcePage.subheading,
+      tagline: contentOverrides?.tagline || sourcePage.tagline,
+      meta_title: contentOverrides?.meta_title || sourcePage.meta_title,
+      meta_description: contentOverrides?.meta_description || sourcePage.meta_description,
+      cta_heading: contentOverrides?.cta_heading || sourcePage.cta_heading,
+      cta_description: contentOverrides?.cta_description || sourcePage.cta_description,
+      cta_button: contentOverrides?.cta_button || sourcePage.cta_button,
+      layout_config: layoutConfigOverride !== undefined ? layoutConfigOverride : sourcePage.layout_config,
+      is_canonical: sourcePage.is_canonical,
+      template_type: sourcePage.template_type,
+      status: sourcePage.status,
+      seo_config: sourcePage.seo_config,
+      updated_at: new Date().toISOString(),
     };
 
-    const { data: insertedPage, error: pageError } = await (client as any)
+    const { data: newPage, error: insertError } = await (client as any)
       .from('page_content')
-      .insert(pagePayload)
+      .insert(newPagePayload)
       .select('id')
       .single();
 
-    if (pageError) {
-      console.error(`[canonicalization] Failed to insert page_content for ${targetSlug}:`, pageError);
-      return { success: false, message: `Failed to create page: ${pageError.message}` };
-    }
-
-    const newPageId = insertedPage?.id;
-    console.log(`[canonicalization] Created page_content for ${targetSlug} with id: ${newPageId}`);
-
-    // Duplicate ALL section_content rows with new page_id
-    // ONLY copy from section_content.content - no hydration, no defaults
-    let sectionsCreated = 0;
-    for (const section of allSourceSections) {
-      const clonedContent = JSON.parse(JSON.stringify(section.content));
-      console.log(`[canonicalization] Cloning section '${section.section_name}' with ${Object.keys(clonedContent).length} fields:`, Object.keys(clonedContent));
-      
-      const sectionPayload = {
-        page_slug: targetSlug,
-        page_id: newPageId,
-        section_name: section.section_name,
-        content: clonedContent,
+    if (insertError || !newPage) {
+      return {
+        success: false,
+        error: insertError?.message || 'Insert failed',
+        message: `Failed to create new page: ${insertError?.message}`,
       };
+    }
 
-      const { error: sectionError } = await (client as any)
+    // Fetch source sections
+    const { data: sourceSections, error: sectionsError } = await (client as any)
+      .from('section_content')
+      .select('*')
+      .eq('page_id', sourcePage.id)
+      .order('order_index', { ascending: true });
+
+    if (sectionsError) {
+      return {
+        success: false,
+        error: sectionsError.message,
+        message: `Page created but sections fetch failed: ${sectionsError.message}`,
+        pageId: newPage.id,
+      };
+    }
+
+    // Copy sections to new page
+    if (sourceSections && sourceSections.length > 0) {
+      const newSections = sourceSections.map((section: any) => ({
+        page_id: newPage.id,
+        page_slug: targetSlug,
+        section_name: section.section_name,
+        section_type: section.section_type,
+        order_index: section.order_index,
+        content: section.content,
+        layout_config: section.layout_config,
+        is_visible: section.is_visible,
+      }));
+
+      const { error: insertSectionsError } = await (client as any)
         .from('section_content')
-        .insert(sectionPayload);
+        .insert(newSections);
 
-      if (sectionError) {
-        console.error(`[canonicalization] Failed to insert section ${section.section_name} for ${targetSlug}:`, sectionError);
-        // Rollback: delete page and any sections created
-        await (client as any).from('section_content').delete().eq('page_id', newPageId);
-        await (client as any).from('page_content').delete().eq('id', newPageId);
-        return { success: false, message: `Failed to duplicate section ${section.section_name}: ${sectionError.message}` };
+      if (insertSectionsError) {
+        return {
+          success: false,
+          error: insertSectionsError.message,
+          message: `Page created but sections copy failed: ${insertSectionsError.message}`,
+          pageId: newPage.id,
+        };
       }
-      sectionsCreated++;
     }
 
-    console.log(`[canonicalization] Successfully duplicated ${sectionsCreated} sections for ${targetSlug}`);
-    return { success: true, message: `Successfully duplicated ${sourceSlug} to ${targetSlug} (${sectionsCreated} sections)` };
+    console.log(`[Duplication] Successfully duplicated ${sourceSlug} to ${targetSlug}`, {
+      pageId: newPage.id,
+      sectionCount: sourceSections?.length || 0,
+    });
+
+    return {
+      success: true,
+      pageId: newPage.id,
+      message: `Successfully duplicated page to ${targetSlug}`,
+    };
+  } catch (err: any) {
+    console.error('[Duplication] Unexpected error:', err);
+    return {
+      success: false,
+      error: err.message || 'Unknown error',
+      message: `Duplication failed: ${err.message || 'Unknown error'}`,
+    };
   }
+}
 
-  // Legacy duplication path for non-CMS-first pages
-  let contentToClone: Record<string, any>;
-  let layoutConfigToClone: Record<string, any> | null = providedLayoutConfig || null;
+/**
+ * Batch canonicalize multiple pages.
+ */
+export async function canonicalizePages(
+  pages: Array<{ slug: string; data: CanonicalPageData }>,
+  onProgress?: (current: number, total: number, slug: string) => void
+): Promise<{ results: CanonicalizeResult[]; successCount: number; failureCount: number }> {
+  const results: CanonicalizeResult[] = [];
+  let successCount = 0;
+  let failureCount = 0;
 
-  if (providedContent && Object.keys(providedContent).length > 0) {
-    console.log(`[canonicalization] Using provided content (${Object.keys(providedContent).length} fields) for duplication`);
-    contentToClone = providedContent;
-  } else {
-    const canonical = await ensureCanonicalPage(sourceSlug);
-    
-    if (!canonical) {
-      return { success: false, message: `Could not canonicalize source page: ${sourceSlug}` };
+  for (let i = 0; i < pages.length; i++) {
+    const { slug, data } = pages[i];
+
+    if (onProgress) {
+      onProgress(i + 1, pages.length, slug);
     }
 
-    if (!canonical.content || Object.keys(canonical.content).length === 0) {
-      return { success: false, message: `Source page ${sourceSlug} has no content to duplicate` };
+    const result = await canonicalizePage(slug, data, { overwrite: false });
+    results.push(result);
+
+    if (result.success) {
+      successCount++;
+    } else {
+      failureCount++;
     }
-    
-    contentToClone = canonical.content;
-    layoutConfigToClone = layoutConfigToClone || canonical.layoutConfig;
+
+    // Small delay to avoid overwhelming database
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  console.log(`[canonicalization] Duplicating page ${sourceSlug} (${Object.keys(contentToClone).length} fields) to ${targetSlug}`);
-
-  const deepClonedContent = JSON.parse(JSON.stringify(contentToClone));
-  const deepClonedLayoutConfig = layoutConfigToClone ? JSON.parse(JSON.stringify(layoutConfigToClone)) : null;
-
-  const pagePayload: Record<string, any> = {
-    slug: targetSlug,
-    heading: deepClonedContent.title || deepClonedContent.heading || targetSlug,
-    tagline: deepClonedContent.subtitle || deepClonedContent.tagline || '',
-    subheading: deepClonedContent.description || deepClonedContent.subheading || '',
-    cta_heading: deepClonedContent.ctaHeading || deepClonedContent.cta_heading || '',
-    cta_description: deepClonedContent.ctaDescription || deepClonedContent.cta_description || '',
-    cta_button: deepClonedContent.ctaPrimaryButton || deepClonedContent.cta_button || '',
-    meta_title: deepClonedContent.metaTitle || `${targetSlug} | Summit Portable Buildings`,
-    meta_description: deepClonedContent.metaDescription || '',
-    is_canonical: true,
-    layout_config: deepClonedLayoutConfig || {
-      heroBackground: deepClonedContent.heroBackground || null,
-      heroLayout: deepClonedContent.heroLayout || null,
-      backgroundColor: deepClonedContent.backgroundColor || null,
-      theme: deepClonedContent.theme || null,
-    },
-  };
-
-  const { data: insertedPage, error: pageError } = await (client as any)
-    .from('page_content')
-    .insert(pagePayload)
-    .select('id')
-    .single();
-
-  if (pageError) {
-    console.error(`[canonicalization] Failed to insert page_content for ${targetSlug}:`, pageError);
-    return { success: false, message: `Failed to create page: ${pageError.message}` };
-  }
-
-  const newPageId = insertedPage?.id;
-  console.log(`[canonicalization] Created page_content for ${targetSlug} with id: ${newPageId}`);
-
-  console.log(`[canonicalization] Inserting section_content for ${targetSlug}:`, {
-    page_slug: targetSlug,
-    page_id: newPageId,
-    section_name: 'main',
-    contentFieldCount: Object.keys(deepClonedContent).length,
-  });
-
-  const { data: insertedSection, error: sectionError } = await (client as any)
-    .from('section_content')
-    .insert({
-      page_slug: targetSlug,
-      page_id: newPageId,
-      section_name: 'main',
-      content: deepClonedContent,
-    })
-    .select('id, page_slug, page_id, section_name');
-
-  if (sectionError) {
-    console.error(`[canonicalization] Failed to insert section_content for ${targetSlug}:`, sectionError);
-    await (client as any).from('page_content').delete().eq('id', newPageId);
-    return { success: false, message: `Failed to duplicate section content: ${sectionError.message}` };
-  }
-
-  console.log(`[canonicalization] Successfully inserted section_content:`, insertedSection);
-
-  return { success: true, message: `Successfully duplicated ${sourceSlug} to ${targetSlug} (${Object.keys(deepClonedContent).length} fields)` };
+  return { results, successCount, failureCount };
 }

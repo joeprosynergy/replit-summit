@@ -14,38 +14,60 @@ const AuthCallback = () => {
         return;
       }
 
-      const searchParams = new URLSearchParams(window.location.search);
-      const code = searchParams.get('code');
-      const hash = window.location.hash;
-
       try {
+        // Check if Supabase already auto-processed the auth tokens.
+        // Supabase client detects #access_token in URL and processes it automatically,
+        // then clears the hash. So we check for existing session first.
+        const { data: sessionData } = await client.auth.getSession();
+        
+        if (sessionData?.session) {
+          navigate('/admin', { replace: true });
+          return;
+        }
+
+        // If no session yet, check URL parameters
+        const searchParams = new URLSearchParams(window.location.search);
+        const code = searchParams.get('code');
+        const hash = window.location.hash;
+
         if (code) {
-          console.log('[AuthCallback] Exchanging code for session...');
-          const { data, error: exchangeError } = await client.auth.exchangeCodeForSession(code);
+          // PKCE flow - exchange code for session
+          const { error: exchangeError } = await client.auth.exchangeCodeForSession(code);
           
           if (exchangeError) {
-            console.error('[AuthCallback] Exchange error:', exchangeError);
             setError(exchangeError.message);
             return;
           }
           
-          console.log('[AuthCallback] Session established:', !!data?.session);
-        } else if (hash) {
-          console.log('[AuthCallback] Getting session from hash...');
-          const { error: sessionError } = await client.auth.getSession();
+          navigate('/admin', { replace: true });
+        } else if (hash && hash.includes('access_token')) {
+          // Implicit flow - Supabase should auto-process, but poll just in case
+          for (let i = 0; i < 10; i++) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            const { data } = await client.auth.getSession();
+            if (data.session) {
+              navigate('/admin', { replace: true });
+              return;
+            }
+          }
+          setError('Session not established');
+        } else if (hash && hash.includes('error')) {
+          const params = new URLSearchParams(hash.substring(1));
+          const errorDesc = params.get('error_description');
+          setError(errorDesc || 'Authentication failed');
+        } else {
+          // No URL params - give Supabase a moment to process, then check again
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const { data: retrySession } = await client.auth.getSession();
           
-          if (sessionError) {
-            console.error('[AuthCallback] Session error:', sessionError);
-            setError(sessionError.message);
+          if (retrySession?.session) {
+            navigate('/admin', { replace: true });
             return;
           }
+          
+          setError('No authentication data received');
         }
-
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        navigate('/admin', { replace: true });
       } catch (err) {
-        console.error('[AuthCallback] Unexpected error:', err);
         setError(err instanceof Error ? err.message : 'Authentication failed');
       }
     };

@@ -9,7 +9,6 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
 
-  // ✅ THIS IS THE FIX
   base: "/",  
 
   server: {
@@ -26,9 +25,38 @@ export default defineConfig(({ mode }) => ({
   },
 
   root: path.resolve(__dirname, "client"),
+  
+  // Load .env files from project root instead of client/
+  envDir: path.resolve(__dirname),
+
+  // Optimize dependency pre-bundling
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js'],
+  },
 
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
+    sourcemap: mode === 'development', // Only enable source maps in development
+    chunkSizeWarningLimit: 1000,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'supabase': ['@supabase/supabase-js'],
+          'ui-core': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-tabs',
+          ],
+        },
+      },
+    },
   },
 }));

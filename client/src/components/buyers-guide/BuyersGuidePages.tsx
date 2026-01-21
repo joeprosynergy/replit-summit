@@ -10,6 +10,62 @@ const wrapClass = (exportMode?: boolean) =>
     exportMode ? "shadow-none mb-0" : "shadow-2xl mb-10"
   }`;
 
+// Image component that handles both web and PDF rendering properly
+// PDF: Uses inline styles and natural sizing (html2canvas doesn't handle object-fit well)
+// Web: Uses aspect ratio with object-contain to show full image without harsh cropping
+const GuideImage = ({ 
+  src, 
+  alt, 
+  exportMode 
+}: { 
+  src: string; 
+  alt: string; 
+  exportMode?: boolean;
+}) => {
+  if (exportMode) {
+    // PDF mode: Use simple inline styles that html2canvas can handle
+    // No object-fit, just let the image scale naturally within bounds
+    return (
+      <div 
+        style={{ 
+          width: '100%', 
+          height: '120px', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '8px',
+          overflow: 'hidden'
+        }}
+      >
+        <img
+          crossOrigin="anonymous"
+          src={src}
+          alt={alt}
+          style={{ 
+            maxWidth: '100%', 
+            maxHeight: '120px',
+            width: 'auto',
+            height: 'auto'
+          }}
+        />
+      </div>
+    );
+  }
+  
+  // Web mode: Show full image with contain (no cropping)
+  return (
+    <div className="aspect-[16/10] bg-muted rounded-lg shadow-md overflow-hidden flex items-center justify-center">
+      <img
+        crossOrigin="anonymous"
+        src={src}
+        alt={alt}
+        className="w-full h-full object-contain"
+      />
+    </div>
+  );
+};
+
 export const CoverPage = ({ exportMode }: PageProps) => (
   <section className={wrapClass(exportMode)} aria-label="Summit Buyer's Guide Cover">
     <div
@@ -83,24 +139,9 @@ export const Step1Page = ({ exportMode }: PageProps) => (
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-5">
-        <img
-          crossOrigin="anonymous"
-          src={cloudinaryImages.loftedBarn1}
-          alt="Spacious lofted barn shed"
-          className="w-full h-48 object-cover rounded-lg shadow-md"
-        />
-        <img
-          crossOrigin="anonymous"
-          src={cloudinaryImages.cabin1}
-          alt="Custom cabin interior"
-          className="w-full h-48 object-cover rounded-lg shadow-md"
-        />
-        <img
-          crossOrigin="anonymous"
-          src={cloudinaryImages.utilityShed1}
-          alt="Organized utility shed"
-          className="w-full h-48 object-cover rounded-lg shadow-md"
-        />
+        <GuideImage src={cloudinaryImages.loftedBarn1} alt="Spacious lofted barn shed" exportMode={exportMode} />
+        <GuideImage src={cloudinaryImages.cabin1} alt="Custom cabin interior" exportMode={exportMode} />
+        <GuideImage src={cloudinaryImages.utilityShed1} alt="Organized utility shed" exportMode={exportMode} />
       </div>
 
       <footer className="mt-auto border-t border-border pt-5 text-center">
@@ -135,24 +176,9 @@ export const Step2Page = ({ exportMode }: PageProps) => (
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-5">
-        <img
-          crossOrigin="anonymous"
-          src={cloudinaryImages.cabinShed}
-          alt="Elegant cabin style storage building"
-          className="w-full h-48 object-cover rounded-lg shadow-md"
-        />
-        <img
-          crossOrigin="anonymous"
-          src={cloudinaryImages.garage1}
-          alt="Modern garage with roll-up door"
-          className="w-full h-48 object-cover rounded-lg shadow-md"
-        />
-        <img
-          crossOrigin="anonymous"
-          src={cloudinaryImages.sideLoftedBarn1}
-          alt="Side lofted barn with premium siding"
-          className="w-full h-48 object-cover rounded-lg shadow-md"
-        />
+        <GuideImage src={cloudinaryImages.cabinShed} alt="Elegant cabin style storage building" exportMode={exportMode} />
+        <GuideImage src={cloudinaryImages.garage1} alt="Modern garage with roll-up door" exportMode={exportMode} />
+        <GuideImage src={cloudinaryImages.sideLoftedBarn1} alt="Side lofted barn with premium siding" exportMode={exportMode} />
       </div>
 
       <footer className="mt-auto border-t border-border pt-5 text-center">
@@ -202,7 +228,16 @@ export const Step3Page = ({ exportMode }: PageProps) => (
             <li>Extra labor &gt;2 hours: $100/hr. Inadequate prep: $300 re-delivery fee.</li>
           </ul>
           <div className="mt-4 bg-muted border-l-4 border-primary p-3 italic text-foreground/80 text-sm">
-            <strong>Summit Tip:</strong> Refer to our Block Chart for exact concrete block quantities based on building size and site slope.
+            <strong>Summit Tip:</strong> Refer to our{" "}
+            <a 
+              href="/block-chart" 
+              className="text-secondary font-semibold hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Block Chart
+            </a>{" "}
+            for exact concrete block quantities based on building size and site slope.
           </div>
         </div>
       </div>
@@ -239,24 +274,9 @@ export const Step4Page = ({ exportMode }: PageProps) => (
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-5">
-        <img
-          crossOrigin="anonymous"
-          src={cloudinaryImages.loftedBarn2}
-          alt="Lofted barn delivered on site"
-          className="w-full h-48 object-cover rounded-lg shadow-md"
-        />
-        <img
-          crossOrigin="anonymous"
-          src={cloudinaryImages.economyShed1}
-          alt="Economy shed setup"
-          className="w-full h-48 object-cover rounded-lg shadow-md"
-        />
-        <img
-          crossOrigin="anonymous"
-          src={cloudinaryImages.sideUtility1}
-          alt="Professional storage building placement"
-          className="w-full h-48 object-cover rounded-lg shadow-md"
-        />
+        <GuideImage src={cloudinaryImages.loftedBarn2} alt="Lofted barn delivered on site" exportMode={exportMode} />
+        <GuideImage src={cloudinaryImages.economyShed1} alt="Economy shed setup" exportMode={exportMode} />
+        <GuideImage src={cloudinaryImages.sideUtility1} alt="Professional storage building placement" exportMode={exportMode} />
       </div>
 
       <footer className="mt-auto border-t border-border pt-5 text-center">

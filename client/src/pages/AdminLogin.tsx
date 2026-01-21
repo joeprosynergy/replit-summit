@@ -16,10 +16,16 @@ const AdminLogin = () => {
       const { getBackendClient } = await import("@/lib/backendClient");
       const supabase = getBackendClient();
       
+      if (supabase === null) {
+        setMessage({ type: "error", text: "Supabase not configured - check environment variables" });
+        setIsLoading(false);
+        return;
+      }
+      
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/admin/auth/callback`,
         },
       });
 
@@ -78,6 +84,13 @@ const AdminLogin = () => {
               {message.text}
             </p>
           )}
+          
+          <p className="text-sm text-muted-foreground text-center pt-4 border-t">
+            Don't have an account?{" "}
+            <a href="/signup" className="text-primary hover:underline">
+              Request access
+            </a>
+          </p>
         </div>
       </div>
     </div>

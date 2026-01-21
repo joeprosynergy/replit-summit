@@ -79,8 +79,13 @@ const ProductHero = ({
       return backPath as BackPathConfig;
     }
     
-    // Dynamic resolution
-    const config = backPath as { defaultPath: string; defaultLabel: string };
+    // Dynamic resolution with extended config support
+    const config = backPath as { 
+      defaultPath: string; 
+      defaultLabel: string;
+      stylesPath?: string;
+      stylesLabel?: string;
+    };
     
     // Check location state first (set by Link components with state)
     if (state?.from) {
@@ -90,7 +95,25 @@ const ProductHero = ({
       };
     }
     
-    // Default fallback
+    // Check current URL path to determine context
+    // If we're on a /styles/* route, use styles back path if available
+    const currentPath = location.pathname;
+    if (currentPath.startsWith('/styles/')) {
+      // For styles routes, go back to styles overview
+      if (config.stylesPath && config.stylesLabel) {
+        return {
+          path: config.stylesPath,
+          label: config.stylesLabel,
+        };
+      }
+      // Default styles fallback
+      return {
+        path: '/styles',
+        label: '← Back to Styles',
+      };
+    }
+    
+    // Default fallback for /types/* routes
     return {
       path: config.defaultPath,
       label: config.defaultLabel,

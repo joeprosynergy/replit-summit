@@ -3,6 +3,7 @@ import { storage } from "./storage";
 import { insertPageContentSchema } from "@shared/schema";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
+import { requireAdminAuth, type AuthenticatedRequest } from "./authMiddleware";
 
 function getSupabaseClient() {
   const url = process.env.VITE_SUPABASE_URL;
@@ -25,7 +26,7 @@ export function registerRoutes(app: Express): void {
     res.json(content);
   });
 
-  app.post("/api/page-content", async (req, res) => {
+  app.post("/api/page-content", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     const result = insertPageContentSchema.safeParse(req.body);
     if (!result.success) {
       return res.status(400).json({ error: result.error.issues });
@@ -34,7 +35,7 @@ export function registerRoutes(app: Express): void {
     res.json(content);
   });
 
-  app.post("/api/cloudinary/upload", async (req, res) => {
+  app.post("/api/cloudinary/upload", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
       const apiKey = process.env.CLOUDINARY_API_KEY;
@@ -108,7 +109,7 @@ export function registerRoutes(app: Express): void {
   });
 
   // One-time migration: populate canonical layout values for CMS-first pages
-  app.post("/api/admin/populate-layout-config/:slug", async (req, res) => {
+  app.post("/api/admin/populate-layout-config/:slug", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     const { slug } = req.params;
     
     if (!slug) {
@@ -291,7 +292,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/cloudinary/asset-audit", async (req, res) => {
+  app.post("/api/cloudinary/asset-audit", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
       const apiKey = process.env.CLOUDINARY_API_KEY;
