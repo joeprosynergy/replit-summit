@@ -22,10 +22,14 @@ const AdminLogin = () => {
         return;
       }
       
+      const redirectUrl = `${window.location.origin}/admin/auth/callback`;
+      // #region agent log
+      console.log('[DEBUG-A,D] Sending OTP with redirect URL:', JSON.stringify({redirectUrl,origin:window.location.origin,email:email.substring(0,3)+'***'}));
+      // #endregion
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/admin/auth/callback`,
+          emailRedirectTo: redirectUrl,
         },
       });
 

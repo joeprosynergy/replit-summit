@@ -8,7 +8,14 @@ const AuthCallback = () => {
 
   useEffect(() => {
     const handleCallback = async () => {
+      // #region agent log
+      console.log('[DEBUG-A,B,C,D] AuthCallback loaded - URL info:', JSON.stringify({href:window.location.href,origin:window.location.origin,pathname:window.location.pathname,search:window.location.search,hash:window.location.hash,hasCode:new URLSearchParams(window.location.search).has('code'),hasAccessToken:window.location.hash.includes('access_token'),hasError:window.location.hash.includes('error')}));
+      // #endregion
+
       const client = getBackendClient();
+      // #region agent log
+      console.log('[DEBUG-E] Supabase client check:', JSON.stringify({clientExists:!!client,supabaseUrl:import.meta.env.VITE_SUPABASE_URL ? 'set' : 'missing',supabaseKey:import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'set' : 'missing'}));
+      // #endregion
       if (!client) {
         setError('Backend not configured');
         return;
@@ -19,10 +26,19 @@ const AuthCallback = () => {
       const hash = window.location.hash;
 
       try {
+        // #region agent log
+        console.log('[DEBUG-B,C] Branch check - which auth path:', JSON.stringify({hasCode:!!code,codeValue:code,hashLength:hash?.length,hashStart:hash?.substring(0,50)}));
+        // #endregion
         if (code) {
+          // #region agent log
+          console.log('[DEBUG-C] PKCE code path - exchanging code:', JSON.stringify({codeLength:code.length}));
+          // #endregion
           const { data, error: exchangeError } = await client.auth.exchangeCodeForSession(code);
           
           if (exchangeError) {
+            // #region agent log
+            console.log('[DEBUG-C] Code exchange failed:', JSON.stringify({error:exchangeError.message}));
+            // #endregion
             setError(exchangeError.message);
             return;
           }
@@ -56,6 +72,9 @@ const AuthCallback = () => {
           setError(errorDesc || error || 'Authentication failed');
           return;
         } else {
+          // #region agent log
+          console.log('[DEBUG-A,B,C,D] NO AUTH DATA - falling through to error:', JSON.stringify({fullUrl:window.location.href,search:window.location.search,hash:window.location.hash,allSearchParams:Object.fromEntries(new URLSearchParams(window.location.search))}));
+          // #endregion
           setError('No authentication data received');
           return;
         }
