@@ -40,61 +40,23 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express) {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/vite.ts:42',message:'setupVite called',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-  // #endregion
-  
   const vite = await createViteServer({
     server: { middlewareMode: true },
     appType: "custom",
     customLogger: viteLogger,
   });
 
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/vite.ts:52',message:'Vite server created',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-  // #endregion
-
   app.use(vite.middlewares);
-  
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server/vite.ts:59',message:'Vite middlewares added',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-  // #endregion
   
   app.use(async (req, res, next) => {
     const url = req.originalUrl;
-    
-    // #region agent log
-    const handlerData = {location:'server/vite.ts:67',message:'HTML handler invoked',data:{url:url,method:req.method},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2,H3'};fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(handlerData)}).catch(()=>{});
-    // #endregion
 
     try {
       const clientTemplate = path.resolve(__dirname, "..", "client", "index.html");
-      
-      // #region agent log
-      const templateData = {location:'server/vite.ts:75',message:'Reading template',data:{clientTemplate:clientTemplate},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'};fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(templateData)}).catch(()=>{});
-      // #endregion
-
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      
-      // #region agent log
-      const readData = {location:'server/vite.ts:82',message:'Template read successfully',data:{templateLength:template.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'};fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(readData)}).catch(()=>{});
-      // #endregion
-      
       template = await vite.transformIndexHtml(url, template);
-      
-      // #region agent log
-      const transformData = {location:'server/vite.ts:89',message:'Template transformed',data:{transformedLength:template.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'};fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(transformData)}).catch(()=>{});
-      // #endregion
-
       res.status(200).set({ "Content-Type": "text/html" }).end(template);
-      
-      // #region agent log
-      const sentData = {location:'server/vite.ts:96',message:'HTML sent to client',data:{statusCode:200},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'};fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sentData)}).catch(()=>{});
-      // #endregion
     } catch (e) {
-      // #region agent log
-      const errData = {location:'server/vite.ts:102',message:'Error in HTML handler',data:{errorMessage:(e as Error).message,errorStack:(e as Error).stack},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'};fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(errData)}).catch(()=>{});
-      // #endregion
       vite.ssrFixStacktrace(e as Error);
       next(e);
     }
