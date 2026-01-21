@@ -97,6 +97,32 @@ export function useCMSContent<T extends Record<string, unknown> = Record<string,
           continue;
         }
         
+        // Special handling for arrays of objects with image fields (e.g., shelters array)
+        if (Array.isArray(cmsValue) && Array.isArray(defaultValue) && cmsValue.length > 0 && typeof cmsValue[0] === 'object') {
+          const validatedArray = cmsValue.map((item: any, idx: number) => {
+            if (!item || typeof item !== 'object') return item;
+            
+            const defaultItem = defaultValue[idx];
+            const validatedItem = { ...item };
+            
+            // Check each property in the object for image fields
+            for (const itemKey in item) {
+              if (isImageField(itemKey) && typeof item[itemKey] === 'string') {
+                if (!isValidImagePath(item[itemKey])) {
+                  // Use default value for this image field if available
+                  if (defaultItem && defaultItem[itemKey]) {
+                    validatedItem[itemKey] = defaultItem[itemKey];
+                  }
+                }
+              }
+            }
+            
+            return validatedItem;
+          });
+          result[key] = validatedArray;
+          continue;
+        }
+        
         // If both are objects (not arrays), merge recursively
         if (
           cmsValue !== null &&
