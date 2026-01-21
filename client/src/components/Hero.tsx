@@ -39,6 +39,7 @@ const Hero = ({ content, isEditMode = false, onUpdateField }: HeroProps) => {
         <img
           src={cloudinaryImages.heroShed}
           alt="Summit Portable Buildings quality storage shed"
+          fetchPriority="high"
           loading="eager"
           decoding="async"
           width={1600}

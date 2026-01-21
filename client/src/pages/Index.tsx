@@ -88,7 +88,7 @@ const Index = () => {
               <section className="relative min-h-screen flex items-center overflow-hidden">
                 <picture className="absolute inset-0">
                   <source media="(max-width: 768px)" srcSet={getMobileHeroImage(IMAGES.heroShed)} />
-                  <img src={cloudinaryImages.heroShed} alt="Summit Portable Buildings quality storage shed" loading="eager" decoding="async" width={1600} height={900} className="w-full h-full object-cover" />
+                  <img src={cloudinaryImages.heroShed} alt="Summit Portable Buildings quality storage shed" fetchPriority="high" loading="eager" decoding="async" width={1600} height={900} className="w-full h-full object-cover" />
                 </picture>
                 <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/80 to-black/60" />
                 <div className="relative z-10 container-custom py-32 lg:py-40">

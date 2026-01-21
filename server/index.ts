@@ -1,4 +1,5 @@
 import express from "express";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -14,6 +15,9 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const app = express();
+
+// Enable gzip/brotli compression for all responses
+app.use(compression());
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false, limit: "50mb" }));

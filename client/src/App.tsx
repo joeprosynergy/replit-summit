@@ -10,38 +10,41 @@ import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 // Lazy-load admin components to avoid initialization issues
 const GlobalEditToolbar = lazy(() => import("@/components/admin/GlobalEditToolbar").then(m => ({ default: m.GlobalEditToolbar })));
 
+// Core pages - eagerly loaded for fast initial navigation
 import Index from "./pages/Index";
 import AboutUs from "./pages/AboutUs";
 import OurModels from "./pages/OurModels";
 import Styles from "./pages/Styles";
-import Greenhouse from "./pages/Greenhouse";
-import AnimalShelters from "./pages/AnimalShelters";
 import StylesUtility from "./pages/StylesUtility";
 import StylesBarn from "./pages/StylesBarn";
 import StylesModern from "./pages/StylesModern";
 import BasicStorage from "./pages/BasicStorage";
 import DeluxeStorageCabins from "./pages/DeluxeStorageCabins";
-import UtilityShed from "./pages/UtilityShed";
-import ProLoftedBarn from "./pages/ProLoftedBarn";
-import EconomyShed from "./pages/EconomyShed";
-import BudgetProLoftedBarn from "./pages/BudgetProLoftedBarn";
-import BudgetProUtility from "./pages/BudgetProUtility";
-import Garage from "./pages/Garage";
-import Cabin from "./pages/Cabin";
-import BarnCabin from "./pages/BarnCabin";
-import ModernShed from "./pages/ModernShed";
-import Carports from "./pages/Carports";
 import GaragesCarports from "./pages/GaragesCarports";
-import BuyersGuide from "./pages/BuyersGuide";
-import BlockChart from "./pages/BlockChart";
-import Gallery from "./pages/Gallery";
-import Financing from "./pages/Financing";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import ContactUs from "./pages/ContactUs";
-import Inventory from "./pages/Inventory";
-import Configurator3D from "./pages/Configurator3D";
 import NotFound from "./pages/NotFound";
-import CmsFirstPage from "./pages/CmsFirstPage";
+
+// Secondary pages - lazy loaded for smaller initial bundle
+const Greenhouse = lazy(() => import("./pages/Greenhouse"));
+const AnimalShelters = lazy(() => import("./pages/AnimalShelters"));
+const UtilityShed = lazy(() => import("./pages/UtilityShed"));
+const ProLoftedBarn = lazy(() => import("./pages/ProLoftedBarn"));
+const EconomyShed = lazy(() => import("./pages/EconomyShed"));
+const BudgetProLoftedBarn = lazy(() => import("./pages/BudgetProLoftedBarn"));
+const BudgetProUtility = lazy(() => import("./pages/BudgetProUtility"));
+const Garage = lazy(() => import("./pages/Garage"));
+const Cabin = lazy(() => import("./pages/Cabin"));
+const BarnCabin = lazy(() => import("./pages/BarnCabin"));
+const ModernShed = lazy(() => import("./pages/ModernShed"));
+const Carports = lazy(() => import("./pages/Carports"));
+const BuyersGuide = lazy(() => import("./pages/BuyersGuide"));
+const BlockChart = lazy(() => import("./pages/BlockChart"));
+const Gallery = lazy(() => import("./pages/Gallery"));
+const Financing = lazy(() => import("./pages/Financing"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const ContactUs = lazy(() => import("./pages/ContactUs"));
+const Inventory = lazy(() => import("./pages/Inventory"));
+const Configurator3D = lazy(() => import("./pages/Configurator3D"));
+const CmsFirstPage = lazy(() => import("./pages/CmsFirstPage"));
 
 // Lazy-load admin app as separate bundle
 const AdminApp = lazy(() => import("./admin/AdminApp"));
@@ -72,33 +75,33 @@ const App = () => (
           <Route path="/styles/utility" element={<StylesUtility />} />
           <Route path="/styles/barn" element={<StylesBarn />} />
           <Route path="/styles/modern" element={<StylesModern />} />
-          <Route path="/styles/greenhouse" element={<Greenhouse />} />
-          <Route path="/styles/animal-shelters" element={<AnimalShelters />} />
+          <Route path="/styles/greenhouse" element={<Suspense fallback={null}><Greenhouse /></Suspense>} />
+          <Route path="/styles/animal-shelters" element={<Suspense fallback={null}><AnimalShelters /></Suspense>} />
 
           <Route path="/types/basic-storage" element={<BasicStorage />} />
-          <Route path="/types/basic-storage/economy-shed" element={<EconomyShed />} />
-          <Route path="/types/basic-storage/budget-pro-lofted-barn" element={<BudgetProLoftedBarn />} />
-          <Route path="/types/basic-storage/budget-pro-utility" element={<BudgetProUtility />} />
+          <Route path="/types/basic-storage/economy-shed" element={<Suspense fallback={null}><EconomyShed /></Suspense>} />
+          <Route path="/types/basic-storage/budget-pro-lofted-barn" element={<Suspense fallback={null}><BudgetProLoftedBarn /></Suspense>} />
+          <Route path="/types/basic-storage/budget-pro-utility" element={<Suspense fallback={null}><BudgetProUtility /></Suspense>} />
 
           <Route path="/types/deluxe-storage-cabins" element={<DeluxeStorageCabins />} />
-          <Route path="/types/deluxe-storage-cabins/pro-utility-shed" element={<UtilityShed />} />
-          <Route path="/types/deluxe-storage-cabins/pro-lofted-barn" element={<ProLoftedBarn />} />
-          <Route path="/types/deluxe-storage-cabins/cabin" element={<Cabin />} />
-          <Route path="/types/deluxe-storage-cabins/barn-cabin" element={<BarnCabin />} />
-          <Route path="/types/deluxe-storage-cabins/modern-shed" element={<ModernShed />} />
+          <Route path="/types/deluxe-storage-cabins/pro-utility-shed" element={<Suspense fallback={null}><UtilityShed /></Suspense>} />
+          <Route path="/types/deluxe-storage-cabins/pro-lofted-barn" element={<Suspense fallback={null}><ProLoftedBarn /></Suspense>} />
+          <Route path="/types/deluxe-storage-cabins/cabin" element={<Suspense fallback={null}><Cabin /></Suspense>} />
+          <Route path="/types/deluxe-storage-cabins/barn-cabin" element={<Suspense fallback={null}><BarnCabin /></Suspense>} />
+          <Route path="/types/deluxe-storage-cabins/modern-shed" element={<Suspense fallback={null}><ModernShed /></Suspense>} />
 
           <Route path="/types/garages-carports" element={<GaragesCarports />} />
-          <Route path="/types/garages-carports/garage" element={<Garage />} />
-          <Route path="/types/garages-carports/carports" element={<Carports />} />
+          <Route path="/types/garages-carports/garage" element={<Suspense fallback={null}><Garage /></Suspense>} />
+          <Route path="/types/garages-carports/carports" element={<Suspense fallback={null}><Carports /></Suspense>} />
 
-          <Route path="/buyers-guide" element={<BuyersGuide />} />
-          <Route path="/block-chart" element={<BlockChart />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/financing" element={<Financing />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/contact-us" element={<ContactUs />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="/3d-configurator" element={<Configurator3D />} />
+          <Route path="/buyers-guide" element={<Suspense fallback={null}><BuyersGuide /></Suspense>} />
+          <Route path="/block-chart" element={<Suspense fallback={null}><BlockChart /></Suspense>} />
+          <Route path="/gallery" element={<Suspense fallback={null}><Gallery /></Suspense>} />
+          <Route path="/financing" element={<Suspense fallback={null}><Financing /></Suspense>} />
+          <Route path="/privacy-policy" element={<Suspense fallback={null}><PrivacyPolicy /></Suspense>} />
+          <Route path="/contact-us" element={<Suspense fallback={null}><ContactUs /></Suspense>} />
+          <Route path="/inventory" element={<Suspense fallback={null}><Inventory /></Suspense>} />
+          <Route path="/3d-configurator" element={<Suspense fallback={null}><Configurator3D /></Suspense>} />
 
           {/* SIGNUP ROUTES */}
           <Route

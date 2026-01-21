@@ -37,10 +37,26 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
-    sourcemap: true, // Enable source maps to debug production issues
+    sourcemap: mode === 'development', // Only enable source maps in development
     chunkSizeWarningLimit: 1000,
     commonjsOptions: {
       transformMixedEsModules: true,
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'supabase': ['@supabase/supabase-js'],
+          'ui-core': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-tabs',
+          ],
+        },
+      },
     },
   },
 }));
