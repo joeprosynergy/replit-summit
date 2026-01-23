@@ -24,6 +24,8 @@ import { EditablePageWrapper } from '@/components/admin/EditablePageWrapper';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
+import InlineEditableSidingCategory from '@/components/admin/InlineEditableSidingCategory';
+import InlineEditableUpgradeCategory from '@/components/admin/InlineEditableUpgradeCategory';
 
 import {
   ProductPageContent,
@@ -31,6 +33,8 @@ import {
   extractGalleryImages,
   extractFeatures,
   extractUses,
+  SidingCategory,
+  UpgradeCategory,
 } from '@/pages/defaults/productPageTypes';
 
 // ============================================================================
@@ -456,9 +460,21 @@ export default function ProductPageEditable({
                           />
                         </h2>
                         {isEditMode && (
-                          <span className="text-xs text-muted-foreground bg-muted px-3 py-1 rounded-full">
-                            Siding colors edited via database
-                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const newCategory: SidingCategory = {
+                                id: `category-${Date.now()}`,
+                                title: 'New Category',
+                                colors: [],
+                              };
+                              updateField('sidingCategories', [...content.sidingCategories, newCategory] as any);
+                            }}
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Category
+                          </Button>
                         )}
                       </div>
 
@@ -470,32 +486,33 @@ export default function ProductPageEditable({
                           className="w-full"
                         >
                           {content.sidingCategories.map((category, index) => (
-                            <AccordionItem
+                            <InlineEditableSidingCategory
                               key={category.id}
-                              value={category.id}
-                              className={
-                                index < content.sidingCategories.length - 1
-                                  ? 'border-b border-border'
-                                  : 'border-none'
-                              }
-                            >
-                              <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                                <span className="font-heading text-lg font-bold text-secondary uppercase">
-                                  {category.title}
-                                </span>
-                              </AccordionTrigger>
-                              <AccordionContent className="px-6 pb-6">
-                                <div className="flex flex-wrap gap-6 pt-4">
-                                  {category.colors.map((swatch) => (
-                                    <ColorSwatch
-                                      key={swatch.name}
-                                      name={swatch.name}
-                                      color={swatch.color}
-                                    />
-                                  ))}
-                                </div>
-                              </AccordionContent>
-                            </AccordionItem>
+                              id={category.id}
+                              title={category.title}
+                              colors={category.colors}
+                              onTitleChange={(title) => {
+                                const newCategories = [...content.sidingCategories];
+                                newCategories[index] = { ...newCategories[index], title };
+                                updateField('sidingCategories', newCategories as any);
+                              }}
+                              onColorsChange={(colors) => {
+                                console.log('[ProductPageEditable] onColorsChange called:', {
+                                  categoryIndex: index,
+                                  newColors: colors,
+                                  currentCategories: content.sidingCategories
+                                });
+                                const newCategories = [...content.sidingCategories];
+                                newCategories[index] = { ...newCategories[index], colors };
+                                console.log('[ProductPageEditable] Calling updateField with:', newCategories);
+                                updateField('sidingCategories', newCategories as any);
+                              }}
+                              onDelete={() => {
+                                const newCategories = content.sidingCategories.filter((_, i) => i !== index);
+                                updateField('sidingCategories', newCategories as any);
+                              }}
+                              isEditMode={isEditMode}
+                            />
                           ))}
                         </Accordion>
                       </div>
@@ -518,33 +535,47 @@ export default function ProductPageEditable({
                           />
                         </h2>
                         {isEditMode && (
-                          <span className="text-xs text-muted-foreground bg-muted px-3 py-1 rounded-full">
-                            Upgrades edited via database
-                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const newCategory: UpgradeCategory = {
+                                id: `upgrade-${Date.now()}`,
+                                category: 'New Upgrade Category',
+                                items: [],
+                              };
+                              updateField('upgradeCategories', [...content.upgradeCategories, newCategory] as any);
+                            }}
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Category
+                          </Button>
                         )}
                       </div>
 
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {content.upgradeCategories.map((category) => (
-                          <div
+                        {content.upgradeCategories.map((category, index) => (
+                          <InlineEditableUpgradeCategory
                             key={category.id}
-                            className="bg-card rounded-xl p-6 border border-border/50"
-                          >
-                            <h3 className="font-heading text-lg font-bold text-foreground mb-4">
-                              {category.category}
-                            </h3>
-                            <ul className="space-y-2">
-                              {category.items.map((item, itemIndex) => (
-                                <li
-                                  key={itemIndex}
-                                  className="text-sm text-muted-foreground flex items-start gap-2"
-                                >
-                                  <Check className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+                            id={category.id}
+                            category={category.category}
+                            items={category.items}
+                            onCategoryChange={(categoryName) => {
+                              const newCategories = [...content.upgradeCategories];
+                              newCategories[index] = { ...newCategories[index], category: categoryName };
+                              updateField('upgradeCategories', newCategories as any);
+                            }}
+                            onItemsChange={(items) => {
+                              const newCategories = [...content.upgradeCategories];
+                              newCategories[index] = { ...newCategories[index], items };
+                              updateField('upgradeCategories', newCategories as any);
+                            }}
+                            onDelete={() => {
+                              const newCategories = content.upgradeCategories.filter((_, i) => i !== index);
+                              updateField('upgradeCategories', newCategories as any);
+                            }}
+                            isEditMode={isEditMode}
+                          />
                         ))}
                       </div>
                     </div>
