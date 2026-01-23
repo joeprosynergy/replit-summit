@@ -126,17 +126,19 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
     setIsSubmitting(true);
 
     try {
-      const payload = {
-        ...formData,
-        htmlContent: generateHtmlContent(formData),
-      };
+      // Use URLSearchParams to avoid CORS issues with Zapier webhooks
+      const formPayload = new URLSearchParams();
+      formPayload.append('name', formData.name);
+      formPayload.append('phone', formData.phone);
+      formPayload.append('email', formData.email);
+      formPayload.append('zipCode', formData.zipCode);
+      formPayload.append('source', formData.formType);
+      formPayload.append('timestamp', new Date().toISOString());
+      formPayload.append('htmlContent', generateHtmlContent(formData));
 
       const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+        body: formPayload,
       });
 
       if (!response.ok) {
