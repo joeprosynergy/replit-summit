@@ -9,8 +9,13 @@
 // ============================================================================
 
 export interface ColorSwatch {
-  name: string;
-  color: string; // Hex color code
+  // Option 1: Reference a global color by ID
+  globalColorId?: string;
+  
+  // Option 2: Use custom local color (legacy/custom colors)
+  name?: string;
+  color?: string; // Hex color code
+  image?: string; // Optional image URL
 }
 
 export interface SidingCategory {

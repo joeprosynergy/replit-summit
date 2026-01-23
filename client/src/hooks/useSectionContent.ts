@@ -566,7 +566,17 @@ export function useSectionContent<T extends SectionContent>(
   }, []);
 
   const updateField = useCallback(<K extends keyof T>(field: K, value: T[K]) => {
-    setEditedContent(prev => ({ ...prev, [field]: value }));
+    console.log('[useSectionContent] updateField called:', {
+      field: String(field),
+      valueType: typeof value,
+      isArray: Array.isArray(value),
+      value: Array.isArray(value) ? `Array(${value.length})` : value
+    });
+    setEditedContent(prev => {
+      const newContent = { ...prev, [field]: value };
+      console.log('[useSectionContent] New content set, field:', String(field));
+      return newContent;
+    });
   }, []);
 
   const updateDynamicField = useCallback((field: string, value: string | number | boolean) => {

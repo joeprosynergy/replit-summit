@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import { Menu, X, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
-import { cloudinaryImages } from '@/lib/cloudinary';
+import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
+import { useNavigationConfig } from '@/hooks/useNavigationConfig';
+import HeaderEditable from '@/components/HeaderEditable';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const { isAdmin } = useOptionalAdminAuth();
+  const { headerConfig, isLoading, saveHeaderConfig, isSaving } = useNavigationConfig();
   
   // Pages with dark hero sections (need light text when not scrolled)
   const hasDarkHero = isHomePage;
@@ -24,12 +28,23 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { href: '/about-us', label: 'About Us', isRoute: true },
-    { href: '/styles', label: 'Building Styles', isRoute: true },
-    { href: '/inventory', label: 'See Inventory', isRoute: true },
-    { href: '/contact-us', label: 'Contact Us', isRoute: true },
-  ];
+  // Show editable version for admins
+  if (isAdmin && !isLoading) {
+    return (
+      <HeaderEditable
+        config={headerConfig}
+        onSave={saveHeaderConfig}
+        isSaving={isSaving}
+      />
+    );
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return null; // or a loading skeleton
+  }
+
+  const navLinks = headerConfig.navLinks;
 
   return (
     <header
@@ -46,8 +61,8 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img
-              src={cloudinaryImages.summitLogo}
-              alt="Summit Portable Buildings"
+              src={headerConfig.logoImage}
+              alt={headerConfig.logoAlt}
               width={129}
               height={98}
               className={`h-14 w-auto transition-all duration-300 ${
@@ -77,17 +92,17 @@ const Header = () => {
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-4">
             <a
-              href="tel:5737474700"
+              href={headerConfig.ctaPhone}
               className={`flex items-center gap-2 font-semibold ${
                 useLightText ? 'text-primary-foreground' : 'text-foreground'
               }`}
             >
               <Phone className="w-4 h-4" />
-              <span>573-747-4700</span>
+              <span>{headerConfig.ctaPhoneDisplay}</span>
             </a>
-            <Link to="/3d-configurator" state={{ from: location.pathname }}>
+            <Link to={headerConfig.ctaButtonLink} state={{ from: location.pathname }}>
               <Button variant="hero" size="lg">
-                Design Your Shed
+                {headerConfig.ctaButtonText}
               </Button>
             </Link>
           </div>
@@ -122,9 +137,9 @@ const Header = () => {
                 </Link>
               ))}
               <div className="px-4 pt-4 border-t border-border mt-4">
-                <Link to="/3d-configurator" state={{ from: location.pathname }}>
+                <Link to={headerConfig.ctaButtonLink} state={{ from: location.pathname }}>
                   <Button variant="hero" size="lg" className="w-full">
-                    Design Your Shed
+                    {headerConfig.ctaButtonText}
                   </Button>
                 </Link>
               </div>

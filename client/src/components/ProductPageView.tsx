@@ -18,6 +18,7 @@ import {
 import GallerySection from '@/components/GallerySection';
 import ProductHero from '@/components/ProductHero';
 import { useBackPath } from '@/hooks/useBackPath';
+import { useGlobalColors } from '@/hooks/useGlobalColors';
 import {
   ProductPageContent,
   ProductPageConfig,
@@ -33,17 +34,33 @@ import {
 // Sub-components
 // ============================================================================
 
-const ColorSwatch = ({ name, color }: { name: string; color: string }) => (
-  <div className="flex flex-col items-center gap-2">
-    <div
-      className="w-16 h-16 rounded-full border-4 border-card shadow-md"
-      style={{ backgroundColor: color }}
-    />
-    <span className="text-xs text-muted-foreground text-center leading-tight max-w-[70px]">
-      {name}
-    </span>
-  </div>
-);
+const ColorSwatch = ({ swatch }: { swatch: ColorSwatchType }) => {
+  const { getColorById } = useGlobalColors();
+  
+  // Resolve color from global or use local
+  const displayColor = swatch.globalColorId ? getColorById(swatch.globalColorId) : swatch;
+  const name = displayColor?.name || 'Unknown';
+  const color = displayColor?.color || '#808080';
+  const image = displayColor?.image;
+  
+  return (
+    <div className="flex flex-col items-center gap-2">
+      {image ? (
+        <div className="w-16 h-16 rounded-full border-4 border-card shadow-md overflow-hidden">
+          <img src={image} alt={name} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div
+          className="w-16 h-16 rounded-full border-4 border-card shadow-md"
+          style={{ backgroundColor: color }}
+        />
+      )}
+      <span className="text-xs text-muted-foreground text-center leading-tight max-w-[70px]">
+        {name}
+      </span>
+    </div>
+  );
+};
 
 // ============================================================================
 // Main Component
@@ -239,17 +256,16 @@ export function ProductPageView({ content, config }: ProductPageViewProps) {
                             {category.title}
                           </span>
                         </AccordionTrigger>
-                        <AccordionContent className="px-6 pb-6">
-                          <div className="flex flex-wrap gap-6 pt-4">
-                            {category.colors.map((swatch) => (
-                              <ColorSwatch
-                                key={swatch.name}
-                                name={swatch.name}
-                                color={swatch.color}
-                              />
-                            ))}
-                          </div>
-                        </AccordionContent>
+                              <AccordionContent className="px-6 pb-6">
+                                <div className="flex flex-wrap gap-6 pt-4">
+                                  {category.colors.map((swatch, idx) => (
+                                    <ColorSwatch
+                                      key={swatch.globalColorId || swatch.name || idx}
+                                      swatch={swatch}
+                                    />
+                                  ))}
+                                </div>
+                              </AccordionContent>
                       </AccordionItem>
                     ))}
                   </Accordion>

@@ -208,7 +208,8 @@ const InlineEditableImage = ({
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
-              className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+              className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer flex flex-col items-center gap-2"
             >
               <input
                 ref={fileInputRef}
@@ -216,20 +217,14 @@ const InlineEditableImage = ({
                 accept="image/*"
                 onChange={handleFileSelect}
                 className="hidden"
-                id="image-upload"
               />
-              <label 
-                htmlFor="image-upload" 
-                className="cursor-pointer flex flex-col items-center gap-2"
-              >
-                <Upload className="w-8 h-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  Drop an image here or click to browse
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Max size: 10MB
-                </span>
-              </label>
+              <Upload className="w-8 h-8 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                Drop an image here or click to browse
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Max size: 10MB
+              </span>
             </div>
 
             {/* Actions */}

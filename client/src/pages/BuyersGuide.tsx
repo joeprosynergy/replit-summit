@@ -12,6 +12,7 @@ import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 import { useCMSContent } from '@/hooks/useCMSContent';
 import { buyersGuideDefaults, type BuyersGuideContent } from '@/pages/defaults/buyersGuideDefaults';
 import { BuyersGuideView } from '@/components/BuyersGuideView';
+import { BuyersGuideGate } from '@/components/BuyersGuideGate';
 
 // Lazy-load admin variant ONLY when needed
 const BuyersGuideEditable = lazy(() => import('./BuyersGuideEditable'));
@@ -35,7 +36,7 @@ export default function BuyersGuide() {
     );
   }
 
-  // ADMIN: Lazy-load editable version
+  // ADMIN: Lazy-load editable version (bypass gate)
   if (isAdmin) {
     return (
       <Suspense fallback={<BuyersGuideView content={content} />}>
@@ -44,6 +45,10 @@ export default function BuyersGuide() {
     );
   }
 
-  // PUBLIC: Pure view component (NO admin code in bundle)
-  return <BuyersGuideView content={content} />;
+  // PUBLIC: Wrap with access gate
+  return (
+    <BuyersGuideGate bypassGate={false}>
+      <BuyersGuideView content={content} />
+    </BuyersGuideGate>
+  );
 }
