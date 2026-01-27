@@ -33,12 +33,30 @@ export function useAdminAuth(): AdminAuthState {
     }
 
     try {
-      // Check profile for approval status
-      const { data: profile, error } = await client
+      console.log('[checkApprovalStatus] Starting profile query for userId:', userId);
+      
+      // Add timeout to prevent hanging
+      const queryPromise = client
         .from('profiles')
         .select('approval_status')
         .eq('user_id', userId)
         .maybeSingle();
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile query timeout after 5s')), 5000)
+      );
+      
+      const { data: profile, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
+      
+      console.log('[checkApprovalStatus] Profile query completed:', {
+        userId,
+        email,
+        hasProfile: !!profile,
+        hasError: !!error,
+        errorMsg: error?.message,
+        approvalStatus: profile?.approval_status,
+        profileData: profile
+      });
       
       // #region agent log
       console.log('[useAdminAuth] Profile check:', {
@@ -72,7 +90,12 @@ export function useAdminAuth(): AdminAuthState {
 
       return { isAdmin, approvalStatus };
     } catch (err) {
-      console.error('Error checking approval status:', err);
+      console.error('[checkApprovalStatus] Error checking approval status:', err);
+      console.error('[checkApprovalStatus] Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        userId,
+        email
+      });
       return { isAdmin: false, approvalStatus: null };
     }
   }, []);
