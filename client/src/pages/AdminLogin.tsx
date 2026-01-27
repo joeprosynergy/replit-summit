@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const AdminLogin = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [usePassword, setUsePassword] = useState(false);
@@ -185,8 +187,8 @@ const AdminLogin = () => {
                 <Button 
                   className="w-full" 
                   onClick={() => {
-                    console.log('[AdminLogin] Navigate button clicked, going to /admin');
-                    window.location.href = '/admin';
+                    console.log('[AdminLogin] Navigate button clicked, using React Router to /admin');
+                    navigate('/admin');
                   }}
                 >
                   Go to Admin Dashboard
