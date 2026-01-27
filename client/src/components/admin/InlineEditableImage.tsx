@@ -31,6 +31,9 @@ const InlineEditableImage = ({
   const { toast } = useToast();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InlineEditableImage.tsx:37',message:'handleFileSelect called',data:{hasFiles:!!e.target.files,fileCount:e.target.files?.length||0},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A3'})}).catch(()=>{});
+    // #endregion
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -59,6 +62,9 @@ const InlineEditableImage = ({
   };
 
   const handleUpload = async () => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InlineEditableImage.tsx:65',message:'handleUpload entry',data:{hasFile:!!selectedFile,fileName:selectedFile?.name},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A4'})}).catch(()=>{});
+    // #endregion
     if (!selectedFile) return;
 
     setIsUploading(true);
@@ -82,6 +88,9 @@ const InlineEditableImage = ({
       const fileNameWithoutExt = selectedFile.name.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9-_]/g, '-');
       const publicId = `${fileNameWithoutExt}-${Date.now()}`;
 
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InlineEditableImage.tsx:90',message:'before authFetch call',data:{publicId:publicId,url:'/api/cloudinary/upload'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A1'})}).catch(()=>{});
+      // #endregion
       // Upload to Cloudinary via Express API endpoint (requires auth)
       const response = await authFetch('/api/cloudinary/upload', {
         method: 'POST',
@@ -95,12 +104,21 @@ const InlineEditableImage = ({
         })
       });
 
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InlineEditableImage.tsx:103',message:'authFetch response',data:{ok:response.ok,status:response.status},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A2,A5'})}).catch(()=>{});
+      // #endregion
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InlineEditableImage.tsx:108',message:'upload failed',data:{error:errorData.error||'Upload failed',status:response.status},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A2,A5'})}).catch(()=>{});
+        // #endregion
         throw new Error(errorData.error || 'Upload failed');
       }
 
       const data = await response.json();
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InlineEditableImage.tsx:115',message:'upload response data',data:{success:data.success,hasUrl:!!data.url},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A2'})}).catch(()=>{});
+      // #endregion
       
       if (data.success && data.url) {
         onImageChange(data.url);
@@ -113,6 +131,9 @@ const InlineEditableImage = ({
         throw new Error(data.error || 'No URL returned');
       }
     } catch (error) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InlineEditableImage.tsx:128',message:'upload catch error',data:{errorMsg:error instanceof Error?error.message:'unknown',errorType:error?.constructor?.name},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A1,A2'})}).catch(()=>{});
+      // #endregion
       console.error('Upload error:', error);
       toast({
         title: 'Upload failed',
@@ -154,7 +175,12 @@ const InlineEditableImage = ({
     <>
       <div 
         className={cn('relative', isEditMode && 'group cursor-pointer', className)}
-        onClick={isEditMode ? () => setIsDialogOpen(true) : undefined}
+        onClick={isEditMode ? () => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InlineEditableImage.tsx:157',message:'image clicked - opening dialog',data:{isEditMode:isEditMode},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A4'})}).catch(()=>{});
+          // #endregion
+          setIsDialogOpen(true);
+        } : undefined}
       >
         <img src={normalizedSrc} alt={alt} className={imageClassName} />
         {/* Edit mode overlay - visibility controlled, not conditionally rendered */}
