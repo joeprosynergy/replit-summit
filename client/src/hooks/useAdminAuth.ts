@@ -126,8 +126,10 @@ export function useAdminAuth(): AdminAuthState {
     const { data: { subscription } } = client.auth.onAuthStateChange(
       async (event, session) => {
         console.log('[useAdminAuth] Auth state change:', { event, hasSession: !!session, hasUser: !!session?.user });
+        console.log('[useAdminAuth] Step 1: mounted =', mounted);
         if (!mounted) return;
         authResolved = true;
+        console.log('[useAdminAuth] Step 2: authResolved set to true');
         
         if (!session?.user) {
           console.log('[useAdminAuth] No session/user - setting as logged out');
@@ -135,6 +137,7 @@ export function useAdminAuth(): AdminAuthState {
           return;
         }
 
+        console.log('[useAdminAuth] Step 3: About to check approval status for user:', session.user.id);
         try {
           // Check approval status from profiles table
           const { isAdmin, approvalStatus } = await checkApprovalStatus(
@@ -143,7 +146,9 @@ export function useAdminAuth(): AdminAuthState {
             session.user.email || ''
           );
           
+          console.log('[useAdminAuth] Step 4: Approval check complete:', { isAdmin, approvalStatus });
           if (mounted) {
+            console.log('[useAdminAuth] Step 5: Setting state with admin status');
             setState({ 
               user: session.user, 
               isAdmin, 
@@ -153,6 +158,7 @@ export function useAdminAuth(): AdminAuthState {
             });
           }
         } catch (err: any) {
+          console.error('[useAdminAuth] ERROR in auth state change:', err);
           if (mounted) {
             setState({
               user: session.user,

@@ -184,7 +184,10 @@ const AdminLogin = () => {
               {message.type === "success" && (
                 <Button 
                   className="w-full" 
-                  onClick={() => window.location.href = '/admin'}
+                  onClick={() => {
+                    console.log('[AdminLogin] Navigate button clicked, going to /admin');
+                    window.location.href = '/admin';
+                  }}
                 >
                   Go to Admin Dashboard
                 </Button>
