@@ -19,14 +19,23 @@ import GallerySection from '@/components/GallerySection';
 import ProductHero from '@/components/ProductHero';
 import { useBackPath } from '@/hooks/useBackPath';
 import { ModernShedContent, WhyReason } from '@/pages/defaults/modernShedDefaults';
+import { useGlobalColors } from '@/hooks/useGlobalColors';
 
-const ColorSwatch = ({ name, color }: { name: string; color: string }) => (
-  <div className="flex items-center gap-2">
-    <div
-      className="w-6 h-6 rounded-full border border-border shadow-sm"
-      style={{ backgroundColor: color }}
-    />
-    <span className="text-sm text-muted-foreground">{name}</span>
+const ColorSwatch = ({ color }: { color: { name: string; color: string; image?: string } }) => (
+  <div className="flex flex-col items-center gap-2">
+    {color.image ? (
+      <div className="w-6 h-6 rounded-full border-2 border-card shadow-md overflow-hidden">
+        <img src={color.image} alt={color.name} className="w-full h-full object-cover" />
+      </div>
+    ) : (
+      <div
+        className="w-6 h-6 rounded-full border-2 border-card shadow-md"
+        style={{ backgroundColor: color.color }}
+      />
+    )}
+    <span className="text-sm text-muted-foreground text-center leading-tight max-w-[70px]">
+      {color.name}
+    </span>
   </div>
 );
 
@@ -53,6 +62,7 @@ interface ModernShedViewProps {
 
 export function ModernShedView({ content }: ModernShedViewProps) {
   const backPath = useBackPath(content.backPath);
+  const { getColorsByCategory } = useGlobalColors();
 
   return (
     <>
@@ -212,12 +222,8 @@ export function ModernShedView({ content }: ModernShedViewProps) {
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6">
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-4">
-                        {category.colors.map((swatch) => (
-                          <ColorSwatch
-                            key={swatch.name}
-                            name={swatch.name}
-                            color={swatch.color}
-                          />
+                        {getColorsByCategory(category.id).map((color) => (
+                          <ColorSwatch key={color.id} color={color} />
                         ))}
                       </div>
                     </AccordionContent>

@@ -1,12 +1,51 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const AdminLogin = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [usePassword, setUsePassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [envError, setEnvError] = useState<string | null>(null);
+
+  const handlePasswordLogin = async () => {
+    setMessage(null);
+    setIsLoading(true);
+
+    try {
+      const { getBackendClient } = await import("@/lib/backendClient");
+      const supabase = getBackendClient();
+      
+      if (supabase === null) {
+        setMessage({ type: "error", text: "Supabase not configured - check environment variables" });
+        setIsLoading(false);
+        return;
+      }
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setMessage({ type: "error", text: error.message });
+      } else {
+        // Instead of redirecting, show success and let user navigate
+        setMessage({ 
+          type: "success", 
+          text: "Login successful! Click the button below to go to admin dashboard." 
+        });
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Failed to login" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSendLink = async () => {
     setMessage(null);
@@ -72,17 +111,57 @@ const AdminLogin = () => {
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !isLoading && email) {
-                handleSendLink();
+                if (usePassword && password) {
+                  handlePasswordLogin();
+                } else if (!usePassword) {
+                  handleSendLink();
+                }
               }
             }}
           />
-          <Button className="w-full" onClick={handleSendLink} disabled={isLoading}>
-            {isLoading ? "Sending..." : "Send login link"}
+          {usePassword && (
+            <Input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !isLoading && email && password) {
+                  handlePasswordLogin();
+                }
+              }}
+            />
+          )}
+          <Button 
+            className="w-full" 
+            onClick={usePassword ? handlePasswordLogin : handleSendLink} 
+            disabled={isLoading || !email || (usePassword && !password)}
+          >
+            {isLoading ? "Loading..." : usePassword ? "Login with Password" : "Send login link"}
           </Button>
+          <button
+            type="button"
+            onClick={() => setUsePassword(!usePassword)}
+            className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {usePassword ? "← Use magic link instead" : "Use password instead →"}
+          </button>
           {message && (
-            <p className={`text-sm text-center ${message.type === "success" ? "text-green-600" : "text-destructive"}`}>
-              {message.text}
-            </p>
+            <div className="space-y-3">
+              <p className={`text-sm text-center ${message.type === "success" ? "text-green-600" : "text-destructive"}`}>
+                {message.text}
+              </p>
+              {message.type === "success" && (
+                <Button 
+                  className="w-full" 
+                  onClick={() => {
+                    navigate('/admin');
+                  }}
+                >
+                  Go to Admin Dashboard
+                </Button>
+              )}
+            </div>
           )}
           
           <p className="text-sm text-muted-foreground text-center pt-4 border-t">

@@ -19,15 +19,22 @@ import GallerySection from '@/components/GallerySection';
 import ProductHero from '@/components/ProductHero';
 import { useBackPath } from '@/hooks/useBackPath';
 import { CabinContent } from '@/pages/defaults/cabinDefaults';
+import { useGlobalColors } from '@/hooks/useGlobalColors';
 
-const ColorSwatch = ({ name, color }: { name: string; color: string }) => (
+const ColorSwatch = ({ color }: { color: { name: string; color: string; image?: string } }) => (
   <div className="flex flex-col items-center gap-2">
-    <div
-      className="w-16 h-16 rounded-full border-4 border-card shadow-md"
-      style={{ backgroundColor: color }}
-    />
+    {color.image ? (
+      <div className="w-16 h-16 rounded-full border-4 border-card shadow-md overflow-hidden">
+        <img src={color.image} alt={color.name} className="w-full h-full object-cover" />
+      </div>
+    ) : (
+      <div
+        className="w-16 h-16 rounded-full border-4 border-card shadow-md"
+        style={{ backgroundColor: color.color }}
+      />
+    )}
     <span className="text-xs text-muted-foreground text-center leading-tight max-w-[70px]">
-      {name}
+      {color.name}
     </span>
   </div>
 );
@@ -38,6 +45,7 @@ interface CabinViewProps {
 
 export function CabinView({ content }: CabinViewProps) {
   const backPath = useBackPath(content.backPath);
+  const { getColorsByCategory } = useGlobalColors();
 
   return (
     <>
@@ -202,12 +210,8 @@ export function CabinView({ content }: CabinViewProps) {
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pb-6">
                           <div className="flex flex-wrap gap-6 pt-4">
-                            {category.colors.map((swatch) => (
-                              <ColorSwatch
-                                key={swatch.name}
-                                name={swatch.name}
-                                color={swatch.color}
-                              />
+                            {getColorsByCategory(category.id).map((color) => (
+                              <ColorSwatch key={color.id} color={color} />
                             ))}
                           </div>
                         </AccordionContent>

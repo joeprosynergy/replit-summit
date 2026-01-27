@@ -26,16 +26,7 @@ import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 
 import { ModernShedContent, WhyReason } from '@/pages/defaults/modernShedDefaults';
-
-const ColorSwatch = ({ name, color }: { name: string; color: string }) => (
-  <div className="flex items-center gap-2">
-    <div
-      className="w-6 h-6 rounded-full border border-border shadow-sm"
-      style={{ backgroundColor: color }}
-    />
-    <span className="text-sm text-muted-foreground">{name}</span>
-  </div>
-);
+import { SimpleColorSwatch } from '@/components/ui/GlobalColorSwatch';
 
 // Icon mapping for "Why" reasons
 const WhyIcon = ({ type }: { type: WhyReason['iconType'] }) => {
@@ -402,10 +393,12 @@ export default function ModernShedEditable({ initialContent }: ModernShedEditabl
                         <AccordionContent className="px-6 pb-6">
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-4">
                             {category.colors.map((swatch) => (
-                              <ColorSwatch
+                              <SimpleColorSwatch
                                 key={swatch.name}
                                 name={swatch.name}
                                 color={swatch.color}
+                                categoryId={category.id}
+                                variant="small"
                               />
                             ))}
                           </div>

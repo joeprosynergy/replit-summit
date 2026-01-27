@@ -19,41 +19,22 @@ import GallerySection from '@/components/GallerySection';
 import ProductHero from '@/components/ProductHero';
 import { useBackPath } from '@/hooks/useBackPath';
 import { EconomyShedContent } from '@/pages/defaults/economyShedDefaults';
+import { useGlobalColors } from '@/hooks/useGlobalColors';
 
-const sidingOptions = {
-  metal: [
-    { name: 'Alamo White', color: '#E5E5DC' },
-    { name: 'Ash Gray', color: '#8B8B8B' },
-    { name: 'Brilliant White', color: '#FFFFFF' },
-    { name: 'Black', color: '#1A1A1A' },
-    { name: 'Brite Red', color: '#C41E3A' },
-    { name: 'Brown', color: '#5C4033' },
-    { name: 'Buckskin Desert', color: '#C4A76C' },
-    { name: 'Burgundy', color: '#722F37' },
-    { name: 'Burnished Slate', color: '#5A6165' },
-    { name: 'Charcoal', color: '#36454F' },
-    { name: 'Forest Green', color: '#228B22' },
-    { name: 'Galvalume', color: '#B8B8B0' },
-    { name: 'Gallery Blue', color: '#4169E1' },
-    { name: 'Hunter Green', color: '#355E3B' },
-    { name: 'Ivory', color: '#FFFFF0' },
-    { name: 'Light Stone', color: '#D4CFC4' },
-    { name: 'Ocean', color: '#006994' },
-    { name: 'Rustic', color: '#8B4513' },
-    { name: 'Pewter', color: '#96A8A1' },
-    { name: 'Tan', color: '#D2B48C' },
-    { name: 'Taupe', color: '#483C32' },
-  ],
-};
-
-const ColorSwatch = ({ name, color }: { name: string; color: string }) => (
+const ColorSwatch = ({ color }: { color: { name: string; color: string; image?: string } }) => (
   <div className="flex flex-col items-center gap-2">
-    <div 
-      className="w-16 h-16 rounded-full border-4 border-card shadow-md"
-      style={{ backgroundColor: color }}
-    />
+    {color.image ? (
+      <div className="w-16 h-16 rounded-full border-4 border-card shadow-md overflow-hidden">
+        <img src={color.image} alt={color.name} className="w-full h-full object-cover" />
+      </div>
+    ) : (
+      <div
+        className="w-16 h-16 rounded-full border-4 border-card shadow-md"
+        style={{ backgroundColor: color.color }}
+      />
+    )}
     <span className="text-xs text-muted-foreground text-center leading-tight max-w-[70px]">
-      {name}
+      {color.name}
     </span>
   </div>
 );
@@ -69,6 +50,7 @@ export function EconomyShedView({ content }: EconomyShedViewProps) {
     stylesPath: '/styles/utility',
     stylesLabel: '← Back to Styles',
   });
+  const { getColorsByCategory } = useGlobalColors();
 
   // Build gallery images array
   const galleryImages: { src: string; alt: string }[] = [];
@@ -279,8 +261,8 @@ export function EconomyShedView({ content }: EconomyShedViewProps) {
                     </AccordionTrigger>
                     <AccordionContent className="px-6 pb-6">
                       <div className="flex flex-wrap gap-6 pt-4">
-                        {sidingOptions.metal.map((swatch) => (
-                          <ColorSwatch key={swatch.name} name={swatch.name} color={swatch.color} />
+                        {getColorsByCategory('metal').map((color) => (
+                          <ColorSwatch key={color.id} color={color} />
                         ))}
                       </div>
                     </AccordionContent>

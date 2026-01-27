@@ -8,16 +8,16 @@ import { cloudinaryImages } from '@/lib/cloudinary';
 import {
   SidingCategory,
   UpgradeCategory,
-  DEFAULT_METAL_SIDING,
-  DEFAULT_URETHANE_SIDING,
-  DEFAULT_VINYL_SIDING,
+  getGlobalMetalSwatches,
+  getGlobalUrethaneSwatches,
+  getGlobalVinylSwatches,
 } from './productPageTypes';
 
-// Cabin-specific siding (no paint option)
+// Cabin-specific siding (no paint option) - uses global colors
 const CABIN_SIDING_CATEGORIES: SidingCategory[] = [
-  { id: 'metal', title: 'Metal Siding Options', colors: DEFAULT_METAL_SIDING },
-  { id: 'urethane', title: 'Urethane Siding Options', colors: DEFAULT_URETHANE_SIDING },
-  { id: 'vinyl', title: 'Vinyl Siding Options', colors: DEFAULT_VINYL_SIDING },
+  { id: 'metal', title: 'Metal Siding Options', colors: getGlobalMetalSwatches() },
+  { id: 'urethane', title: 'Urethane Siding Options', colors: getGlobalUrethaneSwatches() },
+  { id: 'vinyl', title: 'Vinyl Siding Options', colors: getGlobalVinylSwatches() },
 ];
 
 // Cabin-specific upgrades

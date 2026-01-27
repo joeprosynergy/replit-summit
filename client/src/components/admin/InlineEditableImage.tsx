@@ -154,7 +154,9 @@ const InlineEditableImage = ({
     <>
       <div 
         className={cn('relative', isEditMode && 'group cursor-pointer', className)}
-        onClick={isEditMode ? () => setIsDialogOpen(true) : undefined}
+        onClick={isEditMode ? () => {
+          setIsDialogOpen(true);
+        } : undefined}
       >
         <img src={normalizedSrc} alt={alt} className={imageClassName} />
         {/* Edit mode overlay - visibility controlled, not conditionally rendered */}

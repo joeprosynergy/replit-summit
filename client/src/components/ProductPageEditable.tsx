@@ -36,22 +36,7 @@ import {
   SidingCategory,
   UpgradeCategory,
 } from '@/pages/defaults/productPageTypes';
-
-// ============================================================================
-// Sub-components
-// ============================================================================
-
-const ColorSwatch = ({ name, color }: { name: string; color: string }) => (
-  <div className="flex flex-col items-center gap-2">
-    <div
-      className="w-16 h-16 rounded-full border-4 border-card shadow-md"
-      style={{ backgroundColor: color }}
-    />
-    <span className="text-xs text-muted-foreground text-center leading-tight max-w-[70px]">
-      {name}
-    </span>
-  </div>
-);
+import { SimpleColorSwatch } from '@/components/ui/GlobalColorSwatch';
 
 // ============================================================================
 // Main Component

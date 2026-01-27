@@ -7,7 +7,7 @@ import { cloudinaryImages } from '@/lib/cloudinary';
 import {
   ProductPageContent,
   ProductPageConfig,
-  createStandardSidingCategories,
+  createGlobalSidingCategories,
   UpgradeCategory,
 } from './productPageTypes';
 
@@ -164,7 +164,7 @@ export const budgetProUtilityDefaults: ProductPageContent = {
 
   // === COLOR/SIDING OPTIONS SECTION ===
   colorHeading: 'COLOR AND MATERIAL OPTIONS',
-  sidingCategories: createStandardSidingCategories(),
+  sidingCategories: createGlobalSidingCategories(),
 
   // === UPGRADES SECTION ===
   showUpgradesSection: true,

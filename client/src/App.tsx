@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import ScrollToTop from "./components/ScrollToTop";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { BuyersGuideLinkInterceptor } from "@/components/BuyersGuideLinkInterceptor";
+import CodeSnippetInjector from "@/components/CodeSnippetInjector";
 
 // Lazy-load admin components to avoid initialization issues
 const GlobalEditToolbar = lazy(() => import("@/components/admin/GlobalEditToolbar").then(m => ({ default: m.GlobalEditToolbar })));
@@ -63,6 +64,7 @@ const App = () => (
         <AdminAuthProvider>
           <BuyersGuideLinkInterceptor>
             <ScrollToTop />
+            <CodeSnippetInjector />
             <Suspense fallback={null}>
               <GlobalEditToolbar />
             </Suspense>

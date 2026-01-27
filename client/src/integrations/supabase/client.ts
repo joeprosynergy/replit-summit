@@ -18,3 +18,20 @@ export const supabase =
         },
       })
     : null;
+
+// Pre-warm the database connection to avoid cold-start timeout on first query
+// This runs immediately when the app loads
+if (supabase) {
+  console.log('[Supabase] Pre-warming database connection...');
+  supabase
+    .from('profiles')
+    .select('user_id')
+    .limit(1)
+    .maybeSingle()
+    .then(() => {
+      console.log('[Supabase] Database connection warmed up successfully');
+    })
+    .catch((err) => {
+      console.warn('[Supabase] Warm-up query failed (this is usually OK):', err?.message);
+    });
+}

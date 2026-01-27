@@ -11,7 +11,7 @@ import barnCabin5 from '@/assets/barn-cabin-5.jpg';
 import {
   ProductPageContent,
   ProductPageConfig,
-  createMetalOnlySiding,
+  createGlobalMetalOnlySiding,
   UpgradeCategory,
 } from './productPageTypes';
 
@@ -167,7 +167,7 @@ export const barnCabinDefaults: ProductPageContent = {
 
   // === COLOR/SIDING OPTIONS SECTION ===
   colorHeading: 'COLOR OPTIONS',
-  sidingCategories: createMetalOnlySiding(),
+  sidingCategories: createGlobalMetalOnlySiding(),
 
   // === UPGRADES SECTION ===
   showUpgradesSection: true,

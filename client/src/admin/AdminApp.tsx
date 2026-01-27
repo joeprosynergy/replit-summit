@@ -17,6 +17,7 @@ const AdminCloudinaryUpload = lazy(() => import('@/pages/AdminCloudinaryUpload')
 const AssetAudit = lazy(() => import('@/pages/AssetAudit'));
 const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
 const GlobalColorsAdmin = lazy(() => import('@/pages/GlobalColorsAdmin'));
+const AdminCodeSnippets = lazy(() => import('@/pages/AdminCodeSnippets'));
 
 function AdminLoadingFallback() {
   return (
@@ -89,6 +90,14 @@ export default function AdminApp() {
           element={
             <ProtectedRoute>
               <GlobalColorsAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/code-snippets"
+          element={
+            <ProtectedRoute>
+              <AdminCodeSnippets />
             </ProtectedRoute>
           }
         />
