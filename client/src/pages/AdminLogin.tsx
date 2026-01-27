@@ -11,6 +11,9 @@ const AdminLogin = () => {
   const [envError, setEnvError] = useState<string | null>(null);
 
   const handlePasswordLogin = async () => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:14',message:'handlePasswordLogin called',data:{email:email},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1'})}).catch(()=>{});
+    // #endregion
     setMessage(null);
     setIsLoading(true);
 
@@ -24,18 +27,39 @@ const AdminLogin = () => {
         return;
       }
       
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      // #region agent log
+      console.log('[AdminLogin] signInWithPassword result:', { 
+        hasError: !!error, 
+        errorMsg: error?.message,
+        hasSession: !!data?.session,
+        hasUser: !!data?.user,
+        userId: data?.user?.id,
+        userEmail: data?.user?.email,
+        sessionExpiry: data?.session?.expires_at
+      });
+      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:32',message:'signInWithPassword result',data:{hasError:!!error,errorMsg:error?.message,hasSession:!!data?.session,hasUser:!!data?.user,userId:data?.user?.id,userEmail:data?.user?.email},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1'})}).catch(()=>{});
+      // #endregion
 
       if (error) {
         setMessage({ type: "error", text: error.message });
       } else {
-        // Redirect to admin on success
+        // #region agent log
+        console.log('[AdminLogin] Login success, waiting 500ms before redirect to allow session to persist');
+        fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:39',message:'login success - redirecting',data:{redirectTo:'/admin'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1'})}).catch(()=>{});
+        // #endregion
+        // Wait briefly for session to be stored before redirecting
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log('[AdminLogin] Redirecting to /admin');
         window.location.href = '/admin';
       }
     } catch (err) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:46',message:'login catch error',data:{errorMsg:err instanceof Error?err.message:'unknown'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1'})}).catch(()=>{});
+      // #endregion
       setMessage({ type: "error", text: "Failed to login" });
     } finally {
       setIsLoading(false);

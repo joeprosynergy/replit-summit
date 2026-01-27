@@ -39,14 +39,31 @@ export function useAdminAuth(): AdminAuthState {
         .select('approval_status')
         .eq('user_id', userId)
         .maybeSingle();
+      
+      // #region agent log
+      console.log('[useAdminAuth] Profile check:', {
+        userId,
+        email,
+        hasProfile: !!profile,
+        hasError: !!error,
+        errorMsg: error?.message,
+        approvalStatus: profile?.approval_status,
+        profileData: profile
+      });
+      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useAdminAuth.ts:41',message:'profile check',data:{userId:userId,email:email,hasProfile:!!profile,hasError:!!error,errorMsg:error?.message,approvalStatus:profile?.approval_status},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1,D5'})}).catch(()=>{});
+      // #endregion
 
       if (error) {
-        console.warn('Failed to check approval status:', error);
+        console.warn('[useAdminAuth] Failed to check approval status:', error);
         return { isAdmin: false, approvalStatus: null };
       }
 
       if (!profile) {
         // No profile yet - user hasn't completed signup
+        // #region agent log
+        console.log('[useAdminAuth] No profile found for userId:', userId);
+        fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useAdminAuth.ts:50',message:'no profile found',data:{userId:userId},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D5'})}).catch(()=>{});
+        // #endregion
         return { isAdmin: false, approvalStatus: null };
       }
 
@@ -108,10 +125,12 @@ export function useAdminAuth(): AdminAuthState {
 
     const { data: { subscription } } = client.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('[useAdminAuth] Auth state change:', { event, hasSession: !!session, hasUser: !!session?.user });
         if (!mounted) return;
         authResolved = true;
         
         if (!session?.user) {
+          console.log('[useAdminAuth] No session/user - setting as logged out');
           setState({ user: null, isAdmin: false, isLoading: false, error: null, approvalStatus: null });
           return;
         }
