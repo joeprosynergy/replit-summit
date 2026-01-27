@@ -100,10 +100,11 @@ export default function GlobalColorsAdmin() {
           )}
 
           <Tabs defaultValue="paint" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 max-w-md">
+            <TabsList className="grid w-full grid-cols-4 max-w-lg">
               <TabsTrigger value="paint">Paint</TabsTrigger>
               <TabsTrigger value="metal">Metal</TabsTrigger>
               <TabsTrigger value="urethane">Urethane</TabsTrigger>
+              <TabsTrigger value="vinyl">Vinyl</TabsTrigger>
             </TabsList>
 
             <TabsContent value="paint">
@@ -185,6 +186,34 @@ export default function GlobalColorsAdmin() {
                   <Button variant="outline" size="sm" onClick={() => handleAddColor('urethane')}>
                     <Plus className="w-4 h-4 mr-2" />
                     Add Urethane Color
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="vinyl">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vinyl Colors</CardTitle>
+                  <CardDescription>Vinyl siding and trim colors</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-6 mb-6">
+                    {getColorsByCategory('vinyl').map(({ color, originalIndex }) => (
+                      <InlineEditableColorSwatch
+                        key={color.id}
+                        name={color.name}
+                        color={color.color}
+                        image={color.image}
+                        onChange={(updates) => handleColorChange(originalIndex, updates)}
+                        onDelete={() => handleDeleteColor(originalIndex)}
+                        isEditMode={true}
+                      />
+                    ))}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => handleAddColor('vinyl')}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Vinyl Color
                   </Button>
                 </CardContent>
               </Card>

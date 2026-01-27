@@ -45,5 +45,14 @@ export const defaultGlobalColors: GlobalColorsConfig = {
     { id: 'urethane-red-mahogany', name: 'Red Mahogany', color: '#6B3434', category: 'urethane' },
     { id: 'urethane-coffee', name: 'Coffee', color: '#4A3426', category: 'urethane' },
     { id: 'urethane-dark-walnut', name: 'Dark Walnut', color: '#3E2A23', category: 'urethane' },
+    
+    // Vinyl Colors
+    { id: 'vinyl-white', name: 'White', color: '#FFFFFF', category: 'vinyl' },
+    { id: 'vinyl-almond', name: 'Almond', color: '#EFDECD', category: 'vinyl' },
+    { id: 'vinyl-clay', name: 'Clay', color: '#C4A586', category: 'vinyl' },
+    { id: 'vinyl-gray', name: 'Gray', color: '#808080', category: 'vinyl' },
+    { id: 'vinyl-pewter', name: 'Pewter', color: '#8B8680', category: 'vinyl' },
+    { id: 'vinyl-brown', name: 'Brown', color: '#6B4423', category: 'vinyl' },
+    { id: 'vinyl-black', name: 'Black', color: '#1A1A1A', category: 'vinyl' },
   ]
 };

@@ -22,7 +22,6 @@ import { useGlobalColors } from '@/hooks/useGlobalColors';
 import {
   ProductPageContent,
   ProductPageConfig,
-  ColorSwatch as ColorSwatchType,
   SidingCategory,
   UpgradeCategory,
   extractGalleryImages,
@@ -30,37 +29,24 @@ import {
   extractUses,
 } from '@/pages/defaults/productPageTypes';
 
-// ============================================================================
-// Sub-components
-// ============================================================================
-
-const ColorSwatch = ({ swatch }: { swatch: ColorSwatchType }) => {
-  const { getColorById } = useGlobalColors();
-  
-  // Resolve color from global or use local
-  const displayColor = swatch.globalColorId ? getColorById(swatch.globalColorId) : swatch;
-  const name = displayColor?.name || 'Unknown';
-  const color = displayColor?.color || '#808080';
-  const image = displayColor?.image;
-  
-  return (
-    <div className="flex flex-col items-center gap-2">
-      {image ? (
-        <div className="w-16 h-16 rounded-full border-4 border-card shadow-md overflow-hidden">
-          <img src={image} alt={name} className="w-full h-full object-cover" />
-        </div>
-      ) : (
-        <div
-          className="w-16 h-16 rounded-full border-4 border-card shadow-md"
-          style={{ backgroundColor: color }}
-        />
-      )}
-      <span className="text-xs text-muted-foreground text-center leading-tight max-w-[70px]">
-        {name}
-      </span>
-    </div>
-  );
-};
+// Simple color swatch that displays a global color
+const ColorSwatch = ({ color }: { color: { name: string; color: string; image?: string } }) => (
+  <div className="flex flex-col items-center gap-2">
+    {color.image ? (
+      <div className="w-16 h-16 rounded-full border-4 border-card shadow-md overflow-hidden">
+        <img src={color.image} alt={color.name} className="w-full h-full object-cover" />
+      </div>
+    ) : (
+      <div
+        className="w-16 h-16 rounded-full border-4 border-card shadow-md"
+        style={{ backgroundColor: color.color }}
+      />
+    )}
+    <span className="text-xs text-muted-foreground text-center leading-tight max-w-[70px]">
+      {color.name}
+    </span>
+  </div>
+);
 
 // ============================================================================
 // Main Component
@@ -73,11 +59,19 @@ interface ProductPageViewProps {
 
 export function ProductPageView({ content, config }: ProductPageViewProps) {
   const backPath = useBackPath(content.backPath);
+  const { getColorsByCategory } = useGlobalColors();
 
   // Extract dynamic content
   const galleryImages = content.galleryImages || extractGalleryImages(content as Record<string, unknown>);
   const features = content.features?.length ? content.features : extractFeatures(content as Record<string, unknown>);
   const uses = content.uses?.length ? content.uses : extractUses(content as Record<string, unknown>);
+  
+  // Get global colors for each siding category
+  // The sidingCategories from content tells us WHICH categories to show
+  // But the actual colors come from the global palette
+  const getSidingColors = (categoryId: string) => {
+    return getColorsByCategory(categoryId);
+  };
 
   return (
     <>
@@ -256,16 +250,13 @@ export function ProductPageView({ content, config }: ProductPageViewProps) {
                             {category.title}
                           </span>
                         </AccordionTrigger>
-                              <AccordionContent className="px-6 pb-6">
-                                <div className="flex flex-wrap gap-6 pt-4">
-                                  {category.colors.map((swatch, idx) => (
-                                    <ColorSwatch
-                                      key={swatch.globalColorId || swatch.name || idx}
-                                      swatch={swatch}
-                                    />
-                                  ))}
-                                </div>
-                              </AccordionContent>
+                        <AccordionContent className="px-6 pb-6">
+                          <div className="flex flex-wrap gap-6 pt-4">
+                            {getSidingColors(category.id).map((color) => (
+                              <ColorSwatch key={color.id} color={color} />
+                            ))}
+                          </div>
+                        </AccordionContent>
                       </AccordionItem>
                     ))}
                   </Accordion>

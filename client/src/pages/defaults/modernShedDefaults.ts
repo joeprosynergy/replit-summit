@@ -17,48 +17,14 @@ import modernShed10 from '@/assets/modern-shed-10.jpg';
 import {
   SidingCategory,
   UpgradeCategory,
+  getGlobalPaintSwatches,
+  getGlobalMetalSwatches,
 } from './productPageTypes';
 
-// Modern Shed specific siding options (simplified versions)
-const MODERN_SHED_PAINT_SIDING = [
-  { name: 'White', color: '#FFFFFF' },
-  { name: 'Navajo White', color: '#FAEBD7' },
-  { name: 'Light Gray', color: '#D3D3D3' },
-  { name: 'GP Gray', color: '#A9A9A9' },
-  { name: 'Clay', color: '#B8860B' },
-  { name: 'Buckskin', color: '#C19A6B' },
-  { name: 'Beige', color: '#F5F5DC' },
-  { name: 'Sandstone', color: '#786D5F' },
-  { name: 'Taupe', color: '#483C32' },
-  { name: 'Brown', color: '#8B4513' },
-  { name: 'Burnished Slate', color: '#5A5A5A' },
-  { name: 'Black', color: '#222222' },
-  { name: 'Red', color: '#B22222' },
-  { name: 'Barn Red', color: '#7C0A02' },
-  { name: 'Forest Green', color: '#228B22' },
-  { name: 'Light Blue', color: '#ADD8E6' },
-  { name: 'Blue', color: '#4169E1' },
-];
-
-const MODERN_SHED_METAL_SIDING = [
-  { name: 'White', color: '#FFFFFF' },
-  { name: 'Light Gray', color: '#D3D3D3' },
-  { name: 'Clay', color: '#B8860B' },
-  { name: 'Tan', color: '#D2B48C' },
-  { name: 'Brown', color: '#8B4513' },
-  { name: 'Burnished Slate', color: '#5A5A5A' },
-  { name: 'Charcoal', color: '#36454F' },
-  { name: 'Black', color: '#222222' },
-  { name: 'Red', color: '#B22222' },
-  { name: 'Barn Red', color: '#7C0A02' },
-  { name: 'Forest Green', color: '#228B22' },
-  { name: 'Blue', color: '#4169E1' },
-  { name: 'Galvalume', color: '#C0C0C0' },
-];
-
+// Modern Shed siding - uses global colors from admin palette
 const MODERN_SHED_SIDING: SidingCategory[] = [
-  { id: 'paint', title: 'Paint Siding Options', colors: MODERN_SHED_PAINT_SIDING },
-  { id: 'metal', title: 'Metal Siding Options', colors: MODERN_SHED_METAL_SIDING },
+  { id: 'paint', title: 'Paint Siding Options', colors: getGlobalPaintSwatches() },
+  { id: 'metal', title: 'Metal Siding Options', colors: getGlobalMetalSwatches() },
 ];
 
 // Modern Shed specific upgrades

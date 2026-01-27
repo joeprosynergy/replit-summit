@@ -363,9 +363,12 @@ function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <Button variant="outline" className="justify-start" onClick={() => navigate('/admin/global-colors')}>
                   Global Color Palette
+                </Button>
+                <Button variant="outline" className="justify-start" onClick={() => navigate('/admin/code-snippets')}>
+                  Code Snippets
                 </Button>
                 <Button variant="outline" className="justify-start" onClick={() => navigate('/cloudinary-upload')}>
                   Cloudinary Upload

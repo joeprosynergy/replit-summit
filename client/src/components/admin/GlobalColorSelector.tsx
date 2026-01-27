@@ -61,10 +61,11 @@ export function GlobalColorSelector({ selectedColorId, onSelectColor }: GlobalCo
           </div>
 
           <Tabs defaultValue="paint">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="paint">Paint</TabsTrigger>
               <TabsTrigger value="metal">Metal</TabsTrigger>
               <TabsTrigger value="urethane">Urethane</TabsTrigger>
+              <TabsTrigger value="vinyl">Vinyl</TabsTrigger>
             </TabsList>
 
             <TabsContent value="paint" className="space-y-2">
@@ -135,6 +136,38 @@ export function GlobalColorSelector({ selectedColorId, onSelectColor }: GlobalCo
               <RadioGroup value={selectedColorId} onValueChange={handleSelect}>
                 <div className="grid grid-cols-2 gap-3">
                   {filterColors('urethane').map((color) => (
+                    <div
+                      key={color.id}
+                      className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-accent ${
+                        selectedColorId === color.id ? 'border-primary bg-accent' : 'border-border'
+                      }`}
+                      onClick={() => handleSelect(color)}
+                    >
+                      <RadioGroupItem value={color.id} id={color.id} />
+                      {color.image ? (
+                        <div className="w-10 h-10 rounded border-2 border-border overflow-hidden flex-shrink-0">
+                          <img src={color.image} alt={color.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div
+                          className="w-10 h-10 rounded border-2 border-border flex-shrink-0"
+                          style={{ backgroundColor: color.color }}
+                        />
+                      )}
+                      <Label htmlFor={color.id} className="cursor-pointer flex-1">
+                        {color.name}
+                      </Label>
+                      {selectedColorId === color.id && <Check className="w-4 h-4 text-primary" />}
+                    </div>
+                  ))}
+                </div>
+              </RadioGroup>
+            </TabsContent>
+
+            <TabsContent value="vinyl" className="space-y-2">
+              <RadioGroup value={selectedColorId} onValueChange={handleSelect}>
+                <div className="grid grid-cols-2 gap-3">
+                  {filterColors('vinyl').map((color) => (
                     <div
                       key={color.id}
                       className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-accent ${

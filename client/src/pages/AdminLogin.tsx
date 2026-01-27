@@ -13,9 +13,6 @@ const AdminLogin = () => {
   const [envError, setEnvError] = useState<string | null>(null);
 
   const handlePasswordLogin = async () => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:14',message:'handlePasswordLogin called',data:{email:email},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1'})}).catch(()=>{});
-    // #endregion
     setMessage(null);
     setIsLoading(true);
 
@@ -33,27 +30,10 @@ const AdminLogin = () => {
         email,
         password,
       });
-      // #region agent log
-      console.log('[AdminLogin] signInWithPassword result:', { 
-        hasError: !!error, 
-        errorMsg: error?.message,
-        hasSession: !!data?.session,
-        hasUser: !!data?.user,
-        userId: data?.user?.id,
-        userEmail: data?.user?.email,
-        sessionExpiry: data?.session?.expires_at
-      });
-      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:32',message:'signInWithPassword result',data:{hasError:!!error,errorMsg:error?.message,hasSession:!!data?.session,hasUser:!!data?.user,userId:data?.user?.id,userEmail:data?.user?.email},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1'})}).catch(()=>{});
-      // #endregion
 
       if (error) {
         setMessage({ type: "error", text: error.message });
       } else {
-        // #region agent log
-        console.log('[AdminLogin] Login success, showing success message and staying on page');
-        fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:39',message:'login success - showing message',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1'})}).catch(()=>{});
-        // #endregion
-        
         // Instead of redirecting, show success and let user navigate
         setMessage({ 
           type: "success", 
@@ -61,9 +41,6 @@ const AdminLogin = () => {
         });
       }
     } catch (err) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:46',message:'login catch error',data:{errorMsg:err instanceof Error?err.message:'unknown'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1'})}).catch(()=>{});
-      // #endregion
       setMessage({ type: "error", text: "Failed to login" });
     } finally {
       setIsLoading(false);
@@ -71,18 +48,12 @@ const AdminLogin = () => {
   };
 
   const handleSendLink = async () => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:13',message:'handleSendLink called',data:{email:email,timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B1'})}).catch(()=>{});
-    // #endregion
     setMessage(null);
     setIsLoading(true);
 
     try {
       const { getBackendClient } = await import("@/lib/backendClient");
       const supabase = getBackendClient();
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:22',message:'backend client loaded',data:{hasClient:!!supabase},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B1'})}).catch(()=>{});
-      // #endregion
       
       if (supabase === null) {
         setMessage({ type: "error", text: "Supabase not configured - check environment variables" });
@@ -96,9 +67,6 @@ const AdminLogin = () => {
           emailRedirectTo: `${window.location.origin}/admin/auth/callback`,
         },
       });
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:33',message:'signInWithOtp result',data:{hasError:!!error,errorMsg:error?.message,errorStatus:error?.status,errorCode:error?.code,errorName:error?.name,fullError:JSON.stringify(error),origin:window.location.origin,supabaseUrl:import.meta.env.VITE_SUPABASE_URL},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B1,B2,C2,C3'})}).catch(()=>{});
-      // #endregion
 
       if (error) {
         setMessage({ type: "error", text: error.message });
@@ -187,7 +155,6 @@ const AdminLogin = () => {
                 <Button 
                   className="w-full" 
                   onClick={() => {
-                    console.log('[AdminLogin] Navigate button clicked, using React Router to /admin');
                     navigate('/admin');
                   }}
                 >

@@ -7,7 +7,7 @@ import { cloudinaryImages } from '@/lib/cloudinary';
 import {
   ProductPageContent,
   ProductPageConfig,
-  createStandardSidingCategories,
+  createGlobalSidingCategories,
   DEFAULT_UPGRADE_CATEGORIES,
 } from './productPageTypes';
 
@@ -95,7 +95,7 @@ export const garageDefaults: ProductPageContent = {
 
   // === COLOR/SIDING OPTIONS SECTION ===
   colorHeading: 'COLOR AND MATERIAL OPTIONS',
-  sidingCategories: createStandardSidingCategories(),
+  sidingCategories: createGlobalSidingCategories(),
 
   // === UPGRADES SECTION ===
   showUpgradesSection: true,

@@ -10,7 +10,7 @@ import greenhouse4 from '@/assets/greenhouse-4.jpg';
 import {
   ProductPageContent,
   ProductPageConfig,
-  createPaintMetalSiding,
+  createGlobalPaintMetalSiding,
 } from './productPageTypes';
 
 export const greenhouseConfig: ProductPageConfig = {
@@ -96,7 +96,7 @@ export const greenhouseDefaults: ProductPageContent = {
 
   // === COLOR/SIDING OPTIONS SECTION ===
   colorHeading: 'COLOR AND MATERIAL OPTIONS',
-  sidingCategories: createPaintMetalSiding(),
+  sidingCategories: createGlobalPaintMetalSiding(),
 
   // === UPGRADES SECTION ===
   showUpgradesSection: false,

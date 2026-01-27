@@ -7,12 +7,12 @@
 import { cloudinaryImages } from '@/lib/cloudinary';
 import {
   SidingCategory,
-  DEFAULT_METAL_SIDING,
+  getGlobalMetalSwatches,
 } from './productPageTypes';
 
-// Carports only use metal
+// Carports only use metal - uses global colors
 const CARPORTS_SIDING: SidingCategory[] = [
-  { id: 'metal', title: 'Metal Color Options', colors: DEFAULT_METAL_SIDING },
+  { id: 'metal', title: 'Metal Color Options', colors: getGlobalMetalSwatches() },
 ];
 
 // Carport sub-product type

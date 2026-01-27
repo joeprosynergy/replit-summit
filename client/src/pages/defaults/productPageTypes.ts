@@ -319,6 +319,7 @@ export const DEFAULT_UPGRADE_CATEGORIES: UpgradeCategory[] = [
 
 /**
  * Creates standard siding categories for products with all 4 options
+ * Uses local color definitions (legacy behavior)
  */
 export function createStandardSidingCategories(): SidingCategory[] {
   return [
@@ -356,6 +357,118 @@ export function createPaintMetalSiding(): SidingCategory[] {
 export function createMetalOnlySiding(): SidingCategory[] {
   return [
     { id: 'metal', title: 'Metal Siding Options', colors: DEFAULT_METAL_SIDING },
+  ];
+}
+
+// ============================================================================
+// Global Color Reference Helpers (Recommended for new products)
+// ============================================================================
+// These functions create siding categories that reference the global color palette.
+// When global colors are updated, all product pages using these will automatically update.
+
+/**
+ * Creates color swatches that reference the global paint colors
+ */
+export function getGlobalPaintSwatches(): ColorSwatch[] {
+  return [
+    { globalColorId: 'paint-white' },
+    { globalColorId: 'paint-clay' },
+    { globalColorId: 'paint-buckskin' },
+    { globalColorId: 'paint-utility-brown' },
+    { globalColorId: 'paint-durango' },
+    { globalColorId: 'paint-forest-green' },
+    { globalColorId: 'paint-barn-red' },
+    { globalColorId: 'paint-slate-blue' },
+    { globalColorId: 'paint-charcoal' },
+  ];
+}
+
+/**
+ * Creates color swatches that reference the global metal colors
+ */
+export function getGlobalMetalSwatches(): ColorSwatch[] {
+  return [
+    { globalColorId: 'metal-white' },
+    { globalColorId: 'metal-light-stone' },
+    { globalColorId: 'metal-clay' },
+    { globalColorId: 'metal-pewter-gray' },
+    { globalColorId: 'metal-charcoal' },
+    { globalColorId: 'metal-black' },
+    { globalColorId: 'metal-barn-red' },
+  ];
+}
+
+/**
+ * Creates color swatches that reference the global urethane colors
+ */
+export function getGlobalUrethaneSwatches(): ColorSwatch[] {
+  return [
+    { globalColorId: 'urethane-golden-oak' },
+    { globalColorId: 'urethane-natural-cedar' },
+    { globalColorId: 'urethane-chestnut' },
+    { globalColorId: 'urethane-mesquite' },
+    { globalColorId: 'urethane-red-mahogany' },
+    { globalColorId: 'urethane-coffee' },
+    { globalColorId: 'urethane-dark-walnut' },
+  ];
+}
+
+/**
+ * Creates color swatches that reference the global vinyl colors
+ */
+export function getGlobalVinylSwatches(): ColorSwatch[] {
+  return [
+    { globalColorId: 'vinyl-white' },
+    { globalColorId: 'vinyl-almond' },
+    { globalColorId: 'vinyl-clay' },
+    { globalColorId: 'vinyl-gray' },
+    { globalColorId: 'vinyl-pewter' },
+    { globalColorId: 'vinyl-brown' },
+    { globalColorId: 'vinyl-black' },
+  ];
+}
+
+/**
+ * Creates standard siding categories using GLOBAL color references.
+ * This is the RECOMMENDED approach for new product pages.
+ * Colors will automatically sync with the Global Color Palette in admin.
+ */
+export function createGlobalSidingCategories(): SidingCategory[] {
+  return [
+    { id: 'paint', title: 'Paint Siding Options', colors: getGlobalPaintSwatches() },
+    { id: 'metal', title: 'Metal Siding Options', colors: getGlobalMetalSwatches() },
+    { id: 'urethane', title: 'Urethane Siding Options', colors: getGlobalUrethaneSwatches() },
+    { id: 'vinyl', title: 'Vinyl Siding Options', colors: getGlobalVinylSwatches() },
+  ];
+}
+
+/**
+ * Creates siding categories with global metal and urethane references
+ */
+export function createGlobalMetalUrethaneVinylSiding(): SidingCategory[] {
+  return [
+    { id: 'metal', title: 'Metal Siding Options', colors: getGlobalMetalSwatches() },
+    { id: 'urethane', title: 'Urethane Siding Options', colors: getGlobalUrethaneSwatches() },
+    { id: 'vinyl', title: 'Vinyl Siding Options', colors: getGlobalVinylSwatches() },
+  ];
+}
+
+/**
+ * Creates siding categories with global paint and metal references
+ */
+export function createGlobalPaintMetalSiding(): SidingCategory[] {
+  return [
+    { id: 'paint', title: 'Paint Siding Options', colors: getGlobalPaintSwatches() },
+    { id: 'metal', title: 'Metal Siding / Roof Options', colors: getGlobalMetalSwatches() },
+  ];
+}
+
+/**
+ * Creates siding categories with global metal references only
+ */
+export function createGlobalMetalOnlySiding(): SidingCategory[] {
+  return [
+    { id: 'metal', title: 'Metal Siding Options', colors: getGlobalMetalSwatches() },
   ];
 }
 

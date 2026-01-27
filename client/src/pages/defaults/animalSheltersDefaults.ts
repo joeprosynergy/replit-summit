@@ -12,14 +12,14 @@ import chickenCoop1 from '@/assets/chicken-coop-1.jpg';
 import chickenCoop2 from '@/assets/chicken-coop-2.jpg';
 import {
   SidingCategory,
-  DEFAULT_PAINT_SIDING,
-  DEFAULT_METAL_SIDING,
+  getGlobalPaintSwatches,
+  getGlobalMetalSwatches,
 } from './productPageTypes';
 
-// Animal Shelters siding (paint + metal only)
+// Animal Shelters siding (paint + metal only) - uses global colors
 const ANIMAL_SHELTERS_SIDING: SidingCategory[] = [
-  { id: 'paint', title: 'Paint Siding Options', colors: DEFAULT_PAINT_SIDING },
-  { id: 'metal', title: 'Metal Siding / Roof Options', colors: DEFAULT_METAL_SIDING },
+  { id: 'paint', title: 'Paint Siding Options', colors: getGlobalPaintSwatches() },
+  { id: 'metal', title: 'Metal Siding / Roof Options', colors: getGlobalMetalSwatches() },
 ];
 
 // Shelter sub-product type

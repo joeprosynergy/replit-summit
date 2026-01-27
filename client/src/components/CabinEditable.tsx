@@ -26,18 +26,7 @@ import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 
 import { CabinContent } from '@/pages/defaults/cabinDefaults';
-
-const ColorSwatch = ({ name, color }: { name: string; color: string }) => (
-  <div className="flex flex-col items-center gap-2">
-    <div
-      className="w-16 h-16 rounded-full border-4 border-card shadow-md"
-      style={{ backgroundColor: color }}
-    />
-    <span className="text-xs text-muted-foreground text-center leading-tight max-w-[70px]">
-      {name}
-    </span>
-  </div>
-);
+import { SimpleColorSwatch } from '@/components/ui/GlobalColorSwatch';
 
 interface CabinEditableProps {
   initialContent: CabinContent;
@@ -461,15 +450,16 @@ export default function CabinEditable({ initialContent }: CabinEditableProps) {
                                 </span>
                               </AccordionTrigger>
                               <AccordionContent className="px-6 pb-6">
-                                <div className="flex flex-wrap gap-6 pt-4">
-                                  {category.colors.map((swatch) => (
-                                    <ColorSwatch
-                                      key={swatch.name}
-                                      name={swatch.name}
-                                      color={swatch.color}
-                                    />
-                                  ))}
-                                </div>
+                              <div className="flex flex-wrap gap-6 pt-4">
+                                {category.colors.map((swatch) => (
+                                  <SimpleColorSwatch
+                                    key={swatch.name}
+                                    name={swatch.name}
+                                    color={swatch.color}
+                                    categoryId={category.id}
+                                  />
+                                ))}
+                              </div>
                               </AccordionContent>
                             </AccordionItem>
                           ))}
