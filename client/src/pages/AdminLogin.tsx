@@ -48,12 +48,28 @@ const AdminLogin = () => {
         setMessage({ type: "error", text: error.message });
       } else {
         // #region agent log
-        console.log('[AdminLogin] Login success, waiting 500ms before redirect to allow session to persist');
+        console.log('[AdminLogin] Login success, waiting for session to be confirmed...');
         fetch('http://127.0.0.1:7242/ingest/f4257b34-1dc4-4061-84a5-733cc267b72d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLogin.tsx:39',message:'login success - redirecting',data:{redirectTo:'/admin'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D1'})}).catch(()=>{});
         // #endregion
-        // Wait briefly for session to be stored before redirecting
-        await new Promise(resolve => setTimeout(resolve, 500));
-        console.log('[AdminLogin] Redirecting to /admin');
+        
+        // Wait for session to be fully persisted by verifying it multiple times
+        let sessionConfirmed = false;
+        for (let i = 0; i < 10; i++) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+          const { data: { session: checkSession } } = await supabase.auth.getSession();
+          console.log(`[AdminLogin] Session check ${i + 1}/10:`, !!checkSession);
+          if (checkSession) {
+            sessionConfirmed = true;
+            break;
+          }
+        }
+        
+        if (!sessionConfirmed) {
+          console.error('[AdminLogin] Session not confirmed after 2 seconds, redirecting anyway');
+        } else {
+          console.log('[AdminLogin] Session confirmed, redirecting to /admin');
+        }
+        
         window.location.href = '/admin';
       }
     } catch (err) {
