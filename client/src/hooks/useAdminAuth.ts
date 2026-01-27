@@ -35,18 +35,40 @@ export function useAdminAuth(): AdminAuthState {
     try {
       console.log('[checkApprovalStatus] Starting profile query for userId:', userId);
       
-      // Add timeout to prevent hanging
-      const queryPromise = client
-        .from('profiles')
-        .select('approval_status')
-        .eq('user_id', userId)
-        .maybeSingle();
+      // Retry logic with increasing timeouts
+      let profile = null;
+      let error = null;
+      const maxRetries = 3;
+      const timeouts = [3000, 5000, 8000]; // 3s, 5s, 8s
       
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profile query timeout after 5s')), 5000)
-      );
-      
-      const { data: profile, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        console.log(`[checkApprovalStatus] Attempt ${attempt + 1}/${maxRetries} with ${timeouts[attempt]}ms timeout`);
+        
+        const queryPromise = client
+          .from('profiles')
+          .select('approval_status')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error(`Profile query timeout after ${timeouts[attempt]}ms`)), timeouts[attempt])
+        );
+        
+        try {
+          const result = await Promise.race([queryPromise, timeoutPromise]) as any;
+          profile = result.data;
+          error = result.error;
+          console.log(`[checkApprovalStatus] Attempt ${attempt + 1} succeeded`);
+          break; // Success, exit retry loop
+        } catch (retryErr) {
+          console.warn(`[checkApprovalStatus] Attempt ${attempt + 1} failed:`, retryErr);
+          if (attempt === maxRetries - 1) {
+            throw retryErr; // Final attempt failed, throw the error
+          }
+          // Wait a bit before retrying
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
       
       console.log('[checkApprovalStatus] Profile query completed:', {
         userId,
@@ -96,7 +118,8 @@ export function useAdminAuth(): AdminAuthState {
         userId,
         email
       });
-      return { isAdmin: false, approvalStatus: null };
+      // Return special value to indicate we should keep loading, not deny access
+      return { isAdmin: false, approvalStatus: null, timedOut: true } as any;
     }
   }, []);
 
@@ -163,34 +186,34 @@ export function useAdminAuth(): AdminAuthState {
         console.log('[useAdminAuth] Step 3: About to check approval status for user:', session.user.id);
         try {
           // Check approval status from profiles table
-          const { isAdmin, approvalStatus } = await checkApprovalStatus(
+          const result = await checkApprovalStatus(
             client,
             session.user.id,
             session.user.email || ''
           );
           
-          console.log('[useAdminAuth] Step 4: Approval check complete:', { isAdmin, approvalStatus });
+          console.log('[useAdminAuth] Step 4: Approval check complete:', result);
+          
+          // If query timed out, don't update state yet - keep loading
+          if ((result as any).timedOut) {
+            console.log('[useAdminAuth] Query timed out, keeping loading state - waiting for retry or next event');
+            return; // Don't update state, wait for next auth event
+          }
+          
           if (mounted) {
             console.log('[useAdminAuth] Step 5: Setting state with admin status');
             setState({ 
               user: session.user, 
-              isAdmin, 
+              isAdmin: result.isAdmin, 
               isLoading: false, 
               error: null,
-              approvalStatus,
+              approvalStatus: result.approvalStatus,
             });
           }
         } catch (err: any) {
           console.error('[useAdminAuth] ERROR in auth state change:', err);
-          if (mounted) {
-            setState({
-              user: session.user,
-              isAdmin: false,
-              isLoading: false,
-              error: `Admin check failed: ${err.message}`,
-              approvalStatus: null,
-            });
-          }
+          // On error, keep loading state instead of denying access
+          console.log('[useAdminAuth] Keeping loading state due to error');
         }
       }
     );
@@ -213,18 +236,24 @@ export function useAdminAuth(): AdminAuthState {
           
           if (user && !userError) {
             // Check approval status
-            const { isAdmin, approvalStatus } = await checkApprovalStatus(
+            const result = await checkApprovalStatus(
               client,
               user.id,
               user.email || ''
             );
             
+            // If timed out, don't set state - wait for onAuthStateChange
+            if ((result as any).timedOut) {
+              console.log('[checkInitialAuth] Profile query timed out, waiting for auth state change');
+              return;
+            }
+            
             setState({ 
               user, 
-              isAdmin, 
+              isAdmin: result.isAdmin, 
               isLoading: false, 
               error: null,
-              approvalStatus,
+              approvalStatus: result.approvalStatus,
             });
             return;
           }
@@ -246,18 +275,24 @@ export function useAdminAuth(): AdminAuthState {
               authResolved = true;
               
               if (session?.user) {
-                const { isAdmin, approvalStatus } = await checkApprovalStatus(
+                const result = await checkApprovalStatus(
                   client,
                   session.user.id,
                   session.user.email || ''
                 );
                 
+                // If timed out, don't set state - wait for auth state change
+                if ((result as any).timedOut) {
+                  console.log('[checkInitialAuth/session] Profile query timed out, waiting for auth state change');
+                  return;
+                }
+                
                 setState({
                   user: session.user,
-                  isAdmin,
+                  isAdmin: result.isAdmin,
                   isLoading: false,
                   error: null,
-                  approvalStatus,
+                  approvalStatus: result.approvalStatus,
                 });
                 return;
               }
