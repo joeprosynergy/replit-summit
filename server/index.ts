@@ -1,6 +1,5 @@
 import express from "express";
 import compression from "compression";
-import cors from "cors";
 import { registerRoutes } from "./routes";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -20,12 +19,6 @@ const app = express();
 // Enable gzip/brotli compression for all responses
 app.use(compression());
 
-// CORS configuration - allow all origins for public website
-// Security is handled by JWT authentication on API endpoints
-const isDev = process.env.NODE_ENV !== "production";
-
-app.use(cors());
-
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false, limit: "50mb" }));
 
@@ -33,6 +26,8 @@ app.use(express.urlencoded({ extended: false, limit: "50mb" }));
 registerRoutes(app);
 
 // ---- SERVE FRONTEND ----
+const isDev = process.env.NODE_ENV !== "production";
+
 async function startServer() {
   if (isDev) {
     // Development: Use Vite dev server
