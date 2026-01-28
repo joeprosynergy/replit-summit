@@ -1,5 +1,6 @@
 import express from "express";
 import compression from "compression";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -19,6 +20,37 @@ const app = express();
 // Enable gzip/brotli compression for all responses
 app.use(compression());
 
+// CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+const isDev = process.env.NODE_ENV !== "production";
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    
+    // In development, allow localhost origins
+    if (isDev && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+      return callback(null, true);
+    }
+    
+    // Check against allowed origins
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    
+    // For same-origin requests in production
+    if (process.env.PUBLIC_URL && origin === process.env.PUBLIC_URL) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false, limit: "50mb" }));
 
@@ -26,8 +58,6 @@ app.use(express.urlencoded({ extended: false, limit: "50mb" }));
 registerRoutes(app);
 
 // ---- SERVE FRONTEND ----
-const isDev = process.env.NODE_ENV !== "production";
-
 async function startServer() {
   if (isDev) {
     // Development: Use Vite dev server

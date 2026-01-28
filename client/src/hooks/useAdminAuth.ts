@@ -11,8 +11,8 @@ interface AdminAuthState {
   recheckAdmin: () => Promise<void>;
 }
 
-// Super admin email that bypasses all checks
-const SUPER_ADMIN_EMAIL = 'joe@summitbuildings.com';
+// Super admin email that bypasses all checks (configurable via env var)
+const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'joe@summitbuildings.com';
 
 export function useAdminAuth(): AdminAuthState {
   const [state, setState] = useState<Omit<AdminAuthState, 'recheckAdmin'>>({

@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Upload, CheckCircle, XCircle, ExternalLink, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const ASSET_AUDIT_URL = 'https://lmpdjitplofcysyfgcjl.supabase.co/functions/v1/asset-audit';
-const UPLOAD_URL = 'https://lmpdjitplofcysyfgcjl.supabase.co/functions/v1/upload-to-cloudinary';
+// Use environment variable for Supabase URL, fallback for backwards compatibility
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lmpdjitplofcysyfgcjl.supabase.co';
+const ASSET_AUDIT_URL = `${SUPABASE_URL}/functions/v1/asset-audit`;
+const UPLOAD_URL = `${SUPABASE_URL}/functions/v1/upload-to-cloudinary`;
 
 // Use Vite's glob import to get all assets with their resolved URLs
 const assetModules = import.meta.glob('/src/assets/**/*.(jpg|jpeg|png|webp|gif|svg)', { 

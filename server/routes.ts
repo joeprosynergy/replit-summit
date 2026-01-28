@@ -5,6 +5,35 @@ import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { requireAdminAuth, type AuthenticatedRequest } from "./authMiddleware";
 
+// Input validation helpers
+const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const MAX_SLUG_LENGTH = 100;
+
+function isValidSlug(slug: string): boolean {
+  return typeof slug === 'string' && 
+         slug.length > 0 && 
+         slug.length <= MAX_SLUG_LENGTH && 
+         SLUG_REGEX.test(slug);
+}
+
+function isValidCloudinaryFolder(folder: string): boolean {
+  if (!folder) return true; // folder is optional
+  // Reject path traversal attempts and validate format
+  if (folder.includes('..') || folder.startsWith('/') || folder.startsWith('\\')) {
+    return false;
+  }
+  // Allow alphanumeric, hyphens, underscores, and forward slashes
+  return /^[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/.test(folder);
+}
+
+function isValidPublicId(publicId: string): boolean {
+  if (!publicId) return false;
+  // Reject path traversal and validate format
+  if (publicId.includes('..')) return false;
+  // Allow alphanumeric, hyphens, underscores, forward slashes, and dots (for extensions)
+  return /^[a-zA-Z0-9_\-./]+$/.test(publicId) && publicId.length <= 200;
+}
+
 function getSupabaseClient() {
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -19,6 +48,9 @@ function getSupabaseClient() {
 export function registerRoutes(app: Express): void {
   app.get("/api/page-content/:slug", async (req, res) => {
     const { slug } = req.params;
+    if (!isValidSlug(slug)) {
+      return res.status(400).json({ error: "Invalid slug format" });
+    }
     const content = await storage.getPageContent(slug);
     if (!content) {
       return res.status(404).json({ error: "Page content not found" });
@@ -53,6 +85,12 @@ export function registerRoutes(app: Express): void {
       }
       if (!publicId) {
         return res.status(400).json({ success: false, error: "publicId is required" });
+      }
+      if (!isValidPublicId(publicId)) {
+        return res.status(400).json({ success: false, error: "Invalid publicId format" });
+      }
+      if (folder && !isValidCloudinaryFolder(folder)) {
+        return res.status(400).json({ success: false, error: "Invalid folder format" });
       }
 
       const timestamp = Math.floor(Date.now() / 1000);
@@ -112,8 +150,8 @@ export function registerRoutes(app: Express): void {
   app.post("/api/admin/populate-layout-config/:slug", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     const { slug } = req.params;
     
-    if (!slug) {
-      return res.status(400).json({ error: "Slug is required" });
+    if (!slug || !isValidSlug(slug)) {
+      return res.status(400).json({ error: "Invalid slug format" });
     }
 
     const supabase = getSupabaseClient();
@@ -242,8 +280,8 @@ export function registerRoutes(app: Express): void {
   app.get("/api/cms-page/:slug", async (req, res) => {
     const { slug } = req.params;
     
-    if (!slug) {
-      return res.status(400).json({ error: "Slug is required" });
+    if (!slug || !isValidSlug(slug)) {
+      return res.status(400).json({ error: "Invalid slug format" });
     }
 
     const supabase = getSupabaseClient();

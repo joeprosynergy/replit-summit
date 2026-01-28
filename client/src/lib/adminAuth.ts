@@ -1,6 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 
+// Super admin email (configurable via env var)
+const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'joe@summitbuildings.com';
+
 export interface AdminCheckResult {
   isAdmin: boolean;
   error: string | null;
@@ -36,18 +39,16 @@ export async function checkIsAdmin(
     
     if (error) {
       console.warn('RPC check failed, using email fallback:', error.message);
-      // Fallback: Check if user email is from your domain (customize this)
-      const isAdmin = user.email?.includes('@summitbuildings.com') || 
-                      user.email?.includes('joe@summitbuildings.com');
+      // Fallback: Check if user is super admin
+      const isAdmin = user.email === SUPER_ADMIN_EMAIL;
       return { isAdmin: isAdmin ?? false, error: null, userId: user.id, userEmail: user.email ?? null };
     }
     
     return { isAdmin: data === true, error: null, userId: user.id, userEmail: user.email ?? null };
   } catch (err: any) {
     console.warn('Admin check error, using email fallback:', err);
-    // Fallback on any error
-    const isAdmin = user.email?.includes('@summitbuildings.com') || 
-                    user.email === 'joe@summitbuildings.com';
+    // Fallback: Check if user is super admin
+    const isAdmin = user.email === SUPER_ADMIN_EMAIL;
     return { isAdmin: isAdmin ?? false, error: null, userId: user.id, userEmail: user.email ?? null };
   }
 }

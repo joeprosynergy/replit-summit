@@ -1,15 +1,22 @@
 import type { Request, Response, NextFunction } from "express";
 import { createClient } from "@supabase/supabase-js";
 
-// Super admin email that always has access
-const SUPER_ADMIN_EMAIL = "joe@summitbuildings.com";
+// Super admin email that always has access (configurable via env var)
+const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL || "joe@summitbuildings.com";
 
 // Create a Supabase client for auth verification
+// SECURITY: Must use service role key to bypass RLS for admin checks
 function getSupabaseAdminClient() {
   const url = process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  if (!url || !key) {
+  if (!url) {
+    console.error("[Auth] VITE_SUPABASE_URL is not configured");
+    return null;
+  }
+  
+  if (!key) {
+    console.error("[Auth] SUPABASE_SERVICE_ROLE_KEY is not configured - this is required for admin authentication");
     return null;
   }
   
@@ -50,12 +57,16 @@ export async function requireAuth(
 
   try {
     // Verify the JWT and get the user
+    console.log("[Auth] Verifying token...");
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {
+      console.log("[Auth] Token verification failed:", { error: error?.message, hasUser: !!user });
       res.status(401).json({ error: "Invalid or expired token" });
       return;
     }
+
+    console.log("[Auth] Token verified for user:", { id: user.id, email: user.email });
 
     // Attach user info to request
     req.user = {
@@ -92,8 +103,11 @@ export async function requireAdmin(
   }
 
   try {
+    console.log("[Auth] Checking admin status for:", { userId: req.user.id, email: req.user.email });
+    
     // Super admin always has access
     if (req.user.email === SUPER_ADMIN_EMAIL) {
+      console.log("[Auth] Super admin access granted");
       req.user.isAdmin = true;
       next();
       return;
@@ -102,9 +116,15 @@ export async function requireAdmin(
     // Check profile for approval status
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("approval_status")
+      .select("approval_status, user_id, email")
       .eq("user_id", req.user.id)
       .maybeSingle();
+
+    console.log("[Auth] Profile query result:", { 
+      hasProfile: !!profile, 
+      profileData: profile,
+      profileError: profileError?.message 
+    });
 
     if (profileError) {
       console.error("[Auth] Profile check error:", profileError);
@@ -113,6 +133,10 @@ export async function requireAdmin(
     }
 
     if (!profile || profile.approval_status !== "approved") {
+      console.log("[Auth] Access denied:", { 
+        reason: !profile ? "No profile found" : `Status is '${profile.approval_status}' not 'approved'`,
+        queriedUserId: req.user.id 
+      });
       res.status(403).json({ error: "Admin access required" });
       return;
     }
