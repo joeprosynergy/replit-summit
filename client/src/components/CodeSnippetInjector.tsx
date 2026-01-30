@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import { useCodeSnippets, CodeSnippet } from '@/hooks/useCodeSnippets';
 
 /**
@@ -110,9 +111,17 @@ function createAndExecuteScript(scriptInfo: { src?: string; content?: string; at
 function injectNonScriptContent(html: string, location: 'head' | 'body-start' | 'body-end', snippetId: string) {
   if (!html) return;
   
+  // Sanitize HTML to prevent XSS attacks
+  // Allow noscript, iframe, and style tags needed for analytics/GTM
+  const sanitizedHtml = DOMPurify.sanitize(html, {
+    ADD_TAGS: ['noscript', 'iframe', 'link', 'meta', 'style'],
+    ADD_ATTR: ['target', 'rel', 'loading', 'fetchpriority', 'as', 'crossorigin', 'referrerpolicy'],
+    ALLOW_DATA_ATTR: true,
+  });
+  
   // Create a container for the content
   const container = document.createElement('div');
-  container.innerHTML = html;
+  container.innerHTML = sanitizedHtml;
   container.setAttribute('data-snippet-id', snippetId);
   container.style.display = 'contents'; // Make container invisible in layout
   

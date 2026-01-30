@@ -7,7 +7,9 @@ import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const CLOUDINARY_FOLDER = 'summit-buildings';
-const EDGE_FUNCTION_URL = 'https://lmpdjitplofcysyfgcjl.supabase.co/functions/v1/upload-to-cloudinary';
+// Use environment variable for Supabase URL, fallback for backwards compatibility
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lmpdjitplofcysyfgcjl.supabase.co';
+const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/upload-to-cloudinary`;
 
 interface UploadResult {
   success: boolean;

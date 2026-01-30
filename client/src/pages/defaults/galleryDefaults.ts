@@ -3,6 +3,8 @@
  * CMS-first architecture defaults
  */
 
+import { cloudinaryImages } from '@/lib/cloudinary';
+
 export interface GalleryImage {
   id: string;
   url: string;
@@ -49,50 +51,68 @@ export const galleryDefaults: GalleryContent = {
   heroDescription: 'Explore our collection of custom storage buildings, cabins, garages, and more. Each building is crafted with quality materials and attention to detail.',
 
   // Categories
-  categories: ['All', 'Cabins', 'Lofted Barns', 'Garages', 'Utility Sheds', 'Economy Sheds', 'Dormers', 'Specialty', 'Other'],
+  categories: ['All', 'Cabins', 'Lofted Barns', 'Garages', 'Utility Sheds', 'Economy Sheds', 'Specialty'],
 
-  // Gallery images
+  // Gallery images - using Cloudinary
   images: [
-    { id: '1', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Image-6.jpeg', title: 'Cabin 1', category: 'Cabins' },
-    { id: '2', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/P-Premium-Cabin.jpeg', title: 'Premium Cabin', category: 'Cabins' },
-    { id: '3', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Image-8-1.jpg', title: 'Cabin 3', category: 'Cabins' },
-    { id: '4', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/PREMIUM-LBC-1.jpeg', title: 'Premium LBC', category: 'Cabins' },
-    { id: '5', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/deluxe-lofted-cabin.jpeg', title: 'Deluxe Lofted Cabin', category: 'Cabins' },
-    { id: '6', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Deluxe-Cabin.jpeg', title: 'Deluxe Cabin', category: 'Cabins' },
-    { id: '7', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/side-lofted-barn-cabin.jpeg', title: 'Side Lofted Barn Cabin', category: 'Cabins' },
-    { id: '8', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/PREMIUM-LBC.jpeg', title: 'Premium LBC', category: 'Cabins' },
-    { id: '9', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/SUMMIT-CABIN-NEW-PHOTO-scaled.jpg', title: 'Summit Cabin', category: 'Cabins' },
-    { id: '10', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Image-27.jpeg', title: 'Lofted Economy', category: 'Lofted Barns' },
-    { id: '11', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Image-26.jpeg', title: 'Lofted Economy 2', category: 'Lofted Barns' },
-    { id: '12', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Lofted-Barn-7.jpeg', title: 'Lofted Barn 7', category: 'Lofted Barns' },
-    { id: '13', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/side-lofted-barn-2-scaled.jpg', title: 'Side Lofted Barn', category: 'Lofted Barns' },
-    { id: '14', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/side-lofted-barn.jpg', title: 'Side Lofted Barn', category: 'Lofted Barns' },
-    { id: '15', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Image-1.jpeg_-1.jpeg', title: 'Lofted Barn', category: 'Lofted Barns' },
-    { id: '16', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/IMG_3880-scaled.jpg', title: 'Garage 1', category: 'Garages' },
-    { id: '17', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/IMG_2007-scaled.jpg', title: 'Garage', category: 'Garages' },
-    { id: '18', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Metal-Garage.jpg', title: 'Metal Garage', category: 'Garages' },
-    { id: '19', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/P-Lofted-Garage.jpeg', title: 'Lofted Garage', category: 'Garages' },
-    { id: '20', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/MLG-1.jpeg', title: 'MLG Garage', category: 'Garages' },
-    { id: '21', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Image-14.jpeg', title: 'Utility Shed', category: 'Utility Sheds' },
-    { id: '22', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Image-4.jpeg', title: 'Utility Shed', category: 'Utility Sheds' },
-    { id: '23', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/IMG_3909.jpg', title: 'Utility Shed', category: 'Utility Sheds' },
-    { id: '24', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Image-8.jpg', title: 'Utility Shed', category: 'Utility Sheds' },
-    { id: '25', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/IMG_3458-scaled.jpg', title: 'Utility Shed', category: 'Utility Sheds' },
-    { id: '26', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Economy-Metal.jpg', title: 'Economy Metal', category: 'Economy Sheds' },
-    { id: '27', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/IMG_0892.jpg', title: 'Economy Shed', category: 'Economy Sheds' },
-    { id: '28', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/10x16-O-Dormer-1.jpg', title: 'Dormer', category: 'Dormers' },
-    { id: '29', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Dormer-2.jpeg', title: 'Dormer 2', category: 'Dormers' },
-    { id: '30', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/10x16-O-Dormer.jpg', title: 'Dormer', category: 'Dormers' },
-    { id: '31', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Chicken-Coop-4.jpeg', title: 'Chicken Coop', category: 'Specialty' },
-    { id: '32', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Chicken-Coop-2.jpg', title: 'Chicken Coop', category: 'Specialty' },
-    { id: '33', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Chicken-Coops-1.jpeg', title: 'Chicken Coop', category: 'Specialty' },
-    { id: '34', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/greenhouse.jpg', title: 'Greenhouse', category: 'Specialty' },
-    { id: '35', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/Animal-Shelters-scaled.jpg', title: 'Animal Shelters', category: 'Specialty' },
-    { id: '36', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/ASHE.jpeg', title: 'Custom Build', category: 'Other' },
-    { id: '37', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/IMG_2520-scaled.jpg', title: 'Custom Build', category: 'Other' },
-    { id: '38', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/IMG_0931-scaled.jpg', title: 'Custom Build', category: 'Other' },
-    { id: '39', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/IMG_2393-1-scaled.jpg', title: 'Custom Build', category: 'Other' },
-    { id: '40', url: 'https://summitbuildings.com/wp-content/uploads/2024/11/0FF8CAB3-41F7-40CF-B4D1-9DD34E02C11D.jpg', title: 'Custom Build', category: 'Other' },
+    // Cabins
+    { id: '1', url: cloudinaryImages.cabin1, title: 'Summit Cabin', category: 'Cabins' },
+    { id: '2', url: cloudinaryImages.cabin2, title: 'Cabin Interior', category: 'Cabins' },
+    { id: '3', url: cloudinaryImages.cabin3, title: 'Cabin Side View', category: 'Cabins' },
+    { id: '4', url: cloudinaryImages.cabin4, title: 'Cabin Details', category: 'Cabins' },
+    { id: '5', url: cloudinaryImages.cabinShed, title: 'Cabin Shed', category: 'Cabins' },
+    // Lofted Barns
+    { id: '6', url: cloudinaryImages.loftedBarn1, title: 'Lofted Barn - Red', category: 'Lofted Barns' },
+    { id: '7', url: cloudinaryImages.loftedBarn2, title: 'Lofted Barn - Blue', category: 'Lofted Barns' },
+    { id: '8', url: cloudinaryImages.loftedBarn3, title: 'Lofted Barn - Gray', category: 'Lofted Barns' },
+    { id: '9', url: cloudinaryImages.loftedBarn4, title: 'Lofted Barn - Classic', category: 'Lofted Barns' },
+    { id: '10', url: cloudinaryImages.sideLoftedBarn1, title: 'Side Lofted Barn - Tan', category: 'Lofted Barns' },
+    { id: '11', url: cloudinaryImages.sideLoftedBarn2, title: 'Side Lofted Barn - Windows', category: 'Lofted Barns' },
+    { id: '12', url: cloudinaryImages.sideLoftedBarn3, title: 'Side Lofted Barn - Red', category: 'Lofted Barns' },
+    { id: '13', url: cloudinaryImages.sideLoftedBarn4, title: 'Side Lofted Barn - Brown', category: 'Lofted Barns' },
+    { id: '14', url: cloudinaryImages.proLoftedBarn, title: 'Pro Lofted Barn', category: 'Lofted Barns' },
+    { id: '15', url: cloudinaryImages.budgetProLoftedBarn, title: 'Budget Pro Lofted Barn', category: 'Lofted Barns' },
+    { id: '16', url: cloudinaryImages.budgetProLoftedBarn2, title: 'Budget Pro Lofted Barn 2', category: 'Lofted Barns' },
+    { id: '17', url: cloudinaryImages.budgetProLoftedBarn3, title: 'Budget Pro Lofted Barn 3', category: 'Lofted Barns' },
+    // Garages
+    { id: '18', url: cloudinaryImages.garage1, title: 'Garage - Red', category: 'Garages' },
+    { id: '19', url: cloudinaryImages.garage2, title: 'Garage - Metal', category: 'Garages' },
+    { id: '20', url: cloudinaryImages.garage3, title: 'Garage - Tan', category: 'Garages' },
+    { id: '21', url: cloudinaryImages.garage4, title: 'Garage - White', category: 'Garages' },
+    { id: '22', url: cloudinaryImages.carport1, title: 'Carport', category: 'Garages' },
+    { id: '23', url: cloudinaryImages.carport2, title: 'Carport - Side View', category: 'Garages' },
+    { id: '24', url: cloudinaryImages.carport3, title: 'Carport - Gray', category: 'Garages' },
+    { id: '25', url: cloudinaryImages.rvCover1, title: 'RV Cover', category: 'Garages' },
+    { id: '26', url: cloudinaryImages.rvCover2, title: 'RV Cover - Enclosed', category: 'Garages' },
+    // Utility Sheds
+    { id: '27', url: cloudinaryImages.utilityShed1, title: 'Utility Shed - Gray', category: 'Utility Sheds' },
+    { id: '28', url: cloudinaryImages.utilityShed2, title: 'Utility Shed - Tan', category: 'Utility Sheds' },
+    { id: '29', url: cloudinaryImages.utilityShed3, title: 'Utility Shed - White', category: 'Utility Sheds' },
+    { id: '30', url: cloudinaryImages.utilityShed4, title: 'Utility Shed - Brown', category: 'Utility Sheds' },
+    { id: '31', url: cloudinaryImages.sideUtility1, title: 'Side Utility - Gray', category: 'Utility Sheds' },
+    { id: '32', url: cloudinaryImages.sideUtility2, title: 'Side Utility - White', category: 'Utility Sheds' },
+    { id: '33', url: cloudinaryImages.sideUtility3, title: 'Side Utility - Tan', category: 'Utility Sheds' },
+    { id: '34', url: cloudinaryImages.sideUtility4, title: 'Side Utility - Dark Brown', category: 'Utility Sheds' },
+    { id: '35', url: cloudinaryImages.proUtility, title: 'Pro Utility', category: 'Utility Sheds' },
+    { id: '36', url: cloudinaryImages.budgetProUtility, title: 'Budget Pro Utility', category: 'Utility Sheds' },
+    { id: '37', url: cloudinaryImages.budgetProUtility2, title: 'Budget Pro Utility 2', category: 'Utility Sheds' },
+    { id: '38', url: cloudinaryImages.treatedGardenShed, title: 'Treated Garden Shed', category: 'Utility Sheds' },
+    // Economy Sheds
+    { id: '39', url: cloudinaryImages.economy, title: 'Economy Shed', category: 'Economy Sheds' },
+    { id: '40', url: cloudinaryImages.economyShed1, title: 'Economy Shed 1', category: 'Economy Sheds' },
+    { id: '41', url: cloudinaryImages.economyShed2, title: 'Economy Shed 2', category: 'Economy Sheds' },
+    { id: '42', url: cloudinaryImages.economyShed3, title: 'Economy Shed 3', category: 'Economy Sheds' },
+    { id: '43', url: cloudinaryImages.economyShed4, title: 'Economy Shed 4', category: 'Economy Sheds' },
+    // Specialty
+    { id: '44', url: cloudinaryImages.greenhouse1, title: 'Greenhouse', category: 'Specialty' },
+    { id: '45', url: cloudinaryImages.greenhouse2, title: 'Greenhouse 2', category: 'Specialty' },
+    { id: '46', url: cloudinaryImages.animalShelter1, title: 'Animal Shelter', category: 'Specialty' },
+    { id: '47', url: cloudinaryImages.animalShelter2, title: 'Animal Shelter 2', category: 'Specialty' },
+    { id: '48', url: cloudinaryImages.dogKennel1, title: 'Dog Kennel', category: 'Specialty' },
+    { id: '49', url: cloudinaryImages.chickenCoop1, title: 'Chicken Coop', category: 'Specialty' },
+    { id: '50', url: cloudinaryImages.chickenCoop2, title: 'Chicken Coop 2', category: 'Specialty' },
+    { id: '51', url: cloudinaryImages.modernShed, title: 'Modern Shed', category: 'Specialty' },
+    { id: '52', url: cloudinaryImages.dormer, title: 'Dormer', category: 'Specialty' },
   ],
 
   // CTA section
