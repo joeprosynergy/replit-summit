@@ -8,6 +8,9 @@ import { requireAdminAuth, type AuthenticatedRequest } from "./authMiddleware";
 // Input validation helpers
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MAX_SLUG_LENGTH = 100;
+const ALLOWED_IMAGE_HOSTS = new Set(["summitbuildings.com", "www.summitbuildings.com"]);
+const ALLOWED_IMAGE_PROTOCOLS = new Set(["http:", "https:"]);
+const ALLOWED_IMAGE_PATH_PREFIXES = ["/wp-content/uploads/"];
 
 function isValidSlug(slug: string): boolean {
   return typeof slug === 'string' && 
@@ -56,6 +59,56 @@ export function registerRoutes(app: Express): void {
       return res.status(404).json({ error: "Page content not found" });
     }
     res.json(content);
+  });
+
+  app.get("/api/image-proxy", async (req, res) => {
+    const urlParam = req.query.url;
+    if (typeof urlParam !== "string" || !urlParam.trim()) {
+      return res.status(400).json({ error: "url query param is required" });
+    }
+
+    let parsed: URL;
+    try {
+      parsed = new URL(urlParam);
+    } catch {
+      return res.status(400).json({ error: "Invalid url" });
+    }
+
+    const host = parsed.hostname.toLowerCase();
+    const hasAllowedPath = ALLOWED_IMAGE_PATH_PREFIXES.some(prefix => parsed.pathname.startsWith(prefix));
+    if (!ALLOWED_IMAGE_PROTOCOLS.has(parsed.protocol) || !ALLOWED_IMAGE_HOSTS.has(host) || !hasAllowedPath) {
+      return res.status(400).json({ error: "Host or path not allowed" });
+    }
+
+    try {
+      console.log(`[image-proxy] Fetching ${parsed.toString()}`);
+      const upstream = await fetch(parsed.toString(), {
+        headers: {
+          "User-Agent": "SummitImageProxy/1.0",
+          "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+          "Referer": "https://summitbuildings.com/",
+          "Origin": "https://summitbuildings.com",
+        },
+      });
+
+      if (!upstream.ok) {
+        console.warn(`[image-proxy] Upstream ${upstream.status} for ${parsed.toString()}`);
+        return res.status(502).json({ error: `Upstream error: ${upstream.status}` });
+      }
+
+      const contentType = upstream.headers.get("content-type") || "image/jpeg";
+      const cacheControl = upstream.headers.get("cache-control") || "public, max-age=86400";
+      const buffer = Buffer.from(await upstream.arrayBuffer());
+
+      console.log(`[image-proxy] Served ${parsed.toString()} (${contentType}, ${buffer.length} bytes)`);
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", cacheControl);
+      res.setHeader("Content-Length", buffer.length.toString());
+      return res.status(200).send(buffer);
+    } catch (error) {
+      console.error("Image proxy error:", error);
+      return res.status(500).json({ error: "Failed to fetch image" });
+    }
   });
 
   app.post("/api/page-content", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
