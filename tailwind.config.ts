@@ -2,7 +2,14 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./client/src/**/*.{ts,tsx}"],
+  content: [
+    "./app/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./hooks/**/*.{ts,tsx}",
+    "./contexts/**/*.{ts,tsx}",
+    "./lib/**/*.{ts,tsx}",
+    "./data/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -14,8 +21,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ["Oswald", "sans-serif"],
-        sans: ["Open Sans", "sans-serif"],
+        heading: ["var(--font-oswald)", "Oswald", "sans-serif"],
+        sans: ["var(--font-open-sans)", "Open Sans", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

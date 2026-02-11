@@ -1,0 +1,42 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build output
+.next
+out
+dist
+build
+
+# Testing
+coverage
+
+# Environment files (Railway injects these)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode
+.idea
+.cursor
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Old Vite source (not needed for Next.js build)
+client
+server
+shared
+attached_assets
+
+# Misc
+*.md
+*.log
+npm-debug.log*

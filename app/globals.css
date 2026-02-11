@@ -1,0 +1,331 @@
+/* Fonts loaded via next/font in layout.tsx */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Summit Buildings Brand Colors */
+    --background: 210 20% 98%;
+    --foreground: 214 45% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 214 45% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 214 45% 20%;
+
+    --primary: 214 45% 25%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 14 65% 42%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 20% 94%;
+    --muted-foreground: 214 20% 45%;
+
+    --accent: 14 65% 42%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 14 65% 42%;
+
+    --radius: 0.5rem;
+
+    /* Custom tokens */
+    --navy: 214 45% 25%;
+    --navy-light: 214 35% 35%;
+    --navy-dark: 214 50% 18%;
+    --rust: 14 65% 42%;
+    --rust-light: 14 55% 50%;
+    --rust-dark: 14 70% 35%;
+    --cream: 40 30% 96%;
+    --stone: 30 10% 92%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(214 45% 25%) 0%, hsl(214 50% 18%) 100%);
+    --gradient-rust: linear-gradient(135deg, hsl(14 65% 42%) 0%, hsl(14 70% 35%) 100%);
+    --gradient-overlay: linear-gradient(180deg, hsla(214, 45%, 25%, 0.9) 0%, hsla(214, 50%, 18%, 0.7) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 2px 8px hsla(214, 45%, 25%, 0.08);
+    --shadow-md: 0 4px 16px hsla(214, 45%, 25%, 0.12);
+    --shadow-lg: 0 8px 32px hsla(214, 45%, 25%, 0.16);
+    --shadow-glow: 0 0 40px hsla(14, 65%, 42%, 0.3);
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 214 50% 8%;
+    --foreground: 210 40% 98%;
+
+    --card: 214 45% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 214 45% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 16 65% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 214 35% 20%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 214 35% 16%;
+    --muted-foreground: 210 20% 65%;
+
+    --accent: 14 65% 42%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 35% 20%;
+    --input: 214 35% 20%;
+    --ring: 14 65% 45%;
+
+    --navy: 214 45% 25%;
+    --navy-light: 214 35% 35%;
+    --navy-dark: 214 50% 12%;
+    --rust: 14 65% 45%;
+    --rust-light: 14 55% 52%;
+    --rust-dark: 14 70% 38%;
+    --cream: 40 20% 12%;
+    --stone: 30 10% 15%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24 lg:py-32;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-secondary to-rust-light;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .btn-primary {
+    @apply bg-secondary text-secondary-foreground font-semibold px-8 py-4 rounded-md 
+           transition-all duration-300 hover:brightness-110 hover:shadow-lg;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary-foreground/30 text-primary-foreground font-semibold 
+           px-8 py-4 rounded-md transition-all duration-300 
+           hover:bg-primary-foreground hover:text-primary;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.6s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+/* Layout helpers for Buyers Guide PDF export */
+.buyers-guide-pdf {
+  width: 7.5in;
+  margin: 0 auto;
+}
+
+.buyers-guide-pdf .pdf-page {
+  width: 100%;
+  box-sizing: border-box;
+  page-break-after: always;
+  break-after: page;
+  background: white;
+}
+
+.buyers-guide-pdf .pdf-page:last-child {
+  page-break-after: auto;
+  break-after: auto;
+}
+
+.buyers-guide-pdf .pdf-page > div {
+  min-height: auto !important;
+  padding: 1.25rem !important;
+}
+
+.buyers-guide-pdf h1 {
+  font-size: 2.25rem !important;
+  line-height: 1.1 !important;
+}
+
+.buyers-guide-pdf h3 {
+  font-size: 0.85rem !important;
+}
+
+.buyers-guide-pdf p {
+  font-size: 0.7rem !important;
+  line-height: 1.45 !important;
+}
+
+.buyers-guide-pdf li {
+  font-size: 0.65rem !important;
+  line-height: 1.35 !important;
+}
+
+.buyers-guide-pdf img {
+  max-height: 95px !important;
+  object-fit: cover;
+}
+
+.buyers-guide-pdf footer {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.25rem !important;
+  margin-top: 0.5rem !important;
+}
+
+.buyers-guide-pdf header {
+  margin-bottom: 0.75rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.buyers-guide-pdf .grid {
+  gap: 0.35rem !important;
+}
+
+.buyers-guide-pdf .flex.gap-5 {
+  gap: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.buyers-guide-pdf .mt-12,
+.buyers-guide-pdf .mt-8 {
+  margin-top: 0.75rem !important;
+}
+
+/* Print styles for Buyers Guide PDF */
+@media print {
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  header, footer, nav {
+    display: none !important;
+  }
+  
+  main {
+    padding-top: 0 !important;
+    background: white !important;
+  }
+  
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+  
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+  
+  a[href^="tel"]:after,
+  a[href^="mailto"]:after {
+    content: none;
+  }
+}
