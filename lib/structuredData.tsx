@@ -222,6 +222,22 @@ export function getAboutPageJsonLd() {
   };
 }
 
+/** BreadcrumbList schema for multi-level product catalog navigation */
+export function getBreadcrumbJsonLd(
+  items: Array<{ name: string; url: string }>
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith("http") ? item.url : `${SITE_URL}${item.url}`,
+    })),
+  };
+}
+
 /** Helper: renders a JSON-LD script tag for use in Next.js page.tsx */
 export function JsonLdScript({ data }: { data: object | object[] }) {
   const jsonLd = Array.isArray(data) ? data : [data];

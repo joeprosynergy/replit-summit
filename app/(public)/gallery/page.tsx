@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/seo";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { galleryDefaults } from "@/data/defaults/galleryDefaults";
 import GalleryPageClient from "./GalleryPageClient";
@@ -17,6 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || galleryDefaults.metaTitle,
       description: content?.metaDescription || galleryDefaults.metaDescription,
       url: "https://summitbuildings.com/gallery",
+      images: [OG_IMAGE],
     },
   };
 }

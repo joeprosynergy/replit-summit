@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/seo";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { homeDefaults } from "@/data/defaults/homeDefaults";
 import HomePageClient from "./HomePageClient";
@@ -8,16 +9,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await fetchPageContent("home");
   const content = data?.mainContent as Record<string, any> | null;
 
+  const title = content?.metaTitle || homeDefaults.metaTitle;
+  const description = content?.metaDescription || homeDefaults.metaDescription;
+
   return {
-    title: { absolute: content?.metaTitle || homeDefaults.metaTitle },
-    description: content?.metaDescription || homeDefaults.metaDescription,
+    title: { absolute: title },
+    description,
     alternates: {
       canonical: "https://summitbuildings.com",
     },
     openGraph: {
-      title: content?.metaTitle || homeDefaults.metaTitle,
-      description: content?.metaDescription || homeDefaults.metaDescription,
+      title,
+      description,
       url: "https://summitbuildings.com",
+      images: [OG_IMAGE],
     },
   };
 }

@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { garageDefaults, garageConfig } from "@/data/defaults/garageDefaults";
-import { getProductJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { OG_IMAGE } from "@/lib/seo";
 import GaragePageClient from "./GaragePageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || garageDefaults.metaTitle,
       description: content?.metaDescription || garageDefaults.metaDescription,
       url: "https://summitbuildings.com/types/garages-carports/garage",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -33,6 +35,12 @@ export default async function GaragePage() {
 
   return (
     <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Our Models", url: "/types" },
+        { name: "Garages & Carports", url: "/types/garages-carports" },
+        { name: "Garage", url: "/types/garages-carports/garage" },
+      ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,

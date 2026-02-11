@@ -107,7 +107,7 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
                               <div className="aspect-square mb-3 overflow-hidden rounded-lg bg-muted">
                                 <InlineEditableImage
                                   src={item.image}
-                                  alt={item.name}
+                                  alt={`${item.name} garage or carport - Summit Portable Buildings`}
                                   onImageChange={(url) => updateQuickNavItem(index, 'image', url)}
                                   isEditMode={isEditMode}
                                   imageClassName="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -127,7 +127,7 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
                               <div className="aspect-square mb-3 overflow-hidden rounded-lg bg-muted">
                                 <img
                                   src={item.image}
-                                  alt={item.name}
+                                  alt={`${item.name} garage or carport - Summit Portable Buildings`}
                                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
                               </div>
@@ -255,7 +255,7 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
                               {isEditMode ? (
                                 <InlineEditableImage
                                   src={model.image}
-                                  alt={model.name}
+                                  alt={`${model.name} portable garage - Summit Portable Buildings`}
                                   onImageChange={(url) => updateModel(index, 'image', url)}
                                   isEditMode={isEditMode}
                                   imageClassName="w-full h-full object-cover"
@@ -263,7 +263,7 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
                               ) : (
                                 <img
                                   src={model.image}
-                                  alt={model.name}
+                                  alt={`${model.name} portable garage - Summit Portable Buildings`}
                                   className="w-full h-full object-cover"
                                 />
                               )}

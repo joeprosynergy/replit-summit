@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { animalSheltersDefaults } from "@/data/defaults/animalSheltersDefaults";
-import { getProductJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { OG_IMAGE } from "@/lib/seo";
 import AnimalSheltersPageClient from "./AnimalSheltersPageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || animalSheltersDefaults.metaTitle,
       description: content?.metaDescription || animalSheltersDefaults.metaDescription,
       url: "https://summitbuildings.com/styles/animal-shelters",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -33,6 +35,11 @@ export default async function AnimalSheltersPage() {
 
   return (
     <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Styles", url: "/styles" },
+        { name: "Animal Shelters", url: "/styles/animal-shelters" },
+      ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,

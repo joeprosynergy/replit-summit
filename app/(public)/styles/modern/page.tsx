@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { stylesModernDefaults } from "@/data/defaults/stylesModernDefaults";
+import { getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { OG_IMAGE } from "@/lib/seo";
 import StylesModernPageClient from "./StylesModernPageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || stylesModernDefaults.metaTitle,
       description: content?.metaDescription || stylesModernDefaults.metaDescription,
       url: "https://summitbuildings.com/styles/modern",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -29,5 +32,14 @@ export default async function StylesModernPage() {
     ? { ...stylesModernDefaults, ...cmsContent }
     : stylesModernDefaults;
 
-  return <StylesModernPageClient initialContent={initialContent} />;
+  return (
+    <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Styles", url: "/styles" },
+        { name: "Modern", url: "/styles/modern" },
+      ])} />
+      <StylesModernPageClient initialContent={initialContent} />
+    </>
+  );
 }

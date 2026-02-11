@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/seo";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { ourModelsDefaults } from "@/data/defaults/ourModelsDefaults";
-import { getCategoryJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getCategoryJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import OurModelsPageClient from "./OurModelsPageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || ourModelsDefaults.metaTitle,
       description: content?.metaDescription || ourModelsDefaults.metaDescription,
       url: "https://summitbuildings.com/types",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -32,6 +34,10 @@ export default async function OurModelsPage() {
 
   return (
     <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Our Models", url: "/types" },
+      ])} />
       <JsonLdScript
         data={getCategoryJsonLd({
           name: initialContent.metaTitle,

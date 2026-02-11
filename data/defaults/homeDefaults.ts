@@ -123,8 +123,8 @@ export interface HomeContent {
 
 export const homeDefaults: HomeContent = {
   // === META & SEO ===
-  metaTitle: 'Summit Portable Buildings | Built The Old Fashioned Way',
-  metaDescription: 'Affordable, high quality, hand crafted, storage buildings built in the USA. Serving Missouri, Illinois, Kentucky, and Arkansas.',
+  metaTitle: 'Storage Sheds & Portable Buildings in Missouri | Summit',
+  metaDescription: 'Shop affordable storage sheds, barns, cabins & garages hand-crafted in the USA. Free delivery in MO, IL, KY & AR. Get a free quote today!',
 
   // === HERO SECTION ===
   heroTagline: 'Summit Portable Buildings',

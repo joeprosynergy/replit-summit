@@ -564,7 +564,7 @@ export default function HomePageClient({ initialContent }: { initialContent: any
                               <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                                 <InlineEditableImage
                                   src={style.image}
-                                  alt={style.name}
+                                  alt={`${style.name} storage building style - Summit Portable Buildings`}
                                   onImageChange={(url) => {
                                     const updated = [...editableContent.productsStyles];
                                     updated[index] = { ...updated[index], image: url };

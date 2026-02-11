@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { greenhouseDefaults, greenhouseConfig } from "@/data/defaults/greenhouseDefaults";
-import { getProductJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { OG_IMAGE } from "@/lib/seo";
 import GreenhousePageClient from "./GreenhousePageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || greenhouseDefaults.metaTitle,
       description: content?.metaDescription || greenhouseDefaults.metaDescription,
       url: "https://summitbuildings.com/styles/greenhouse",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -33,6 +35,11 @@ export default async function GreenhousePage() {
 
   return (
     <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Styles", url: "/styles" },
+        { name: "Greenhouse", url: "/styles/greenhouse" },
+      ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,

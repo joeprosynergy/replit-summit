@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { cabinDefaults } from "@/data/defaults/cabinDefaults";
-import { getProductJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { OG_IMAGE } from "@/lib/seo";
 import CabinPageClient from "./CabinPageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || cabinDefaults.metaTitle,
       description: content?.metaDescription || cabinDefaults.metaDescription,
       url: "https://summitbuildings.com/types/deluxe-storage-cabins/cabin",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -33,6 +35,12 @@ export default async function CabinPage() {
 
   return (
     <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Our Models", url: "/types" },
+        { name: "Deluxe Storage & Cabins", url: "/types/deluxe-storage-cabins" },
+        { name: "Cabin", url: "/types/deluxe-storage-cabins/cabin" },
+      ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,

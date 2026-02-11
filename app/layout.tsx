@@ -19,11 +19,11 @@ const openSans = Open_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Summit Portable Buildings | Built The Old Fashioned Way",
+    default: "Storage Sheds & Portable Buildings in Missouri | Summit",
     template: "%s | Summit Portable Buildings",
   },
   description:
-    "Affordable, high quality, hand crafted, storage buildings built in the USA. Serving Missouri, Illinois, Kentucky, and Arkansas.",
+    "Shop affordable storage sheds, barns, cabins & garages hand-crafted in the USA. Free delivery in MO, IL, KY & AR. Get a free quote today!",
   keywords: [
     "portable buildings",
     "storage sheds",
@@ -36,6 +36,17 @@ export const metadata: Metadata = {
     "Kentucky",
     "Arkansas",
   ],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   authors: [{ name: "Summit Portable Buildings" }],
   openGraph: {
     type: "website",

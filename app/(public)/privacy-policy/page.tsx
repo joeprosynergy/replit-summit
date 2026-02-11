@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/seo";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { privacyPolicyDefaults } from "@/data/defaults/privacyPolicyDefaults";
 import PrivacyPolicyPageClient from "./PrivacyPolicyPageClient";
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description:
         content?.metaDescription || privacyPolicyDefaults.metaDescription,
       url: "https://summitbuildings.com/privacy-policy",
+      images: [OG_IMAGE],
     },
   };
 }

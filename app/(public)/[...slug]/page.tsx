@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { OG_IMAGE } from "@/lib/seo";
 import { fetchPageContent } from "@/lib/supabase/server";
 import DynamicPageClient from "./DynamicPageClient";
 
@@ -33,6 +34,7 @@ export async function generateMetadata({ params }: DynamicPageProps): Promise<Me
       title,
       description,
       url: `https://summitbuildings.com/${fullSlug}`,
+      images: [OG_IMAGE],
     },
   };
 }

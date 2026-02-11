@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { utilityShedDefaults, utilityShedConfig } from "@/data/defaults/utilityShedDefaults";
-import { getProductJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { OG_IMAGE } from "@/lib/seo";
 import UtilityShedPageClient from "./UtilityShedPageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || utilityShedDefaults.metaTitle,
       description: content?.metaDescription || utilityShedDefaults.metaDescription,
       url: "https://summitbuildings.com/types/deluxe-storage-cabins/pro-utility-shed",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -33,6 +35,12 @@ export default async function ProUtilityShedPage() {
 
   return (
     <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Our Models", url: "/types" },
+        { name: "Deluxe Storage & Cabins", url: "/types/deluxe-storage-cabins" },
+        { name: "Pro Utility Shed", url: "/types/deluxe-storage-cabins/pro-utility-shed" },
+      ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,

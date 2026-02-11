@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { budgetProUtilityDefaults, budgetProUtilityConfig } from "@/data/defaults/budgetProUtilityDefaults";
-import { getProductJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { OG_IMAGE } from "@/lib/seo";
 import BudgetProUtilityPageClient from "./BudgetProUtilityPageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || budgetProUtilityDefaults.metaTitle,
       description: content?.metaDescription || budgetProUtilityDefaults.metaDescription,
       url: "https://summitbuildings.com/types/basic-storage/budget-pro-utility",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -33,6 +35,12 @@ export default async function BudgetProUtilityPage() {
 
   return (
     <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Our Models", url: "/types" },
+        { name: "Basic Storage", url: "/types/basic-storage" },
+        { name: "Budget Pro Utility", url: "/types/basic-storage/budget-pro-utility" },
+      ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,

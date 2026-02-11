@@ -129,7 +129,7 @@ export default function OurModelsPageClient({ initialContent }: { initialContent
                                   <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                                     <InlineEditableImage
                                       src={model.image}
-                                      alt={model.name}
+                                      alt={`${model.name} portable building - Summit Portable Buildings`}
                                       onImageChange={(url) => updateModel(categoryIndex, modelIndex, 'image', url)}
                                       isEditMode={isEditMode}
                                       imageClassName="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"

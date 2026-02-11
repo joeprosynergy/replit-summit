@@ -106,7 +106,7 @@ export default function DeluxeStorageCabinsPageClient({ initialContent }: { init
                               <div className="aspect-square mb-3 overflow-hidden rounded-lg bg-muted">
                                 <InlineEditableImage
                                   src={item.image}
-                                  alt={item.name}
+                                  alt={`${item.name} deluxe storage building - Summit Portable Buildings`}
                                   onImageChange={(url) => updateQuickNavItem(index, 'image', url)}
                                   isEditMode={isEditMode}
                                   imageClassName="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
@@ -126,7 +126,7 @@ export default function DeluxeStorageCabinsPageClient({ initialContent }: { init
                               <div className="aspect-square mb-3 overflow-hidden rounded-lg bg-muted">
                                 <img
                                   src={item.image}
-                                  alt={item.name}
+                                  alt={`${item.name} deluxe storage building - Summit Portable Buildings`}
                                   className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
                                 />
                               </div>
@@ -244,7 +244,7 @@ export default function DeluxeStorageCabinsPageClient({ initialContent }: { init
                               {isEditMode ? (
                                 <InlineEditableImage
                                   src={model.image}
-                                  alt={model.name}
+                                  alt={`${model.name} deluxe cabin - Summit Portable Buildings`}
                                   onImageChange={(url) => updateModel(index, 'image', url)}
                                   isEditMode={isEditMode}
                                   imageClassName="w-full h-full object-cover"
@@ -252,7 +252,7 @@ export default function DeluxeStorageCabinsPageClient({ initialContent }: { init
                               ) : (
                                 <img
                                   src={model.image}
-                                  alt={model.name}
+                                  alt={`${model.name} deluxe cabin - Summit Portable Buildings`}
                                   className="w-full h-full object-cover"
                                 />
                               )}

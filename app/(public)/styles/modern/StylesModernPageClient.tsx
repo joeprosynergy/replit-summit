@@ -112,7 +112,7 @@ export default function StylesModernPageClient({ initialContent }: { initialCont
                                 <div className="aspect-video overflow-hidden">
                                   <InlineEditableImage
                                     src={option.image}
-                                    alt={option.name}
+                                    alt={`${option.name} modern storage shed - Summit Portable Buildings`}
                                     onImageChange={(url) => updateOption(index, 'image', url)}
                                     isEditMode={isEditMode}
                                     imageClassName="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
@@ -166,7 +166,7 @@ export default function StylesModernPageClient({ initialContent }: { initialCont
                                 <div className="aspect-video overflow-hidden">
                                   <img
                                     src={option.image}
-                                    alt={option.name}
+                                    alt={`${option.name} modern storage shed - Summit Portable Buildings`}
                                     className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
                                   />
                                 </div>

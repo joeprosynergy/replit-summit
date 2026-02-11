@@ -82,7 +82,7 @@ export default function StylesPageClient({ initialContent }: { initialContent: a
                               <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                                 <InlineEditableImage
                                   src={style.image}
-                                  alt={style.name}
+                                  alt={`${style.name} storage building - Summit Portable Buildings`}
                                   onImageChange={(url) => {
                                     const updated = [...content.roofStyles];
                                     updated[index] = { ...updated[index], image: url };
@@ -137,7 +137,7 @@ export default function StylesPageClient({ initialContent }: { initialContent: a
                               <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                                 <img
                                   src={style.image}
-                                  alt={style.name}
+                                  alt={`${style.name} storage building - Summit Portable Buildings`}
                                   className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
                                 />
                               </div>
@@ -181,7 +181,7 @@ export default function StylesPageClient({ initialContent }: { initialContent: a
                               <div className="aspect-[4/3] mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                                 <InlineEditableImage
                                   src={style.image}
-                                  alt={style.name}
+                                  alt={`${style.name} storage building - Summit Portable Buildings`}
                                   onImageChange={(url) => {
                                     const updated = [...content.specialtyStyles];
                                     updated[index] = { ...updated[index], image: url };
@@ -236,7 +236,7 @@ export default function StylesPageClient({ initialContent }: { initialContent: a
                               <div className="aspect-[4/3] mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                                 <img
                                   src={style.image}
-                                  alt={style.name}
+                                  alt={`${style.name} storage building - Summit Portable Buildings`}
                                   className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-contain"
                                 />
                               </div>

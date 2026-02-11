@@ -53,7 +53,7 @@ export default function StylesUtilityPageClient({ initialContent }: { initialCon
             <div className="aspect-[4/3] overflow-hidden bg-muted">
               <InlineEditableImage
                 src={option.image}
-                alt={option.name}
+                alt={`${option.name} utility storage shed - Summit Portable Buildings`}
                 onImageChange={(url) => updateOption('image', url)}
                 isEditMode={isEditMode}
                 imageClassName="w-full h-full transition-transform duration-300 group-hover:scale-105 object-contain bg-muted"
@@ -107,7 +107,7 @@ export default function StylesUtilityPageClient({ initialContent }: { initialCon
             <div className="aspect-[4/3] overflow-hidden bg-muted">
               <img
                 src={option.image}
-                alt={option.name}
+                alt={`${option.name} utility storage shed - Summit Portable Buildings`}
                 className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-contain bg-muted"
               />
             </div>
@@ -291,7 +291,7 @@ export default function StylesUtilityPageClient({ initialContent }: { initialCon
                               <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                                 <InlineEditableImage
                                   src={style.image}
-                                  alt={style.name}
+                                  alt={`${style.name} storage shed style - Summit Portable Buildings`}
                                   onImageChange={(url) => {
                                     const updated = [...content.otherStyles];
                                     updated[index] = { ...updated[index], image: url };
@@ -346,7 +346,7 @@ export default function StylesUtilityPageClient({ initialContent }: { initialCon
                               <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                                 <img
                                   src={style.image}
-                                  alt={style.name}
+                                  alt={`${style.name} storage shed style - Summit Portable Buildings`}
                                   className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-contain bg-muted"
                                 />
                               </div>

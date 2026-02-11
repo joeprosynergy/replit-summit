@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/seo";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { buyersGuideDefaults } from "@/data/defaults/buyersGuideDefaults";
 import BuyersGuidePageClient from "./BuyersGuidePageClient";
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description:
         content?.metaDescription || buyersGuideDefaults.metaDescription,
       url: "https://summitbuildings.com/buyers-guide",
+      images: [OG_IMAGE],
     },
   };
 }

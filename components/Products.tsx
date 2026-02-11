@@ -9,35 +9,40 @@ const styles = [
     name: 'Utility',
     subtitle: 'Traditional A-Frame Roof',
     image: cloudinaryImages.utilityShed3,
-    link: '/styles/utility'
+    link: '/styles/utility',
+    alt: 'Utility storage shed with A-frame roof - Summit Portable Buildings',
   },
   {
     id: 'barn',
     name: 'Barn',
     subtitle: 'Gambrel Roof',
     image: cloudinaryImages.sideLoftedBarn4,
-    link: '/styles/barn'
+    link: '/styles/barn',
+    alt: 'Barn-style storage building with gambrel roof - Summit Portable Buildings',
   },
   {
     id: 'modern',
     name: 'Modern',
     subtitle: 'Single Slope Roof',
     image: cloudinaryImages.modernShed,
-    link: '/styles/modern'
+    link: '/styles/modern',
+    alt: 'Modern storage shed with single-slope roof - Summit Portable Buildings',
   },
   {
     id: 'greenhouse',
     name: 'Greenhouse',
     subtitle: 'Grow Year-Round',
     image: cloudinaryImages.greenhouse1,
-    link: '/styles/greenhouse'
+    link: '/styles/greenhouse',
+    alt: 'Portable greenhouse for year-round growing - Summit Portable Buildings',
   },
   {
     id: 'animal-shelters',
     name: 'Animal Shelters',
     subtitle: 'Kennels & Coops',
     image: cloudinaryImages.animalShelter1,
-    link: '/styles/animal-shelters'
+    link: '/styles/animal-shelters',
+    alt: 'Animal shelter with kennel and chicken coop options - Summit Portable Buildings',
   },
 ];
 
@@ -77,7 +82,7 @@ const Products = () => {
                   <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
                     <img
                       src={style.image}
-                      alt={style.name}
+                      alt={style.alt}
                       loading="lazy"
                       className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
                     />

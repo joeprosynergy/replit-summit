@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { stylesUtilityDefaults } from "@/data/defaults/stylesUtilityDefaults";
+import { getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { OG_IMAGE } from "@/lib/seo";
 import StylesUtilityPageClient from "./StylesUtilityPageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || stylesUtilityDefaults.metaTitle,
       description: content?.metaDescription || stylesUtilityDefaults.metaDescription,
       url: "https://summitbuildings.com/styles/utility",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -29,5 +32,14 @@ export default async function StylesUtilityPage() {
     ? { ...stylesUtilityDefaults, ...cmsContent }
     : stylesUtilityDefaults;
 
-  return <StylesUtilityPageClient initialContent={initialContent} />;
+  return (
+    <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Styles", url: "/styles" },
+        { name: "Utility", url: "/styles/utility" },
+      ])} />
+      <StylesUtilityPageClient initialContent={initialContent} />
+    </>
+  );
 }

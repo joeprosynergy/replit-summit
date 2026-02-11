@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/seo";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { stylesDefaults } from "@/data/defaults/stylesDefaults";
-import { getCategoryJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getCategoryJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import StylesPageClient from "./StylesPageClient";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: content?.metaTitle || stylesDefaults.metaTitle,
       description: content?.metaDescription || stylesDefaults.metaDescription,
       url: "https://summitbuildings.com/styles",
+      images: [OG_IMAGE],
     },
   };
 }
@@ -32,6 +34,10 @@ export default async function StylesPage() {
 
   return (
     <>
+      <JsonLdScript data={getBreadcrumbJsonLd([
+        { name: "Home", url: "/" },
+        { name: "Styles", url: "/styles" },
+      ])} />
       <JsonLdScript
         data={getCategoryJsonLd({
           name: initialContent.metaTitle,

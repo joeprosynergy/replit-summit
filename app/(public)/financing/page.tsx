@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/seo";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { financingDefaults } from "@/data/defaults/financingDefaults";
 import FinancingPageClient from "./FinancingPageClient";
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description:
         content?.metaDescription || financingDefaults.metaDescription,
       url: "https://summitbuildings.com/financing",
+      images: [OG_IMAGE],
     },
   };
 }

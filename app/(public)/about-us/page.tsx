@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/seo";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { aboutUsDefaults } from "@/data/defaults/aboutUsDefaults";
 import AboutUsPageClient from "./AboutUsPageClient";
@@ -20,6 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description:
         content?.metaDescription || aboutUsDefaults.metaDescription,
       url: "https://summitbuildings.com/about-us",
+      images: [OG_IMAGE],
     },
   };
 }
