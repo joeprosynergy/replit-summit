@@ -5,7 +5,7 @@ import { Menu, X, Phone, Plus, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HeaderConfig } from '@shared/navigationSchema';
+import { HeaderConfig } from '@/shared/navigationSchema';
 import InlineEditableNavLink from '@/components/admin/InlineEditableNavLink';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';

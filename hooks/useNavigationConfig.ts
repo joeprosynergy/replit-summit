@@ -7,7 +7,7 @@ import {
   FooterConfig,
   defaultHeaderConfig,
   defaultFooterConfig,
-} from '@shared/navigationSchema';
+} from '@/shared/navigationSchema';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseNavigationConfigReturn {

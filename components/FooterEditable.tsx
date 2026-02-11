@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Plus, Save, Trash2, GripVertical } from 'lucide-react';
-import { FooterConfig, FooterSection, NavLink } from '@shared/navigationSchema';
+import { FooterConfig, FooterSection, NavLink } from '@/shared/navigationSchema';
 import InlineEditableNavLink from '@/components/admin/InlineEditableNavLink';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InventoryLink from '@/components/InventoryLink';

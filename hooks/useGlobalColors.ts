@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase/client';
-import { GlobalColorsConfig, defaultGlobalColors, GlobalColor } from '@shared/globalColorsSchema';
+import { GlobalColorsConfig, defaultGlobalColors, GlobalColor } from '@/shared/globalColorsSchema';
 import { useToast } from '@/hooks/use-toast';
 
 export function useGlobalColors() {

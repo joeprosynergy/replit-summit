@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { NavLink } from '@shared/navigationSchema';
+import { NavLink } from '@/shared/navigationSchema';
 
 interface InlineEditableNavLinkProps {
   link: NavLink;

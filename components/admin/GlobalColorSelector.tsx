@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Check, Palette } from 'lucide-react';
 import { useGlobalColors } from '@/hooks/useGlobalColors';
-import { GlobalColor } from '@shared/globalColorsSchema';
+import { GlobalColor } from '@/shared/globalColorsSchema';
 
 interface GlobalColorSelectorProps {
   selectedColorId?: string;

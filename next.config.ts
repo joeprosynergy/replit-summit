@@ -1,12 +1,7 @@
 import type { NextConfig } from "next";
-import path from "path";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  webpack: (config) => {
-    config.resolve.alias["@shared"] = path.resolve(__dirname, "shared");
-    return config;
-  },
   typescript: {
     // Pre-existing type issues from the Vite codebase. Safe to enable once
     // all types are gradually tightened up.

@@ -11,7 +11,7 @@ import { Plus, Save } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useGlobalColors } from '@/hooks/useGlobalColors';
 import InlineEditableColorSwatch from '@/components/admin/InlineEditableColorSwatch';
-import { GlobalColor } from '@shared/globalColorsSchema';
+import { GlobalColor } from '@/shared/globalColorsSchema';
 
 export default function GlobalColorsAdmin() {
   const router = useRouter();

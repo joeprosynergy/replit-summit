@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminAuth, isAuthError } from "@/lib/api-auth";
-import { insertPageContentSchema } from "@shared/schema";
+import { insertPageContentSchema } from "@/shared/schema";
 
 // In-memory storage (shared with the GET [slug] handler)
 // In Next.js, module-level state persists within the same server instance
