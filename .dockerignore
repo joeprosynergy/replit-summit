@@ -33,7 +33,6 @@ Thumbs.db
 # Old Vite source (not needed for Next.js build)
 client
 server
-shared
 attached_assets
 
 # Misc
