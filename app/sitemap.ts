@@ -38,6 +38,7 @@ const staticRoutes = [
   "/styles/modern",
   "/styles/animal-shelters",
   "/styles/greenhouse",
+  "/blog",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -60,12 +61,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .not("slug", "in", `(${staticRoutes.filter(r => r).map(r => r.slice(1)).join(",")})`);
 
       if (pages) {
+        // Slugs that should never appear in the sitemap
+        const excludedSlugs = new Set([
+          "home",
+          "types/greenhouse",    // actual page is /styles/greenhouse
+          "types/animal-shelters", // actual page is /styles/animal-shelters
+          "dealer-locator",       // page no longer exists
+          "blog",                 // external blog, not a CMS page
+        ]);
+
         dynamicEntries = pages
           .filter((page) => {
-            // Exclude admin/internal slugs
             const slug = page.slug;
             return (
-              slug !== "home" &&
+              !excludedSlugs.has(slug) &&
               !slug.startsWith("admin") &&
               !slug.startsWith("cms/")
             );
