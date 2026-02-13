@@ -31,7 +31,7 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Show editable version for admins
+  // Show editable version for admins (only after config is loaded)
   if (isAdmin && !isLoading) {
     return (
       <HeaderEditable
@@ -42,9 +42,21 @@ const Header = () => {
     );
   }
 
-  // Show loading state
+  // While CMS is loading, render a transparent placeholder that matches
+  // the exact header dimensions. This prevents CLS (no layout shift)
+  // and avoids showing a default header that might differ from the CMS version.
   if (isLoading) {
-    return null; // or a loading skeleton
+    return (
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 ${
+          hasDarkHero ? 'bg-transparent' : 'bg-card/95 backdrop-blur-md shadow-md'
+        }`}
+      >
+        <div className="container-custom">
+          <div className="flex items-center justify-between h-20" />
+        </div>
+      </header>
+    );
   }
 
   const navLinks = headerConfig.navLinks;
@@ -68,6 +80,7 @@ const Header = () => {
               alt={headerConfig.logoAlt}
               width={129}
               height={98}
+              fetchPriority="high"
               className={`h-14 w-auto transition-all duration-300 ${
                 useLightText ? 'brightness-0 invert' : ''
               }`}

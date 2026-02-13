@@ -11,7 +11,7 @@ const Footer = () => {
   const { isAdmin } = useOptionalAdminAuth();
   const { footerConfig, isLoading, saveFooterConfig, isSaving } = useNavigationConfig();
 
-  // Show editable version for admins
+  // Show editable version for admins (only after config is loaded)
   if (isAdmin && !isLoading) {
     return (
       <FooterEditable
@@ -20,11 +20,6 @@ const Footer = () => {
         isSaving={isSaving}
       />
     );
-  }
-
-  // Show loading state
-  if (isLoading) {
-    return null; // or a loading skeleton
   }
 
   return (

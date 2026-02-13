@@ -82,6 +82,25 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${oswald.variable} ${openSans.variable}`}>
+      <head>
+        {/* Preconnect to Cloudinary (serves logo + product images) */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        {/* Preload the header logo so it's cached before React hydrates */}
+        <link
+          rel="preload"
+          href="https://res.cloudinary.com/dmbzcxslt/image/upload/v1734462395/summit-logo_qfbfod.png"
+          as="image"
+          fetchPriority="high"
+        />
+        {/* Preconnect to external iframe domains for faster load */}
+        <link rel="preconnect" href="https://summitbuildings.shedpro.co" />
+        <link rel="preconnect" href="https://summitportablebuildings.shedsuite.com" />
+        <link rel="preconnect" href="https://summitbuildings.superblog.click" />
+        <link rel="dns-prefetch" href="https://summitbuildings.shedpro.co" />
+        <link rel="dns-prefetch" href="https://summitportablebuildings.shedsuite.com" />
+        <link rel="dns-prefetch" href="https://summitbuildings.superblog.click" />
+      </head>
       <body className="bg-background text-foreground font-sans antialiased">
         <Providers>{children}</Providers>
       </body>
