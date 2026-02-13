@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 import { useNavigationConfig } from '@/hooks/useNavigationConfig';
 import HeaderEditable from '@/components/HeaderEditable';
+import { prefetchForRoute } from '@/lib/prefetchHints';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -93,6 +94,7 @@ const Header = () => {
               <Link
                 key={link.href}
                 href={link.href}
+                onMouseEnter={() => prefetchForRoute(link.href)}
                 className={`font-medium transition-colors duration-200 ${
                   useLightText
                     ? 'text-primary-foreground/90 hover:text-secondary-foreground'
@@ -115,7 +117,7 @@ const Header = () => {
               <Phone className="w-4 h-4" />
               <span>{headerConfig.ctaPhoneDisplay}</span>
             </a>
-            <Link href={headerConfig.ctaButtonLink}>
+            <Link href={headerConfig.ctaButtonLink} onMouseEnter={() => prefetchForRoute(headerConfig.ctaButtonLink)}>
               <Button variant="hero" size="lg">
                 {headerConfig.ctaButtonText}
               </Button>
@@ -146,6 +148,7 @@ const Header = () => {
                   href={link.href}
                   className="px-4 py-3 text-foreground/80 hover:text-secondary hover:bg-muted transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
+                  onMouseEnter={() => prefetchForRoute(link.href)}
                 >
                   {link.label}
                 </Link>

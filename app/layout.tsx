@@ -93,13 +93,6 @@ export default function RootLayout({
           as="image"
           fetchPriority="high"
         />
-        {/* Preconnect to external iframe domains for faster load */}
-        <link rel="preconnect" href="https://summitbuildings.shedpro.co" />
-        <link rel="preconnect" href="https://summitportablebuildings.shedsuite.com" />
-        <link rel="preconnect" href="https://summitbuildings.superblog.click" />
-        <link rel="dns-prefetch" href="https://summitbuildings.shedpro.co" />
-        <link rel="dns-prefetch" href="https://summitportablebuildings.shedsuite.com" />
-        <link rel="dns-prefetch" href="https://summitbuildings.superblog.click" />
       </head>
       <body className="bg-background text-foreground font-sans antialiased">
         <Providers>{children}</Providers>
