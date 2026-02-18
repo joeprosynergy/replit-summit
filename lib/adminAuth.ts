@@ -3,9 +3,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/types';
 
-// Super admin email (configurable via env var)
-const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL || '';
-
 export interface AdminCheckResult {
   isAdmin: boolean;
   error: string | null;
@@ -26,7 +23,6 @@ export async function checkIsAdmin(
     return { isAdmin: false, error: 'No authenticated user', userId: null, userEmail: null };
   }
   
-  // Add timeout to RPC call
   const rpcTimeout = new Promise<{ data: null; error: { message: string } }>((_, reject) =>
     setTimeout(() => reject({ data: null, error: { message: 'RPC timeout' } }), 3000)
   );
@@ -40,17 +36,13 @@ export async function checkIsAdmin(
     const { data, error } = await Promise.race([rpcCall, rpcTimeout]);
     
     if (error) {
-      console.warn('RPC check failed, using email fallback:', error.message);
-      // Fallback: Check if user is super admin
-      const isAdmin = user.email === SUPER_ADMIN_EMAIL;
-      return { isAdmin: isAdmin ?? false, error: null, userId: user.id, userEmail: user.email ?? null };
+      console.warn('RPC check failed:', error.message);
+      return { isAdmin: false, error: null, userId: user.id, userEmail: user.email ?? null };
     }
     
     return { isAdmin: data === true, error: null, userId: user.id, userEmail: user.email ?? null };
   } catch (err: any) {
-    console.warn('Admin check error, using email fallback:', err);
-    // Fallback: Check if user is super admin
-    const isAdmin = user.email === SUPER_ADMIN_EMAIL;
-    return { isAdmin: isAdmin ?? false, error: null, userId: user.id, userEmail: user.email ?? null };
+    console.warn('Admin check error:', err);
+    return { isAdmin: false, error: null, userId: user.id, userEmail: user.email ?? null };
   }
 }

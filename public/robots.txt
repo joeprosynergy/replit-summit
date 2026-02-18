@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://summitbuildings.com/sitemap.xml
-Sitemap: https://summitbuildings.com/blog/sitemap.xml

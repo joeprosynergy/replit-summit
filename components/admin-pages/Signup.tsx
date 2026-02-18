@@ -11,7 +11,7 @@ import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 /**
  * Signup Page
  * Allows new users to request an admin account.
- * Account will be pending until approved by joe@summitbuildings.com
+ * Account will be pending until approved by an administrator
  */
 export default function Signup() {
   const [email, setEmail] = useState("");

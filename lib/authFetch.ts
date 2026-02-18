@@ -16,14 +16,12 @@ export async function authFetch(
     throw new Error('Backend client not available');
   }
 
-  // Get the current session
-  const { data: { session }, error } = await client.auth.getSession();
-  
-  if (error || !session) {
+  const { data: { session }, error: sessionError } = await client.auth.getSession();
+
+  if (sessionError || !session) {
     throw new Error('Not authenticated. Please log in.');
   }
 
-  // Add authorization header
   const headers = new Headers(options.headers);
   headers.set('Authorization', `Bearer ${session.access_token}`);
   

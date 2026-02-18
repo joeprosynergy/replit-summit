@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { getBackendClient } from '@/lib/backendClient';
+import { setAdminSessionCookie, clearAdminSessionCookie } from '@/lib/adminSessionCookie';
 
 interface AdminAuthState {
   user: User | null;
@@ -13,9 +14,6 @@ interface AdminAuthState {
   recheckAdmin: () => Promise<void>;
 }
 
-// Super admin email that bypasses all checks (configurable via env var)
-const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL || '';
-
 export function useAdminAuth(): AdminAuthState {
   const [state, setState] = useState<Omit<AdminAuthState, 'recheckAdmin'>>({
     user: null,
@@ -25,15 +23,10 @@ export function useAdminAuth(): AdminAuthState {
     approvalStatus: null,
   });
 
-  const checkApprovalStatus = useCallback(async (client: any, userId: string, email: string): Promise<{
+  const checkApprovalStatus = useCallback(async (client: any, userId: string, _email: string): Promise<{
     isAdmin: boolean;
     approvalStatus: 'pending' | 'approved' | 'rejected' | null;
   }> => {
-    // Super admin always has access
-    if (email === SUPER_ADMIN_EMAIL) {
-      return { isAdmin: true, approvalStatus: 'approved' };
-    }
-
     try {
       // Retry logic with increasing timeouts
       let profile = null;
@@ -136,24 +129,28 @@ export function useAdminAuth(): AdminAuthState {
         authResolved = true;
         
         if (!session?.user) {
+          clearAdminSessionCookie();
           setState({ user: null, isAdmin: false, isLoading: false, error: null, approvalStatus: null });
           return;
         }
 
         try {
-          // Check approval status from profiles table
           const result = await checkApprovalStatus(
             client,
             session.user.id,
             session.user.email || ''
           );
           
-          // If query timed out, don't update state yet - keep loading
           if ((result as any).timedOut) {
-            return; // Don't update state, wait for next auth event
+            return;
           }
           
           if (mounted) {
+            if (result.isAdmin) {
+              setAdminSessionCookie();
+            } else {
+              clearAdminSessionCookie();
+            }
             setState({ 
               user: session.user, 
               isAdmin: result.isAdmin, 
@@ -185,18 +182,21 @@ export function useAdminAuth(): AdminAuthState {
           authResolved = true;
           
           if (user && !userError) {
-            // Check approval status
             const result = await checkApprovalStatus(
               client,
               user.id,
               user.email || ''
             );
             
-            // If timed out, don't set state - wait for onAuthStateChange
             if ((result as any).timedOut) {
               return;
             }
             
+            if (result.isAdmin) {
+              setAdminSessionCookie();
+            } else {
+              clearAdminSessionCookie();
+            }
             setState({ 
               user, 
               isAdmin: result.isAdmin, 
@@ -230,11 +230,15 @@ export function useAdminAuth(): AdminAuthState {
                   session.user.email || ''
                 );
                 
-                // If timed out, don't set state - wait for auth state change
                 if ((result as any).timedOut) {
                   return;
                 }
                 
+                if (result.isAdmin) {
+                  setAdminSessionCookie();
+                } else {
+                  clearAdminSessionCookie();
+                }
                 setState({
                   user: session.user,
                   isAdmin: result.isAdmin,
@@ -253,7 +257,7 @@ export function useAdminAuth(): AdminAuthState {
         // No user found
         if (!mounted) return;
         authResolved = true;
-        
+        clearAdminSessionCookie();
         setState({ user: null, isAdmin: false, isLoading: false, error: null, approvalStatus: null });
         
       } catch (err: any) {

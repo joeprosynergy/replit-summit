@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { setAdminSessionCookie } from "@/lib/adminSessionCookie";
 
 const AdminLogin = () => {
   const router = useRouter();
@@ -19,29 +20,32 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const { getBackendClient } = await import("@/lib/backendClient");
-      const supabase = getBackendClient();
-      
-      if (supabase === null) {
-        setMessage({ type: "error", text: "Supabase not configured - check environment variables" });
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setMessage({ type: "error", text: result.error || "Invalid email or password" });
         setIsLoading(false);
         return;
       }
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
 
-      if (error) {
-        setMessage({ type: "error", text: error.message });
-      } else {
-        // Instead of redirecting, show success and let user navigate
-        setMessage({ 
-          type: "success", 
-          text: "Login successful! Click the button below to go to admin dashboard." 
+      const { getBackendClient } = await import("@/lib/backendClient");
+      const supabase = getBackendClient();
+
+      if (supabase && result.access_token && result.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: result.access_token,
+          refresh_token: result.refresh_token,
         });
       }
+
+      setAdminSessionCookie();
+      window.location.href = "/admin";
     } catch (err) {
       setMessage({ type: "error", text: "Failed to login" });
     } finally {
@@ -71,7 +75,7 @@ const AdminLogin = () => {
       });
 
       if (error) {
-        setMessage({ type: "error", text: error.message });
+        setMessage({ type: "error", text: "Failed to send login link. Please try again." });
       } else {
         setMessage({ type: "success", text: "Check your email for the login link" });
       }

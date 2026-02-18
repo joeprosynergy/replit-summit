@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getBackendClient } from '@/lib/backendClient';
+import { setAdminSessionCookie } from '@/lib/adminSessionCookie';
 
 const AuthCallback = () => {
   const router = useRouter();
@@ -23,6 +24,7 @@ const AuthCallback = () => {
         const { data: sessionData } = await client.auth.getSession();
         
         if (sessionData?.session) {
+          setAdminSessionCookie();
           router.replace('/admin');
           return;
         }
@@ -41,6 +43,7 @@ const AuthCallback = () => {
             return;
           }
           
+          setAdminSessionCookie();
           router.replace('/admin');
         } else if (hash && hash.includes('access_token')) {
           // Implicit flow - Supabase should auto-process, but poll just in case
@@ -48,6 +51,7 @@ const AuthCallback = () => {
             await new Promise(resolve => setTimeout(resolve, 300));
             const { data } = await client.auth.getSession();
             if (data.session) {
+              setAdminSessionCookie();
               router.replace('/admin');
               return;
             }
@@ -63,6 +67,7 @@ const AuthCallback = () => {
           const { data: retrySession } = await client.auth.getSession();
           
           if (retrySession?.session) {
+            setAdminSessionCookie();
             router.replace('/admin');
             return;
           }

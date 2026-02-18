@@ -125,9 +125,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal server error";
     console.error("Asset audit error:", error);
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json({ error: "Asset audit failed. Please try again." }, { status: 500 });
   }
 }

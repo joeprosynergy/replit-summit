@@ -60,6 +60,20 @@ export const userRoles = pgTable("user_roles", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const adminActivityLog = pgTable("admin_activity_log", {
+  id: text("id").primaryKey().default("gen_random_uuid()"),
+  userId: text("user_id").notNull(),
+  userEmail: varchar("user_email", { length: 255 }),
+  action: varchar("action", { length: 50 }).notNull(),
+  pageSlug: varchar("page_slug", { length: 255 }),
+  fieldPath: text("field_path"),
+  oldValue: text("old_value"),
+  newValue: text("new_value"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertPageContentSchema = z.object({
   slug: z.string(),
   heading: z.string().optional().nullable(),
@@ -113,6 +127,8 @@ export type Profile = typeof profiles.$inferSelect;
 
 export type InsertUserRole = z.infer<typeof insertUserRoleSchema>;
 export type UserRole = typeof userRoles.$inferSelect;
+
+export type AdminActivityLog = typeof adminActivityLog.$inferSelect;
 
 export type AppRole = "admin" | "editor";
 export type PageStatus = "draft" | "published" | "archived";

@@ -8,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { LogOut, Settings, Users, FileText, ShieldX, ChevronDown, RefreshCw, Copy } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { getBackendClient, isBackendAvailable } from "@/lib/backendClient";
+import { clearAdminSessionCookie } from "@/lib/adminSessionCookie";
 
 // Helper to extract hostname for debug display
 function getBackendHost(): string {
@@ -68,6 +69,7 @@ function AdminDashboard() {
   }, [client]);
 
   const handleLogout = async () => {
+    clearAdminSessionCookie();
     if (client) {
       await client.auth.signOut();
     }

@@ -97,23 +97,18 @@ export default function SignupCallback() {
           }
         }
 
-        // Create new profile with pending status
-        // Special case: auto-approve joe@summitbuildings.com
-        const isJoe = user.email === "joe@summitbuildings.com";
-        
+        // Create new profile with pending status.
+        // The database trigger auto_approve_super_admin handles super admin auto-approval.
         const { error: profileError } = await supabase
           .from("profiles")
           .insert({
             user_id: user.id,
             email: user.email,
             display_name: displayName,
-            approval_status: isJoe ? "approved" : "pending",
-            approved_at: isJoe ? new Date().toISOString() : null,
+            approval_status: "pending",
           });
 
         if (profileError) {
-          console.error("Profile creation error:", profileError);
-          // If it's a duplicate key error, the profile already exists
           if (profileError.code === "23505") {
             setStatus("pending");
             setMessage("Your account is pending approval. You'll receive an email once approved.");
@@ -124,15 +119,14 @@ export default function SignupCallback() {
           return;
         }
 
-        // If joe@summitbuildings.com, also add admin role
-        if (isJoe) {
-          await supabase
-            .from("user_roles")
-            .upsert({
-              user_id: user.id,
-              role: "admin",
-            }, { onConflict: "user_id" });
-          
+        // Re-fetch the profile to see if the trigger auto-approved it
+        const { data: createdProfile } = await supabase
+          .from("profiles")
+          .select("approval_status")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (createdProfile?.approval_status === "approved") {
           setStatus("success");
           setMessage("Welcome! Your admin account is ready. Redirecting...");
           setTimeout(() => router.push("/admin"), 2000);

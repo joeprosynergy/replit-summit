@@ -38,6 +38,7 @@ import {
   Shield
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { authFetch } from "@/lib/authFetch";
 
 interface UserProfile {
   id: string;
@@ -48,6 +49,7 @@ interface UserProfile {
   approved_by: string | null;
   approved_at: string | null;
   created_at: string;
+  is_super_admin?: boolean;
 }
 
 type ActionType = "approve" | "reject" | null;
@@ -69,32 +71,19 @@ const AdminUsers = () => {
     }
   }, [user, isAdmin, authLoading, router]);
 
-  // Fetch users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { getBackendClient } = await import("@/lib/backendClient");
-        const supabase = getBackendClient();
-        
-        if (!supabase) {
-          setError("Database not available");
+        const response = await authFetch("/api/admin/users");
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          setError(data.error || "Failed to fetch users");
           return;
         }
-
-        const { data, error: fetchError } = await supabase
-          .from("profiles")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (fetchError) {
-          setError(fetchError.message);
-          return;
-        }
-
-        setUsers(data || []);
+        const data = await response.json();
+        setUsers(data.users || []);
       } catch (err) {
         setError("Failed to fetch users");
-        console.error(err);
       } finally {
         setIsLoading(false);
       }
@@ -111,56 +100,27 @@ const AdminUsers = () => {
     setIsActioning(true);
     
     try {
-      const { getBackendClient } = await import("@/lib/backendClient");
-      const supabase = getBackendClient();
-      
-      if (!supabase) {
-        setError("Database not available");
+      const response = await authFetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profileId: actionUser.id, action: actionType }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setError(data.error || "Failed to update user");
         return;
       }
 
-      const newStatus = actionType === "approve" ? "approved" : "rejected";
-      
-      // Update profile status
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          approval_status: newStatus,
-          approved_by: user?.id,
-          approved_at: new Date().toISOString(),
-        })
-        .eq("id", actionUser.id);
+      const { newStatus } = await response.json();
 
-      if (updateError) {
-        setError(updateError.message);
-        return;
-      }
-
-      // If approving, also add admin role
-      if (actionType === "approve") {
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .upsert({
-            user_id: actionUser.user_id,
-            role: "admin",
-          }, { onConflict: "user_id" });
-
-        if (roleError) {
-          console.error("Failed to add admin role:", roleError);
-          // Don't fail the whole operation, role can be added manually
-        }
-      }
-
-      // Update local state
       setUsers(users.map(u => 
         u.id === actionUser.id 
           ? { ...u, approval_status: newStatus, approved_by: user?.id || null, approved_at: new Date().toISOString() }
           : u
       ));
-
     } catch (err) {
       setError("Failed to update user");
-      console.error(err);
     } finally {
       setIsActioning(false);
       setActionUser(null);
@@ -206,7 +166,7 @@ const AdminUsers = () => {
             <TableRow key={userProfile.id}>
               <TableCell className="font-medium">
                 {userProfile.display_name || "—"}
-                {userProfile.email === "joe@summitbuildings.com" && (
+                {userProfile.is_super_admin && (
                   <Badge variant="outline" className="ml-2 text-xs"><Shield className="w-3 h-3 mr-1" /> Super Admin</Badge>
                 )}
               </TableCell>
@@ -217,8 +177,7 @@ const AdminUsers = () => {
               </TableCell>
               {showActions && (
                 <TableCell className="text-right">
-                  {/* Don't allow actions on joe@summitbuildings.com */}
-                  {userProfile.email !== "joe@summitbuildings.com" && (
+                  {!userProfile.is_super_admin && (
                     <div className="flex gap-2 justify-end">
                       <Button
                         size="sm"
