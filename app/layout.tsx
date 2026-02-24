@@ -96,6 +96,11 @@ export default function RootLayout({
       </head>
       <body className="bg-background text-foreground font-sans antialiased">
         <Providers>{children}</Providers>
+        <script
+          src="https://summit-ops.netlify.app/widget/chat-widget.js"
+          data-widget-key="summit-chat-2026"
+          async
+        />
       </body>
     </html>
   );
