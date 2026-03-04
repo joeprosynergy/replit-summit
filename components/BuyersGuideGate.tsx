@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,8 +43,20 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
   });
   const [errors, setErrors] = useState<Partial<Record<keyof BuyersGuideFormData, string>>>({});
   const { toast } = useToast();
+  const [utmParams, setUtmParams] = useState<Record<string, string>>({});
+  const landingUrlRef = useRef('');
 
   useEffect(() => {
+    // Capture UTM parameters and full landing URL on mount
+    landingUrlRef.current = window.location.href;
+    const params = new URLSearchParams(window.location.search);
+    const utms: Record<string, string> = {};
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'].forEach((key) => {
+      const val = params.get(key);
+      if (val) utms[key] = val;
+    });
+    if (Object.keys(utms).length > 0) setUtmParams(utms);
+
     // Check if user has already submitted the form
     const hasStoredAccess = localStorage.getItem(STORAGE_KEY) === 'true';
     setHasAccess(hasStoredAccess || bypassGate);
@@ -105,6 +117,15 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
             <td style="padding: 12px; font-weight: bold; color: #555;">Form Type:</td>
             <td style="padding: 12px; color: #333;">${data.formType}</td>
           </tr>
+          <tr style="border-bottom: 1px solid #e0e0e0;">
+            <td style="padding: 12px; font-weight: bold; color: #555;">Page URL:</td>
+            <td style="padding: 12px; color: #333;">${landingUrlRef.current || window.location.href}</td>
+          </tr>
+          ${Object.keys(utmParams).length > 0 ? `
+          <tr style="background-color: #fff3cd;">
+            <td style="padding: 12px; font-weight: bold; color: #555;">Ad Source:</td>
+            <td style="padding: 12px; color: #333;">${Object.entries(utmParams).map(([k, v]) => \`\${k}=\${v}\`).join(', ')}</td>
+          </tr>` : ''}
         </table>
         <p style="margin-top: 20px; color: #777; font-size: 12px;">
           Submitted on ${new Date().toLocaleString()}
@@ -136,7 +157,9 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
       formPayload.append('zipCode', formData.zipCode);
       formPayload.append('source', formData.formType);
       formPayload.append('timestamp', new Date().toISOString());
+      formPayload.append('page_submitted_from', landingUrlRef.current || window.location.href);
       formPayload.append('htmlContent', generateHtmlContent(formData));
+      Object.entries(utmParams).forEach(([key, val]) => formPayload.append(key, val));
 
       const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
