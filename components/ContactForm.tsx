@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -46,6 +46,20 @@ const ContactForm = () => {
   const { toast } = useToast();
   const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [utmParams, setUtmParams] = useState<Record<string, string>>({});
+  const landingUrlRef = useRef('');
+
+  // Capture UTM parameters and full landing URL on mount
+  useEffect(() => {
+    landingUrlRef.current = window.location.href;
+    const params = new URLSearchParams(window.location.search);
+    const utms: Record<string, string> = {};
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'].forEach((key) => {
+      const val = params.get(key);
+      if (val) utms[key] = val;
+    });
+    if (Object.keys(utms).length > 0) setUtmParams(utms);
+  }, []);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -234,7 +248,7 @@ const ContactForm = () => {
 
     try {
       const { firstName, lastName } = splitName(formData.name);
-      const currentPage = window.location.origin + pathname;
+      const currentPage = landingUrlRef.current || window.location.href;
       
       const interestLabel = interestOptions.find(i => i.value === formData.interest)?.label || formData.interest;
       const interestDisplay = formData.interest === 'other' && formData.otherInterest
@@ -320,8 +334,13 @@ const ContactForm = () => {
                 <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Page Submitted From</td>
                 <td style="padding: 12px; border: 1px solid #ddd;">${currentPage}</td>
               </tr>
+              ${Object.keys(utmParams).length > 0 ? `
+              <tr style="background-color: #fff3cd;">
+                <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Ad Source</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${Object.entries(utmParams).map(([k, v]) => \`\${k}=\${v}\`).join(', ')}</td>
+              </tr>` : ''}
             </table>
-            
+
             <p style="margin-top: 20px; color: #666; font-size: 12px;">
               Submitted on: ${new Date().toLocaleString()}
             </p>
@@ -378,8 +397,13 @@ const ContactForm = () => {
                 <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Page Submitted From</td>
                 <td style="padding: 12px; border: 1px solid #ddd;">${currentPage}</td>
               </tr>
+              ${Object.keys(utmParams).length > 0 ? `
+              <tr style="background-color: #fff3cd;">
+                <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Ad Source</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${Object.entries(utmParams).map(([k, v]) => \`\${k}=\${v}\`).join(', ')}</td>
+              </tr>` : ''}
             </table>
-            
+
             <p style="margin-top: 20px; color: #666; font-size: 12px;">
               Submitted on: ${new Date().toLocaleString()}
             </p>
@@ -416,6 +440,7 @@ const ContactForm = () => {
             base64: img.base64,
             index: i + 1,
           })),
+          ...utmParams,
         };
       } else {
         zapierData = {
@@ -433,6 +458,7 @@ const ContactForm = () => {
           page_submitted_from: currentPage,
           submitted_at: new Date().toISOString(),
           html_content: htmlContent,
+          ...utmParams,
         };
       }
 
