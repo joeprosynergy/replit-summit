@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -67,6 +67,20 @@ const ContactForm = () => {
   const [consent, setConsent] = useState(false);
   const [honeypot, setHoneypot] = useState(false);
   const [images, setImages] = useState<{ file: File; preview: string; base64?: string }[]>([]);
+
+  // Capture UTM parameters on first page load (before React Router strips them)
+  const [utmParams, setUtmParams] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const utms: Record<string, string> = {};
+    for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid']) {
+      const val = params.get(key);
+      if (val) utms[key] = val;
+    }
+    if (Object.keys(utms).length > 0) {
+      setUtmParams(utms);
+    }
+  }, []);
 
   const isShedMove = formData.interest === 'shed-move';
 
@@ -232,7 +246,7 @@ const ContactForm = () => {
 
     try {
       const { firstName, lastName } = splitName(formData.name);
-      const currentPage = window.location.origin + location.pathname;
+      const currentPage = window.location.href;
       
       const interestLabel = interestOptions.find(i => i.value === formData.interest)?.label || formData.interest;
       const interestDisplay = formData.interest === 'other' && formData.otherInterest
@@ -318,8 +332,13 @@ const ContactForm = () => {
                 <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Page Submitted From</td>
                 <td style="padding: 12px; border: 1px solid #ddd;">${currentPage}</td>
               </tr>
+              ${Object.keys(utmParams).length > 0 ? `
+              <tr style="background-color: #f5f5f5;">
+                <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Ad Source</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${utmParams.utm_source || '-'} / ${utmParams.utm_medium || '-'} / ${utmParams.utm_campaign || '-'}</td>
+              </tr>` : ''}
             </table>
-            
+
             <p style="margin-top: 20px; color: #666; font-size: 12px;">
               Submitted on: ${new Date().toLocaleString()}
             </p>
@@ -376,8 +395,13 @@ const ContactForm = () => {
                 <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Page Submitted From</td>
                 <td style="padding: 12px; border: 1px solid #ddd;">${currentPage}</td>
               </tr>
+              ${Object.keys(utmParams).length > 0 ? `
+              <tr>
+                <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Ad Source</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${utmParams.utm_source || '-'} / ${utmParams.utm_medium || '-'} / ${utmParams.utm_campaign || '-'}</td>
+              </tr>` : ''}
             </table>
-            
+
             <p style="margin-top: 20px; color: #666; font-size: 12px;">
               Submitted on: ${new Date().toLocaleString()}
             </p>
@@ -414,6 +438,8 @@ const ContactForm = () => {
             base64: img.base64,
             index: i + 1,
           })),
+          // UTM tracking
+          ...utmParams,
         };
       } else {
         zapierData = {
@@ -431,6 +457,8 @@ const ContactForm = () => {
           page_submitted_from: currentPage,
           submitted_at: new Date().toISOString(),
           html_content: htmlContent,
+          // UTM tracking
+          ...utmParams,
         };
       }
 
