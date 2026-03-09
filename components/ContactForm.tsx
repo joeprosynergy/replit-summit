@@ -81,7 +81,7 @@ const ContactForm = () => {
     billingAddressOption: '', // 'pickup' | 'dropoff' | 'custom'
   });
   const [consent, setConsent] = useState(false);
-  const [honeypot, setHoneypot] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
   const [images, setImages] = useState<{ file: File; preview: string; base64?: string }[]>([]);
 
   const isShedMove = formData.interest === 'shed-move';
@@ -136,11 +136,11 @@ const ContactForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Honeypot check - if filled, silently reject
+    // Honeypot check - if filled, silently "succeed" so bot doesn't retry
     if (honeypot) {
       toast({
-        title: 'Thank you',
-        description: 'We are unable to help with your request.',
+        title: 'Request Submitted!',
+        description: "We'll get back to you promptly.",
       });
       return;
     }
@@ -529,15 +529,15 @@ const ContactForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Honeypot field - hidden from users */}
-      <div className="absolute opacity-0 pointer-events-none" aria-hidden="true" tabIndex={-1}>
-        <label htmlFor="do_you_like_cabbage">Do you like cabbage?</label>
+      {/* Honeypot field - hidden from real users, bots will fill it */}
+      <div className="absolute opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
+        <label htmlFor="website">Website</label>
         <input
-          type="checkbox"
-          id="do_you_like_cabbage"
-          name="do_you_like_cabbage"
-          checked={honeypot}
-          onChange={(e) => setHoneypot(e.target.checked)}
+          type="text"
+          id="website"
+          name="website"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
           tabIndex={-1}
           autoComplete="off"
         />

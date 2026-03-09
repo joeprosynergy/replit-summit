@@ -42,6 +42,7 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
     formType: 'Buyers Guide',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof BuyersGuideFormData, string>>>({});
+  const [honeypot, setHoneypot] = useState('');
   const { toast } = useToast();
   const [utmParams, setUtmParams] = useState<Record<string, string>>({});
   const landingUrlRef = useRef('');
@@ -137,6 +138,18 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Honeypot check - silently "succeed" so bot doesn't retry
+    if (honeypot) {
+      localStorage.setItem(STORAGE_KEY, 'true');
+      setHasAccess(true);
+      setIsOpen(false);
+      toast({
+        title: 'Success!',
+        description: 'Thank you for your interest in our Buyers Guide. You now have access.',
+      });
+      return;
+    }
+
     if (!validateForm()) {
       toast({
         title: 'Validation Error',
@@ -223,6 +236,19 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Honeypot field - hidden from real users, bots will fill it */}
+            <div className="absolute opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
+              <label htmlFor="gate-website">Website</label>
+              <input
+                type="text"
+                id="gate-website"
+                name="website"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="name">
                 Name <span className="text-destructive">*</span>

@@ -38,6 +38,7 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
     formType: 'Buyers Guide',
   });
   const [errors, setErrors] = useState<Partial<Record<keyof BuyersGuideFormData, string>>>({});
+  const [honeypot, setHoneypot] = useState('');
   const [utmParams, setUtmParams] = useState<Record<string, string>>({});
   const landingUrlRef = useRef('');
   const router = useRouter();
@@ -160,6 +161,20 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Honeypot check - silently "succeed" so bot doesn't retry
+    if (honeypot) {
+      localStorage.setItem(STORAGE_KEY, 'true');
+      setIsOpen(false);
+      toast({
+        title: 'Success!',
+        description: 'Thank you for your interest. Redirecting to Buyers Guide...',
+      });
+      if (pendingNavigation) {
+        setTimeout(() => router.push(pendingNavigation), 1000);
+      }
+      return;
+    }
+
     if (!validateForm()) {
       toast({
         title: 'Validation Error',
@@ -241,6 +256,19 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Honeypot field - hidden from real users, bots will fill it */}
+            <div className="absolute opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
+              <label htmlFor="intercept-website">Website</label>
+              <input
+                type="text"
+                id="intercept-website"
+                name="website"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="name">
                 Name <span className="text-destructive">*</span>
