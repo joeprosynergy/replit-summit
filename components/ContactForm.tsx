@@ -249,6 +249,7 @@ const ContactForm = () => {
     try {
       const { firstName, lastName } = splitName(formData.name);
       const currentPage = landingUrlRef.current || window.location.href;
+      const utmDisplay = Object.entries(utmParams).map(([k, v]) => `${k}=${v}`).join(', ');
       
       const interestLabel = interestOptions.find(i => i.value === formData.interest)?.label || formData.interest;
       const interestDisplay = formData.interest === 'other' && formData.otherInterest
@@ -337,7 +338,7 @@ const ContactForm = () => {
               ${Object.keys(utmParams).length > 0 ? `
               <tr style="background-color: #fff3cd;">
                 <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Ad Source</td>
-                <td style="padding: 12px; border: 1px solid #ddd;">${Object.entries(utmParams).map(([k, v]) => \`\${k}=\${v}\`).join(', ')}</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${utmDisplay}</td>
               </tr>` : ''}
             </table>
 
@@ -400,7 +401,7 @@ const ContactForm = () => {
               ${Object.keys(utmParams).length > 0 ? `
               <tr style="background-color: #fff3cd;">
                 <td style="padding: 12px; font-weight: bold; border: 1px solid #ddd;">Ad Source</td>
-                <td style="padding: 12px; border: 1px solid #ddd;">${Object.entries(utmParams).map(([k, v]) => \`\${k}=\${v}\`).join(', ')}</td>
+                <td style="padding: 12px; border: 1px solid #ddd;">${utmDisplay}</td>
               </tr>` : ''}
             </table>
 

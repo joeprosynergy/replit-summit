@@ -94,6 +94,7 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
   };
 
   const generateHtmlContent = (data: BuyersGuideFormData): string => {
+    const utmDisplay = Object.entries(utmParams).map(([k, v]) => `${k}=${v}`).join(', ');
     return `
       <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
         <h2 style="color: #333; margin-bottom: 20px;">New Buyers Guide Request</h2>
@@ -125,7 +126,7 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
           ${Object.keys(utmParams).length > 0 ? `
           <tr style="background-color: #fff3cd;">
             <td style="padding: 12px; font-weight: bold; color: #555;">Ad Source:</td>
-            <td style="padding: 12px; color: #333;">${Object.entries(utmParams).map(([k, v]) => \`\${k}=\${v}\`).join(', ')}</td>
+            <td style="padding: 12px; color: #333;">${utmDisplay}</td>
           </tr>` : ''}
         </table>
         <p style="margin-top: 20px; color: #777; font-size: 12px;">
