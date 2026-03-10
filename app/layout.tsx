@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Oswald, Open_Sans } from "next/font/google";
-import Script from "next/script";
 import Providers from "./providers";
 import "./globals.css";
 
@@ -102,11 +101,7 @@ export default function RootLayout({
           data-widget-key="summit-chat-2026"
           async
         />
-        <Script
-          src="https://link.msgsndr.com/js/external-tracking.js"
-          data-tracking-id="tk_33a3d5407109484983c9ca4b6357a80d"
-          strategy="afterInteractive"
-        />
+
       </body>
     </html>
   );
