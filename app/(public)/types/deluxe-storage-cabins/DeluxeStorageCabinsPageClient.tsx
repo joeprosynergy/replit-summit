@@ -8,8 +8,6 @@
 import { useEffect } from 'react';
 import Link from "next/link";
 import { Check, X, Plus } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
@@ -83,8 +81,6 @@ export default function DeluxeStorageCabinsPageClient({ initialContent }: { init
 
         return (
           <>
-            <Header />
-
             <main className="pt-20">
               {/* Quick Nav */}
               <section className="bg-primary py-8">
@@ -373,7 +369,6 @@ export default function DeluxeStorageCabinsPageClient({ initialContent }: { init
               </section>
             </main>
 
-            <Footer />
           </>
         );
       }}

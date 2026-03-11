@@ -5,11 +5,18 @@ import { Button } from '@/components/ui/button';
 import InventoryLink from '@/components/InventoryLink';
 import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 import { useNavigationConfig } from '@/hooks/useNavigationConfig';
+import type { FooterConfig } from '@/shared/navigationSchema';
 import FooterEditable from '@/components/FooterEditable';
 
-const Footer = () => {
+interface FooterProps {
+  serverConfig?: FooterConfig | null;
+}
+
+const Footer = ({ serverConfig }: FooterProps = {}) => {
   const { isAdmin } = useOptionalAdminAuth();
-  const { footerConfig, isLoading, saveFooterConfig, isSaving } = useNavigationConfig();
+  const { footerConfig, isLoading, saveFooterConfig, isSaving } = useNavigationConfig({
+    initialFooterConfig: serverConfig,
+  });
 
   // Show editable version for admins (only after config is loaded)
   if (isAdmin && !isLoading) {

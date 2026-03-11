@@ -8,8 +8,6 @@
 import { useEffect } from 'react';
 import Link from "next/link";
 import { Check, X, Plus } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import InventoryLink from '@/components/InventoryLink';
 import { InlineEditable } from '@/components/admin/InlineEditable';
@@ -84,8 +82,6 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
 
         return (
           <>
-            <Header />
-
             <main className="pt-20">
               {/* Quick Nav */}
               <section className="bg-primary py-8">
@@ -384,7 +380,6 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
               </section>
             </main>
 
-            <Footer />
           </>
         );
       }}

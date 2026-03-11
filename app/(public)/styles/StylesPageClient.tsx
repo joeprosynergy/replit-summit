@@ -6,8 +6,6 @@
  */
 
 import Link from "next/link";
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableLink from '@/components/admin/InlineEditableLink';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
@@ -23,8 +21,6 @@ export default function StylesPageClient({ initialContent }: { initialContent: a
     >
       {({ content, isEditMode, updateField }) => (
         <>
-          <Header />
-
           <main className="pt-20">
             {/* Hero Section */}
             <section className="bg-primary py-16 md:py-24">
@@ -298,7 +294,6 @@ export default function StylesPageClient({ initialContent }: { initialContent: a
             </section>
           </main>
 
-          <Footer />
         </>
       )}
     </EditablePageWrapper>

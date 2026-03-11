@@ -6,8 +6,6 @@
  */
 
 import { useState } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, Plus, Trash2 } from 'lucide-react';
@@ -52,8 +50,6 @@ export default function GalleryPageClient({ initialContent }: { initialContent: 
 
         return (
           <>
-            <Header />
-            
             <main className="pt-20">
               {/* Hero Section */}
               <section className="bg-primary py-16 md:py-24">
@@ -264,7 +260,6 @@ export default function GalleryPageClient({ initialContent }: { initialContent: 
               </DialogContent>
             </Dialog>
 
-            <Footer />
           </>
         );
       }}

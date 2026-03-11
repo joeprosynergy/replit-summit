@@ -160,6 +160,40 @@ export async function fetchPageContent(slug: string) {
 }
 
 /**
+ * Fetch navigation config (header + footer) server-side.
+ * Returns pre-fetched configs so Header/Footer render instantly without client-side loading.
+ */
+export async function fetchNavigationConfig() {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) return null;
+
+  try {
+    const [headerResult, footerResult] = await Promise.all([
+      supabase
+        .from('section_content')
+        .select('content')
+        .eq('page_slug', 'global-navigation')
+        .eq('section_name', 'header')
+        .maybeSingle(),
+      supabase
+        .from('section_content')
+        .select('content')
+        .eq('page_slug', 'global-navigation')
+        .eq('section_name', 'footer')
+        .maybeSingle(),
+    ]);
+
+    return {
+      headerConfig: headerResult.data?.content || null,
+      footerConfig: footerResult.data?.content || null,
+    };
+  } catch (error) {
+    console.error('[SSR] Failed to fetch navigation config:', error);
+    return null;
+  }
+}
+
+/**
  * Fetch section content for a specific page and section.
  * Used for pages with multiple named sections (e.g., homepage).
  */

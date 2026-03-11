@@ -1,16 +1,19 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { fetchNavigationConfig } from "@/lib/supabase/server";
 
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const navConfig = await fetchNavigationConfig();
+
   return (
     <>
-      <Header />
+      <Header serverConfig={navConfig?.headerConfig ?? null} />
       <main>{children}</main>
-      <Footer />
+      <Footer serverConfig={navConfig?.footerConfig ?? null} />
     </>
   );
 }

@@ -7,19 +7,28 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 import { useNavigationConfig } from '@/hooks/useNavigationConfig';
+import type { HeaderConfig } from '@/shared/navigationSchema';
 import HeaderEditable from '@/components/HeaderEditable';
 import { prefetchForRoute } from '@/lib/prefetchHints';
 
-const Header = () => {
+// Routes with dark full-screen hero sections that need transparent header
+const DARK_HERO_ROUTES = ['/', '/farmington-mo'];
+
+interface HeaderProps {
+  serverConfig?: HeaderConfig | null;
+}
+
+const Header = ({ serverConfig }: HeaderProps = {}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
   const { isAdmin } = useOptionalAdminAuth();
-  const { headerConfig, isLoading, saveHeaderConfig, isSaving } = useNavigationConfig();
-  
+  const { headerConfig, isLoading, saveHeaderConfig, isSaving } = useNavigationConfig({
+    initialHeaderConfig: serverConfig,
+  });
+
   // Pages with dark hero sections (need light text when not scrolled)
-  const hasDarkHero = isHomePage;
+  const hasDarkHero = DARK_HERO_ROUTES.includes(pathname);
   
   // Determine if we should use light text (for dark backgrounds)
   const useLightText = hasDarkHero && !isScrolled;

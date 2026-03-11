@@ -8,8 +8,6 @@
 import React from 'react';
 import Link from "next/link";
 import { ArrowRight, Truck, CreditCard, Shield, Package, Frown, ThumbsDown, Home, Hammer, Heart, Monitor, Car, TrendingUp, Lock, Clock, AlertTriangle, Phone, Star, Quote, MapPin } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import ContactForm from '@/components/ContactForm';
 import { Button } from '@/components/ui/button';
 import { cloudinaryImages, getMobileHeroImage, IMAGES } from '@/lib/cloudinary';
@@ -73,8 +71,6 @@ export default function HomePageClient({ initialContent }: { initialContent: any
       {({ content: editableContent, isEditMode, updateField }) => (
         <>
           <div className="min-h-screen">
-            <Header />
-
             <main>
               {/* HERO SECTION */}
               <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -1150,7 +1146,6 @@ export default function HomePageClient({ initialContent }: { initialContent: any
               </section>
             </main>
 
-            <Footer />
           </div>
         </>
       )}

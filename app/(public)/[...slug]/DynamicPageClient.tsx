@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { EditablePageWrapper } from "@/components/admin/EditablePageWrapper";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check } from "lucide-react";
 import GallerySection from "@/components/GallerySection";
@@ -56,7 +54,6 @@ export default function DynamicPageClient({ slug, initialContent }: DynamicPageC
 
         return (
           <div className="min-h-screen flex flex-col">
-            <Header />
             <main className="flex-grow">
               {heroImage ? (
                 <section className="relative bg-gradient-to-b from-primary/10 to-background">
@@ -385,7 +382,6 @@ export default function DynamicPageClient({ slug, initialContent }: DynamicPageC
                 </section>
               )}
             </main>
-            <Footer />
           </div>
         );
       }}

@@ -10,6 +10,11 @@ import {
 } from '@/shared/navigationSchema';
 import { useToast } from '@/hooks/use-toast';
 
+interface UseNavigationConfigOptions {
+  initialHeaderConfig?: HeaderConfig | null;
+  initialFooterConfig?: FooterConfig | null;
+}
+
 interface UseNavigationConfigReturn {
   headerConfig: HeaderConfig;
   footerConfig: FooterConfig;
@@ -19,16 +24,19 @@ interface UseNavigationConfigReturn {
   isSaving: boolean;
 }
 
-export function useNavigationConfig(): UseNavigationConfigReturn {
-  const [headerConfig, setHeaderConfig] = useState<HeaderConfig>(defaultHeaderConfig);
-  const [footerConfig, setFooterConfig] = useState<FooterConfig>(defaultFooterConfig);
-  const [isLoading, setIsLoading] = useState(true);
+export function useNavigationConfig(options?: UseNavigationConfigOptions): UseNavigationConfigReturn {
+  const hasInitialConfig = !!(options?.initialHeaderConfig || options?.initialFooterConfig);
+  const [headerConfig, setHeaderConfig] = useState<HeaderConfig>(options?.initialHeaderConfig || defaultHeaderConfig);
+  const [footerConfig, setFooterConfig] = useState<FooterConfig>(options?.initialFooterConfig || defaultFooterConfig);
+  const [isLoading, setIsLoading] = useState(!hasInitialConfig);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
+    // Skip client-side fetch if server already provided config
+    if (hasInitialConfig) return;
     fetchNavigationConfig();
-  }, []);
+  }, [hasInitialConfig]);
 
   const fetchNavigationConfig = async () => {
     try {

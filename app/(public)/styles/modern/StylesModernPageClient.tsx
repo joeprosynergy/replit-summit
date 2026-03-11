@@ -12,8 +12,6 @@ import { usePathname } from "next/navigation";
 /** Append ?from=styles to product links so breadcrumbs know the origin */
 const withStylesFrom = (link: string) =>
   link.startsWith('/types/') ? `${link}?from=styles` : link;
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableLink from '@/components/admin/InlineEditableLink';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
@@ -47,8 +45,6 @@ export default function StylesModernPageClient({ initialContent }: { initialCont
 
         return (
           <>
-            <Header />
-
             <main className="pt-20">
               {/* Hero Section */}
               <section className="bg-primary py-16 md:py-24">
@@ -240,7 +236,6 @@ export default function StylesModernPageClient({ initialContent }: { initialCont
               </section>
             </main>
 
-            <Footer />
           </>
         );
       }}

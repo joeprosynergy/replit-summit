@@ -6,8 +6,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { cloudinaryImages } from '@/lib/cloudinary';
 
@@ -25,8 +23,6 @@ export const metadata: Metadata = {
 export default function BlockChartPage() {
   return (
     <>
-      <Header />
-
       <main className="pt-20 bg-muted min-h-screen">
         {/* Back to Buyer's Guide Button */}
         <div className="sticky top-20 z-40 bg-background/95 backdrop-blur border-b border-border">
@@ -758,7 +754,6 @@ export default function BlockChartPage() {
         </div>
       </main>
 
-      <Footer />
     </>
   );
 }
