@@ -12,7 +12,10 @@ import HeaderEditable from '@/components/HeaderEditable';
 import { prefetchForRoute } from '@/lib/prefetchHints';
 
 // Routes with dark full-screen hero sections that need transparent header
-const DARK_HERO_ROUTES = ['/', '/farmington-mo', '/traditional-sheds'];
+const DARK_HERO_ROUTES = ['/', '/farmington-mo', '/traditional-sheds', '/traditional-sheds-v2'];
+
+// Landing pages where nav links are hidden to reduce exit points (keep logo + phone + CTA only)
+const MINIMAL_NAV_ROUTES = ['/traditional-sheds-v2'];
 
 interface HeaderProps {
   serverConfig?: HeaderConfig | null;
@@ -29,6 +32,7 @@ const Header = ({ serverConfig }: HeaderProps = {}) => {
 
   // Pages with dark hero sections (need light text when not scrolled)
   const hasDarkHero = DARK_HERO_ROUTES.includes(pathname);
+  const isMinimalNav = MINIMAL_NAV_ROUTES.includes(pathname);
   
   // Determine if we should use light text (for dark backgrounds)
   const useLightText = hasDarkHero && !isScrolled;
@@ -97,23 +101,25 @@ const Header = ({ serverConfig }: HeaderProps = {}) => {
             />
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onMouseEnter={() => prefetchForRoute(link.href)}
-                className={`font-medium transition-colors duration-200 ${
-                  useLightText
-                    ? 'text-primary-foreground/90 hover:text-secondary-foreground'
-                    : 'text-foreground/80 hover:text-secondary'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Desktop Navigation — hidden on minimal-nav landing pages */}
+          {!isMinimalNav && (
+            <nav className="hidden lg:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onMouseEnter={() => prefetchForRoute(link.href)}
+                  className={`font-medium transition-colors duration-200 ${
+                    useLightText
+                      ? 'text-primary-foreground/90 hover:text-secondary-foreground'
+                      : 'text-foreground/80 hover:text-secondary'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-4">
@@ -133,8 +139,8 @@ const Header = ({ serverConfig }: HeaderProps = {}) => {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
+          {/* Mobile Menu Button — hidden on minimal-nav landing pages */}
+          {!isMinimalNav && <button
             className="lg:hidden p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
@@ -144,11 +150,11 @@ const Header = ({ serverConfig }: HeaderProps = {}) => {
             ) : (
               <Menu className={`w-6 h-6 ${useLightText ? 'text-primary-foreground' : 'text-foreground'}`} />
             )}
-          </button>
+          </button>}
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
+        {!isMinimalNav && isMobileMenuOpen && (
           <div className="lg:hidden bg-card border-t border-border animate-fade-in">
             <nav className="flex flex-col py-4">
               {navLinks.map((link) => (
