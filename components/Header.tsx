@@ -12,7 +12,7 @@ import HeaderEditable from '@/components/HeaderEditable';
 import { prefetchForRoute } from '@/lib/prefetchHints';
 
 // Routes with dark full-screen hero sections that need transparent header
-const DARK_HERO_ROUTES = ['/', '/farmington-mo'];
+const DARK_HERO_ROUTES = ['/', '/farmington-mo', '/traditional-sheds'];
 
 interface HeaderProps {
   serverConfig?: HeaderConfig | null;

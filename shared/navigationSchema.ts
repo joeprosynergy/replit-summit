@@ -81,6 +81,7 @@ export const defaultFooterConfig: FooterConfig = {
       id: 'explore-by-style',
       title: 'Explore by Style',
       links: [
+        { id: 'traditional', label: 'Traditional A-Frame Sheds', href: '/traditional-sheds', isRoute: true },
         { id: 'utility', label: 'Utility (Traditional A-Frame)', href: '/styles/utility', isRoute: true },
         { id: 'barn', label: 'Barn (Gambrel Roof)', href: '/styles/barn', isRoute: true },
         { id: 'modern', label: 'Modern (Single Slope)', href: '/styles/modern', isRoute: true },
