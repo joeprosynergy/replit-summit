@@ -5,7 +5,7 @@ import TraditionalShedV2PageClient from "@/components/TraditionalShedV2PageClien
 import { traditionalShedV2Defaults } from "@/data/defaults/traditionalShedV2Defaults";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const data = await fetchPageContent("traditional-sheds-v2");
+  const data = await fetchPageContent("traditional");
   const content = data?.mainContent as Record<string, any> | null;
 
   const title = content?.metaTitle || traditionalShedV2Defaults.metaTitle;
@@ -15,17 +15,17 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: title },
     description,
     alternates: {
-      canonical: "https://summitbuildings.com/traditional-sheds-v2",
+      canonical: "https://summitbuildings.com/traditional",
     },
     openGraph: {
       title,
       description,
-      url: "https://summitbuildings.com/traditional-sheds-v2",
+      url: "https://summitbuildings.com/traditional",
       images: [OG_IMAGE],
     },
   };
 }
 
 export default async function TraditionalShedsV2Page() {
-  return <TraditionalShedV2PageClient slug="traditional-sheds-v2" defaults={traditionalShedV2Defaults} />;
+  return <TraditionalShedV2PageClient slug="traditional" defaults={traditionalShedV2Defaults} />;
 }

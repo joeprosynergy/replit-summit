@@ -12,10 +12,10 @@ import HeaderEditable from '@/components/HeaderEditable';
 import { prefetchForRoute } from '@/lib/prefetchHints';
 
 // Routes with dark full-screen hero sections that need transparent header
-const DARK_HERO_ROUTES = ['/', '/farmington-mo', '/traditional-sheds', '/traditional-sheds-v2'];
+const DARK_HERO_ROUTES = ['/', '/farmington-mo', '/traditional-sheds', '/traditional'];
 
 // Landing pages where nav links are hidden to reduce exit points (keep logo + phone + CTA only)
-const MINIMAL_NAV_ROUTES = ['/traditional-sheds-v2'];
+const MINIMAL_NAV_ROUTES = ['/traditional'];
 
 interface HeaderProps {
   serverConfig?: HeaderConfig | null;
