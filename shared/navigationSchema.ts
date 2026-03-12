@@ -134,5 +134,5 @@ export const defaultFooterConfig: FooterConfig = {
   button2Text: 'Design Now',
   button2Link: 'https://summitbuildings.shedpro.co/',
   button2IsExternal: true,
-  copyrightText: `© ${new Date().getFullYear()} Summit Portable Buildings. All rights reserved. Built in the USA with pride.`,
+  copyrightText: `© ${new Date().getFullYear()} Summit Portable Buildings. All rights reserved.`,
 };

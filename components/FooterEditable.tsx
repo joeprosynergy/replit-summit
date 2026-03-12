@@ -286,6 +286,7 @@ const FooterEditable = ({ config, onSave, isSaving }: FooterEditableProps) => {
                 isEditMode={true}
                 as="span"
               />
+              {' '}Website by <a href="https://plyntr.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary-foreground/70 transition-colors">Plyntr, LLC</a>
             </p>
           </div>
         </div>

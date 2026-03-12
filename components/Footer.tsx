@@ -112,6 +112,7 @@ const Footer = ({ serverConfig }: FooterProps = {}) => {
         <div className="container-custom py-6">
           <p className="text-primary-foreground/50 text-sm text-center">
             {footerConfig.copyrightText}
+            {' '}Website by <a href="https://plyntr.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary-foreground/70 transition-colors">Plyntr, LLC</a>
           </p>
         </div>
       </div>

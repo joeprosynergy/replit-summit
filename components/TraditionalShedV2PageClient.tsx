@@ -39,7 +39,7 @@ function AnswerAccordion({ question, answer, icon, index, isEditMode, content, u
   content: TraditionalShedV2Content;
   updateField: (field: string, value: unknown) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const Icon = getIcon(icon);
 
   return (
@@ -280,7 +280,7 @@ export default function TraditionalShedV2PageClient({ slug, defaults }: Traditio
               </div>
               <div className="grid md:grid-cols-3 gap-8">
                 {c.tiers.map((tier, index) => (
-                  <div key={index} className="bg-card rounded-2xl shadow-lg border border-border/50 overflow-hidden flex flex-col">
+                  <div key={index} className={`bg-card rounded-2xl shadow-lg overflow-hidden flex flex-col ${tier.badge ? 'border-2 border-secondary ring-2 ring-secondary/20 scale-[1.02]' : 'border border-border/50'}`}>
                     <div className="relative">
                       <InlineEditableImage
                         src={tier.image}

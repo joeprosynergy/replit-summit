@@ -88,57 +88,41 @@ export interface TraditionalShedV2Content {
 }
 
 export const traditionalShedV2Defaults: TraditionalShedV2Content = {
-  metaTitle: 'Traditional A-Frame Sheds | Get a Free Quote | Summit Portable Buildings',
-  metaDescription: 'Hand-crafted traditional A-frame sheds with free delivery within 50 miles. Rent-to-own available, no credit check. Sizes 8x8 to 16x60. Get your free quote today.',
+  metaTitle: 'Traditional A-Frame Sheds For Sale | Free Delivery | Summit Portable Buildings',
+  metaDescription: 'Traditional A-frame storage sheds for sale. Built in Farmington, MO. 40-year metal roof, free delivery within 50 miles. Financing & rent-to-own, no credit check. Get your free quote today.',
 
   // HERO
   heroTagline: 'Traditional A-Frame Sheds',
-  heroHeading: 'Hand-Built Storage Sheds, Delivered Free to Your Door',
-  heroSubheading: 'Hand-crafted in Farmington, MO. Free delivery. Rent-to-own available. Sizes from 8×8 to 16×60.',
+  heroHeading: 'Storage Sheds, Delivered Free to Your Property',
+  heroSubheading: 'Built in Farmington, MO. 40-year metal roof & up to 50-year siding warranty. Free delivery within 50 miles. Financing & rent-to-own available.',
   heroFormHeading: 'Get Your Free Quote',
   heroFormSubheading: 'Tell us what you need — we\'ll get back to you fast.',
   heroBadges: [
-    { icon: 'truck', label: 'Free Delivery' },
-    { icon: 'credit-card', label: 'Rent-to-Own' },
-    { icon: 'shield', label: '5-Year Warranty' },
+    { icon: 'truck', label: 'Free Delivery Within 50 Mi' },
+    { icon: 'credit-card', label: 'Financing & Rent-to-Own' },
+    { icon: 'shield', label: 'Up to 5-Year Warranty' },
   ],
 
   // SOCIAL PROOF BAR
   proofStats: [
     { value: '1,000+', label: 'Buildings Delivered' },
     { value: '4', label: 'States Served' },
-    { value: '8+', label: 'Years in Business' },
-    { value: '50mi', label: 'Free Delivery' },
+    { value: '8+', label: 'Years Family-Owned' },
+    { value: '40yr', label: 'Metal Roof Warranty' },
   ],
 
   // PRODUCT TIERS
   tiersTagline: 'Pick Your Level',
   tiersHeading: 'Three Options. One Timeless Style.',
-  tiersSubheading: 'Every traditional A-frame we build uses the same classic roof design. The difference is in the details.',
+  tiersSubheading: 'Every traditional A-frame we build uses the same classic roof design with a 40-year metal roof standard. The difference is in the details.',
   tiers: [
-    {
-      name: 'Economy',
-      badge: '',
-      description: 'Straightforward storage at the lowest cost per square foot. Metal siding, A-frame roof, and a door that locks.',
-      image: cloudinaryImages.economyShed1,
-      wallHeight: '6\'6"',
-      sizes: '8×8 to 16×60',
-      features: [
-        'Metal siding',
-        'Double 36" or single 48" door',
-        'A-frame roof',
-      ],
-      buttonText: 'Design Economy',
-      buttonLink: 'https://summitbuildings.shedpro.co/',
-      buttonOpenInNewTab: true,
-    },
     {
       name: 'Budget Pro',
       badge: '',
-      description: 'Tall walls so you can actually stand and work inside. Subfloor included. The sweet spot for most people.',
+      description: 'Tall walls so you can actually stand and work inside. Subfloor included. A solid building at a great price.',
       image: cloudinaryImages.budgetProUtility,
       wallHeight: '7\'9"',
-      sizes: '8×8 to 16×60',
+      sizes: '6×8 to 12×24',
       features: [
         'Double 36" doors w/ lock',
         '5/8" subfloor',
@@ -150,17 +134,33 @@ export const traditionalShedV2Defaults: TraditionalShedV2Content = {
     },
     {
       name: 'Pro',
-      badge: 'Premium Quality',
-      description: 'The best materials we offer. Advantech flooring, moisture barrier, tighter stud spacing. Built to outlast everything else on your property.',
+      badge: 'Most Popular — Best Value',
+      description: 'The best materials we offer. Advantech flooring, moisture barrier, tighter stud spacing. Built to outlast everything else on your property. The difference in price is small — the difference in quality is not.',
       image: cloudinaryImages.utilityShed1,
       wallHeight: '7\'9"',
-      sizes: '8×8 to 16×60',
+      sizes: '8×8 to 16×48',
       features: [
         '3/4" Advantech flooring',
         'Moisture barrier & drip edge',
         '16" O.C. studs & rafters',
       ],
       buttonText: 'Design Pro',
+      buttonLink: 'https://summitbuildings.shedpro.co/',
+      buttonOpenInNewTab: true,
+    },
+    {
+      name: 'Economy',
+      badge: '',
+      description: 'For buyers shopping on price alone. Basic metal siding, shorter walls, no subfloor. Gets the job done if you just need a place to store things.',
+      image: cloudinaryImages.economyShed1,
+      wallHeight: '6\'6"',
+      sizes: '4×8 to 14×24',
+      features: [
+        'Metal siding',
+        'Double 36" or single 48" door',
+        'A-frame roof',
+      ],
+      buttonText: 'Design Economy',
       buttonLink: 'https://summitbuildings.shedpro.co/',
       buttonOpenInNewTab: true,
     },
@@ -173,27 +173,27 @@ export const traditionalShedV2Defaults: TraditionalShedV2Content = {
   answers: [
     {
       question: 'How much does it cost?',
-      answer: 'It depends on size, style, and options — but you can get instant pricing right now using our 3D designer. No waiting, no sales calls. Economy starts lowest, Pro is premium. Most people land somewhere in between.',
+      answer: 'It depends on size, style, and options — but you can get instant pricing right now using our 3D designer. No waiting, no sales calls. Design yours online, pick your size, colors, and features, and see pricing instantly.',
       icon: 'credit-card',
     },
     {
-      question: 'Do you do rent-to-own or financing?',
-      answer: 'Yes. We offer rent-to-own with no credit check required. Monthly payments start under $200 for smaller buildings. You can also finance through traditional lending if you prefer.',
+      question: 'Do you offer financing or rent-to-own?',
+      answer: 'Yes. We offer rent-to-own with no credit check required and no early payoff penalties. Monthly payments start under $200 for smaller buildings. You can also finance through traditional lending if you prefer.',
       icon: 'home',
     },
     {
       question: 'How far do you deliver? Is it free?',
-      answer: 'Free delivery and setup within 50 miles of Farmington, MO. We deliver across Missouri, Illinois, Kentucky, and Arkansas. Beyond 50 miles, we charge a small per-mile fee.',
+      answer: 'Free delivery and setup within 50 miles of Farmington, MO. We serve Missouri, Illinois, Kentucky, and Arkansas. Beyond 50 miles, we charge a small per-mile fee.',
       icon: 'truck',
     },
     {
       question: 'How long until I get my building?',
-      answer: 'Typical turnaround is 20-40 days from order to delivery. We\'ll give you a timeline when you order and keep you updated along the way.',
+      answer: 'In-stock buildings are ready for delivery now. Custom orders are typically built in 10-30 business days. We\'ll give you a timeline when you order and keep you updated along the way.',
       icon: 'clock',
     },
     {
-      question: 'Can you add electrical, windows, or custom options?',
-      answer: 'Absolutely. We offer electrical packages (100 amp box, receptacles, lights), multiple window sizes, extra doors, workbenches, shelving, ramps, and more. Design it exactly how you want it.',
+      question: 'Can I customize my building?',
+      answer: 'Fully customizable. Choose from 11 roof colors, custom doors and windows, electrical packages (100 amp box, receptacles, lights), workbenches, shelving, ramps, and more. Design it exactly how you want it in our free 3D builder.',
       icon: 'hammer',
     },
     {
@@ -250,10 +250,10 @@ export const traditionalShedV2Defaults: TraditionalShedV2Content = {
 
   // TRUST BADGES
   trustBadges: [
-    { label: '5-Year Warranty', icon: 'shield' },
+    { label: '40-Year Metal Roof', icon: 'shield' },
     { label: 'Free Delivery & Setup', icon: 'truck' },
     { label: 'No Credit Check RTO', icon: 'credit-card' },
-    { label: '1,000+ Buildings Delivered', icon: 'package' },
+    { label: 'Made in the USA', icon: 'package' },
   ],
 
   // URGENCY
