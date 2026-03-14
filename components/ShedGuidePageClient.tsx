@@ -648,9 +648,8 @@ export default function ShedGuidePageClient({ slug, defaults }: ShedGuidePageCli
                   onTextChange={(v) => updateField('ctaButtonText', v)}
                   onHrefChange={(v) => updateField('ctaButtonLink', v)}
                   isEditMode={isEditMode}
-                  isExternal={true}
                 >
-                  <a href={c.ctaButtonLink} target="_blank" rel="noopener noreferrer">
+                  <a href={c.ctaButtonLink}>
                     <Button variant="hero" size="xl">
                       {c.ctaButtonText}
                       <ArrowRight className="w-4 h-4" />
@@ -663,8 +662,9 @@ export default function ShedGuidePageClient({ slug, defaults }: ShedGuidePageCli
                   onTextChange={(v) => updateField('ctaSecondaryText', v)}
                   onHrefChange={(v) => updateField('ctaSecondaryLink', v)}
                   isEditMode={isEditMode}
+                  isExternal={true}
                 >
-                  <a href={c.ctaSecondaryLink}>
+                  <a href={c.ctaSecondaryLink} target="_blank" rel="noopener noreferrer">
                     <Button variant="heroOutline" size="xl">
                       {c.ctaSecondaryText}
                     </Button>

@@ -314,12 +314,12 @@ export const shedGuideDefaults: ShedGuideContent = {
   ],
 
   // SOFT CTA
-  ctaHeading: 'Ready to Start Looking?',
-  ctaDescription: 'No pressure. Design a building in our free 3D tool and see what it\'d cost. Or just give us a call — we\'re happy to answer questions even if you\'re not ready to buy.',
-  ctaButtonText: 'Design Yours in 3D',
-  ctaButtonLink: 'https://summitbuildings.shedpro.co/',
-  ctaSecondaryText: 'Or Browse Our Building Styles',
-  ctaSecondaryLink: '/styles',
+  ctaHeading: 'Ready to Start Comparing?',
+  ctaDescription: 'Now that you know what to look for, see how Summit builds differently — and why it matters 10 years from now.',
+  ctaButtonText: 'See Why Summit Is Different',
+  ctaButtonLink: '/why-summit',
+  ctaSecondaryText: 'Or Jump Straight to the 3D Designer',
+  ctaSecondaryLink: 'https://summitbuildings.shedpro.co/',
 
   // CONTACT
   contactPhoneNumber: '(573) 747-4700',
