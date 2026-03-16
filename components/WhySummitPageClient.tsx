@@ -91,7 +91,7 @@ export default function WhySummitPageClient({ slug, defaults }: WhySummitPageCli
               <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 <a href="#offer">
                   <Button variant="hero" size="xl">
-                    Book a $50 Site Visit
+                    Book a Free Site Visit
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </a>
@@ -253,7 +253,7 @@ export default function WhySummitPageClient({ slug, defaults }: WhySummitPageCli
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
                 {c.styles.map((style, index) => (
                   <Link key={index} href={style.link} className="group">
-                    <div className="bg-card rounded-2xl border border-border/50 overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1">
+                    <div className="bg-card rounded-2xl border border-border/50 overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 h-full flex flex-col">
                       <InlineEditableImage
                         src={style.image}
                         alt={style.name}
@@ -265,7 +265,7 @@ export default function WhySummitPageClient({ slug, defaults }: WhySummitPageCli
                         isEditMode={isEditMode}
                         imageClassName="w-full h-48 object-contain bg-muted/50 p-2 group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="p-6">
+                      <div className="p-6 flex flex-col flex-grow">
                         <InlineEditable
                           value={style.name}
                           fieldName={`Style ${index + 1} name`}
@@ -300,7 +300,7 @@ export default function WhySummitPageClient({ slug, defaults }: WhySummitPageCli
                             updateField('styles', updated as unknown as string);
                           }}
                           isEditMode={isEditMode}
-                          className="text-sm text-muted-foreground leading-relaxed"
+                          className="text-sm text-muted-foreground leading-relaxed flex-grow"
                           as="p"
                         />
                         <div className="mt-4 flex items-center gap-1 text-secondary font-medium text-sm group-hover:gap-2 transition-all">

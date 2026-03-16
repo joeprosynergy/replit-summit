@@ -242,19 +242,20 @@ export const whySummitDefaults: WhySummitContent = {
   ],
   whyDisclaimer: 'Features listed above are based on our Pro Series buildings. Budget and Economy lines may vary — ask us for details.',
 
-  // SITE VISIT OFFER
-  offerTagline: 'Limited Offer',
-  offerHeading: 'Book a $50 Site Visit — And Get $100 Back When You Buy',
-  offerDescription: 'Not sure if your site is ready? We\'ll come to your property, check the ground, measure the access path, and help you figure out exactly what size and placement works best.',
+  // FREE SITE VISIT OFFER
+  offerTagline: 'Only at Summit',
+  offerHeading: 'We\'ll Visit Your Property — For Free — Before You Buy Anything',
+  offerDescription: 'Most shed dealers expect you to figure everything out on your own — measure your yard, guess what will fit, hope the delivery truck can get through. We do it differently. Before you spend a dime, we\'ll come to your property and walk it with you.',
   offerDetails: [
-    { text: 'We visit your property and assess the site for $50' },
-    { text: 'If you buy within 30 days, that $50 is applied to your purchase' },
-    { text: 'Plus an additional $50 off — so you save $100 total' },
-    { text: 'No pressure. If it\'s not the right time, you still get a professional site assessment' },
+    { text: 'We evaluate your property to see what size and style of building will work best' },
+    { text: 'We check the access path to make sure we can get the building in on delivery day' },
+    { text: 'We look at the ground, drainage, and placement options so there are no surprises' },
+    { text: 'We answer your questions face-to-face — on your property, on your schedule' },
+    { text: 'Completely free. No obligation. No pressure to buy' },
   ],
-  offerCta: 'Book Your Site Visit',
+  offerCta: 'Schedule Your Free Site Visit',
   offerCtaLink: 'tel:5737474700',
-  offerFinePrint: 'Site visit covers the Farmington, MO area and surrounding counties. $50 fee collected at time of visit. $100 discount applied at purchase if order is placed within 30 days of site visit.',
+  offerFinePrint: 'Free site visits available in the Farmington, MO area and surrounding counties. Call to schedule at a time that works for you.',
 
   // PAYMENT OPTIONS
   paymentTagline: 'Payment Options',
