@@ -93,7 +93,7 @@ const Hero = ({ content, isEditMode = false, onUpdateField }: HeroProps) => {
             />
           </div>
           <div className="flex flex-col sm:flex-row gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <Link href="/3d-configurator">
+            <a href="https://summitbuildings.shedpro.co/" target="_blank" rel="noopener noreferrer">
               <Button variant="hero" size="xl">
                 <InlineEditable
                   value={ctaButton}
@@ -104,7 +104,7 @@ const Hero = ({ content, isEditMode = false, onUpdateField }: HeroProps) => {
                 />
                 <ArrowRight className="w-5 h-5" />
               </Button>
-            </Link>
+            </a>
             <Link href="/buyers-guide">
               <Button variant="heroOutline" size="xl">
                 Get Free Buying Guide

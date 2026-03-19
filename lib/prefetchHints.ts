@@ -29,7 +29,6 @@ function injectPreconnect(href: string) {
 /** Maps internal routes to the external domains their iframes load */
 const ROUTE_DOMAINS: Record<string, string[]> = {
   "/inventory": ["https://summitportablebuildings.shedsuite.com"],
-  "/3d-configurator": ["https://summitbuildings.shedpro.co"],
   "/blog": ["https://summitbuildings.superblog.click"],
 };
 

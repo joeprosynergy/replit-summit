@@ -58,8 +58,8 @@ export const defaultHeaderConfig: HeaderConfig = {
   ctaPhone: 'tel:5737474700',
   ctaPhoneDisplay: '573-747-4700',
   ctaButtonText: 'Design Your Shed',
-  ctaButtonLink: '/3d-configurator',
-  ctaButtonIsRoute: true,
+  ctaButtonLink: 'https://summitbuildings.shedpro.co/',
+  ctaButtonIsRoute: false,
 };
 
 // Default footer configuration (extracted from current Footer.tsx)

@@ -13,7 +13,6 @@ const staticRoutes = [
   "/buyers-guide",
   "/gallery",
   "/inventory",
-  "/3d-configurator",
   "/block-chart",
   // Types (categories)
   "/types",

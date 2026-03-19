@@ -132,11 +132,19 @@ const Header = ({ serverConfig }: HeaderProps = {}) => {
               <Phone className="w-4 h-4" />
               <span>{headerConfig.ctaPhoneDisplay}</span>
             </a>
-            <Link href={headerConfig.ctaButtonLink} onMouseEnter={() => prefetchForRoute(headerConfig.ctaButtonLink)}>
-              <Button variant="hero" size="lg">
-                {headerConfig.ctaButtonText}
-              </Button>
-            </Link>
+            {headerConfig.ctaButtonIsRoute ? (
+              <Link href={headerConfig.ctaButtonLink} onMouseEnter={() => prefetchForRoute(headerConfig.ctaButtonLink)}>
+                <Button variant="hero" size="lg">
+                  {headerConfig.ctaButtonText}
+                </Button>
+              </Link>
+            ) : (
+              <a href={headerConfig.ctaButtonLink} target="_blank" rel="noopener noreferrer">
+                <Button variant="hero" size="lg">
+                  {headerConfig.ctaButtonText}
+                </Button>
+              </a>
+            )}
           </div>
 
           {/* Mobile Menu Button — hidden on minimal-nav landing pages */}
@@ -169,11 +177,19 @@ const Header = ({ serverConfig }: HeaderProps = {}) => {
                 </Link>
               ))}
               <div className="px-4 pt-4 border-t border-border mt-4">
-                <Link href={headerConfig.ctaButtonLink}>
-                  <Button variant="hero" size="lg" className="w-full">
-                    {headerConfig.ctaButtonText}
-                  </Button>
-                </Link>
+                {headerConfig.ctaButtonIsRoute ? (
+                  <Link href={headerConfig.ctaButtonLink}>
+                    <Button variant="hero" size="lg" className="w-full">
+                      {headerConfig.ctaButtonText}
+                    </Button>
+                  </Link>
+                ) : (
+                  <a href={headerConfig.ctaButtonLink} target="_blank" rel="noopener noreferrer">
+                    <Button variant="hero" size="lg" className="w-full">
+                      {headerConfig.ctaButtonText}
+                    </Button>
+                  </a>
+                )}
               </div>
             </nav>
           </div>
