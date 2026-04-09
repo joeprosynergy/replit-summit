@@ -99,10 +99,10 @@ export default function TraditionalShedV2PageClient({ slug, defaults }: Traditio
           {/* ===== HERO SECTION — Split layout: copy left, form right ===== */}
           <section className="relative flex items-center overflow-hidden lg:min-h-[90vh]">
             <picture className="absolute inset-0">
-              <source media="(max-width: 768px)" srcSet={getMobileHeroImage(IMAGES.utilityShed3)} />
+              <source media="(max-width: 768px)" srcSet={getMobileHeroImage((c as any).heroImageId || IMAGES.utilityShed3)} />
               <img
-                src={cloudinaryImages.utilityShed3}
-                alt="Traditional A-Frame storage shed"
+                src={(c as any).heroImage || cloudinaryImages.utilityShed3}
+                alt={c.heroTagline || "Storage shed"}
                 fetchPriority="high"
                 loading="eager"
                 decoding="async"

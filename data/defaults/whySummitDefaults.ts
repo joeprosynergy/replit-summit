@@ -2,7 +2,7 @@
  * Why Summit — Mid-Funnel Landing Page
  * For people who've decided they need a shed and are now comparing
  * dealers. Positions Summit as the clear choice with quality proof,
- * transparent pricing, and the $50 site visit offer.
+ * transparent pricing, and the free site visit offer.
  */
 
 import { cloudinaryImages } from '@/lib/cloudinary';
@@ -115,7 +115,7 @@ export interface WhySummitContent {
 
 export const whySummitDefaults: WhySummitContent = {
   metaTitle: 'Why Summit Portable Buildings | Quality Sheds in Farmington, MO',
-  metaDescription: 'See how Summit builds differently — Advantech flooring, 16" stud spacing, metal roofs, and local delivery. Compare styles, see pricing, and book a $50 site visit.',
+  metaDescription: 'See how Summit builds differently — Advantech flooring, 16" stud spacing, metal roofs, and local delivery. Compare styles, see pricing, and book a free site visit.',
 
   // HERO
   heroTagline: 'Compare Before You Buy',
