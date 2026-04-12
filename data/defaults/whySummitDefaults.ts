@@ -114,13 +114,13 @@ export interface WhySummitContent {
 }
 
 export const whySummitDefaults: WhySummitContent = {
-  metaTitle: 'Why Summit Portable Buildings | Quality Sheds in Farmington, MO',
-  metaDescription: 'See how Summit builds differently — Advantech flooring, 16" stud spacing, metal roofs, and local delivery. Compare styles, see pricing, and book a free site visit.',
+  metaTitle: 'Why Choose Summit Portable Sheds | Built to Last in Missouri',
+  metaDescription: 'See why Summit portable sheds are built different. Advantech flooring, 16" stud spacing, metal roofs, and free local delivery. Compare styles and get a free quote.',
 
   // HERO
   heroTagline: 'Compare Before You Buy',
-  heroHeading: 'Not All Sheds Are Built the Same',
-  heroSubheading: 'You\'ve decided you need a shed. Now the question is: who builds it right? Here\'s how Summit is different — and how to get started without any pressure.',
+  heroHeading: 'Not All Portable Sheds Are Built the Same',
+  heroSubheading: 'You\'ve decided you need a portable shed. Now the question is: who builds it right? Here\'s how Summit is different — and how to get started without any pressure.',
 
   // JOURNEY STEPS
   journeySteps: [
@@ -147,7 +147,7 @@ export const whySummitDefaults: WhySummitContent = {
   // HOW IT WORKS
   processTagline: 'How It Works',
   processHeading: 'From Idea to Delivery in 3 Steps',
-  processSubheading: 'No surprises. No hidden fees. Here\'s exactly how buying a shed from Summit works.',
+  processSubheading: 'No surprises. No hidden fees. Here\'s exactly how buying a portable shed from Summit works.',
   processSteps: [
     {
       number: '1',
@@ -172,7 +172,7 @@ export const whySummitDefaults: WhySummitContent = {
   // BUILDING STYLES
   stylesTagline: 'Building Styles',
   stylesHeading: 'Find the Right Fit',
-  stylesSubheading: 'Every building is built to order. Pick a style, choose your size, and customize it to match your property.',
+  stylesSubheading: 'Every portable shed is built to order. Pick a style, choose your size, and customize it to match your property.',
   styles: [
     {
       name: 'Pro Utility Shed',
@@ -207,11 +207,11 @@ export const whySummitDefaults: WhySummitContent = {
   // WHY SUMMIT
   whyTagline: 'Built Different',
   whyHeading: 'What Sets Summit Apart',
-  whySubheading: 'Every dealer will tell you they\'re the best. Here\'s what we actually do differently — and why it matters 10 years from now.',
+  whySubheading: 'Every portable shed dealer will tell you they\'re the best. Here\'s what we actually do differently — and why it matters 10 years from now.',
   differentiators: [
     {
       heading: 'Advantech Flooring Standard',
-      description: 'Our standard floor is Advantech — a moisture-resistant, high-performance subfloor that won\'t swell or warp when it gets wet. The cheaper alternative is OSB, which absorbs moisture and breaks down in a few years. Every Summit building comes with Advantech.',
+      description: 'Our standard floor is Advantech — a moisture-resistant, high-performance subfloor that won\'t swell or warp when it gets wet. The cheaper alternative is OSB, which absorbs moisture and breaks down in a few years. Every Summit portable shed comes with Advantech.',
       icon: 'layers',
     },
     {
@@ -221,7 +221,7 @@ export const whySummitDefaults: WhySummitContent = {
     },
     {
       heading: 'Metal Roof — 40-Year Warranty',
-      description: 'Every Summit building comes with a metal roof rated for 40+ years. No shingle replacements. No leaks. No maintenance.',
+      description: 'Every Summit portable shed comes with a metal roof rated for 40+ years. No shingle replacements. No leaks. No maintenance.',
       icon: 'shield',
     },
     {
@@ -245,7 +245,7 @@ export const whySummitDefaults: WhySummitContent = {
   // FREE SITE VISIT OFFER
   offerTagline: 'Only at Summit',
   offerHeading: 'We\'ll Visit Your Property — For Free — Before You Buy Anything',
-  offerDescription: 'Most shed dealers expect you to figure everything out on your own — measure your yard, guess what will fit, hope the delivery truck can get through. We do it differently. Before you spend a dime, we\'ll come to your property and walk it with you.',
+  offerDescription: 'Most portable shed dealers expect you to figure everything out on your own — measure your yard, guess what will fit, hope the delivery truck can get through. We do it differently. Before you spend a dime, we\'ll come to your property and walk it with you.',
   offerDetails: [
     { text: 'We evaluate your property to see what size and style of building will work best' },
     { text: 'We check the access path to make sure we can get the building in on delivery day' },
@@ -325,6 +325,6 @@ export const whySummitDefaults: WhySummitContent = {
   contactHours2: 'Sat: 9am - 2pm',
 
   // BRIDGE LINKS
-  tofLinkText: 'New to sheds? Start with our Buying Guide',
+  tofLinkText: 'New to portable sheds? Start with our Buying Guide',
   tofLinkHref: '/shed-buying-guide',
 };
