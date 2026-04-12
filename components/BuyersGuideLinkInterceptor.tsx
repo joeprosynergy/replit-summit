@@ -24,6 +24,9 @@ interface BuyersGuideFormData {
 }
 
 const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/20240386/uwfjnan/';
+const SUMMIT_AI_WEBHOOK_URL = process.env.NEXT_PUBLIC_SUMMIT_AI_URL
+  ? `${process.env.NEXT_PUBLIC_SUMMIT_AI_URL}/api/webhook/website-form`
+  : 'https://summit-ai-nextjs.vercel.app/api/webhook/website-form';
 const STORAGE_KEY = 'buyersGuideAccess';
 
 export function BuyersGuideLinkInterceptor({ children }: { children: React.ReactNode }) {
@@ -200,14 +203,38 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
       formPayload.append('htmlContent', generateHtmlContent(formData));
       Object.entries(utmParams).forEach(([key, val]) => formPayload.append(key, val));
 
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        body: formPayload,
-      });
+      // Send to Summit AI (attribution) and Zapier (email notifications) in parallel
+      const summitAiData = {
+        full_name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        zip_code: formData.zipCode,
+        form_type: 'buyers_guide',
+        page_submitted_from: landingUrlRef.current || window.location.href,
+        submitted_at: new Date().toISOString(),
+        html_content: generateHtmlContent(formData),
+        ...utmParams,
+      };
 
-      if (!response.ok) {
+      const [summitResult, zapierResult] = await Promise.allSettled([
+        fetch(SUMMIT_AI_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(summitAiData),
+        }),
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          body: formPayload,
+        }),
+      ]);
+
+      const anySucceeded = summitResult.status === 'fulfilled' || zapierResult.status === 'fulfilled';
+      if (!anySucceeded) {
         throw new Error('Failed to submit form');
       }
+
+      // GTM dataLayer event for conversion tracking
+      window.dataLayer?.push({ event: 'form_submit', form_type: 'buyers_guide' });
 
       // Store access in localStorage
       localStorage.setItem(STORAGE_KEY, 'true');

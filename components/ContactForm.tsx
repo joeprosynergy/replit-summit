@@ -498,6 +498,9 @@ const ContactForm = () => {
         }),
       ]);
 
+      // GTM dataLayer event for conversion tracking
+      window.dataLayer?.push({ event: 'form_submit', form_type: isShedMove ? 'shed_move' : 'contact' });
+
       toast({
         title: 'Request Submitted!',
         description: "We'll get back to you promptly.",

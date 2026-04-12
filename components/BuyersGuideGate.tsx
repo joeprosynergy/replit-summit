@@ -209,6 +209,9 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
         throw new Error('Failed to submit form');
       }
 
+      // GTM dataLayer event for conversion tracking
+      window.dataLayer?.push({ event: 'form_submit', form_type: 'buyers_guide' });
+
       // Store access in localStorage
       localStorage.setItem(STORAGE_KEY, 'true');
       setHasAccess(true);
