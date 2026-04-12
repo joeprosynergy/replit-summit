@@ -41,6 +41,9 @@ const contactMethodOptions = [
 ];
 
 const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/20240386/uwfjnan/';
+const SUMMIT_AI_WEBHOOK_URL = process.env.NEXT_PUBLIC_SUMMIT_AI_URL
+  ? `${process.env.NEXT_PUBLIC_SUMMIT_AI_URL}/api/webhook/website-form`
+  : 'https://summit-ai-nextjs.vercel.app/api/webhook/website-form';
 
 const ContactForm = () => {
   const { toast } = useToast();
@@ -463,14 +466,36 @@ const ContactForm = () => {
         };
       }
 
-      await fetch(ZAPIER_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors',
-        body: JSON.stringify(zapierData),
-      });
+      // Summit AI data (attribution tracking + GHL contact creation)
+      const summitAiData = {
+        first_name: firstName,
+        last_name: lastName,
+        full_name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        zip_code: formData.zipCode,
+        interested_in: interestDisplay,
+        message: formData.message || 'No message provided',
+        page_submitted_from: currentPage,
+        submitted_at: new Date().toISOString(),
+        form_type: isShedMove ? 'shed_move' : 'contact',
+        ...utmParams,
+      };
+
+      // Send to Summit AI and Zapier in parallel
+      await Promise.allSettled([
+        fetch(SUMMIT_AI_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(summitAiData),
+        }),
+        fetch(ZAPIER_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          body: JSON.stringify(zapierData),
+        }),
+      ]);
 
       toast({
         title: 'Request Submitted!',

@@ -28,6 +28,9 @@ interface BuyersGuideGateProps {
 }
 
 const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/20240386/uwfjnan/';
+const SUMMIT_AI_WEBHOOK_URL = process.env.NEXT_PUBLIC_SUMMIT_AI_URL
+  ? `${process.env.NEXT_PUBLIC_SUMMIT_AI_URL}/api/webhook/website-form`
+  : 'https://summit-ai-nextjs.vercel.app/api/webhook/website-form';
 const STORAGE_KEY = 'buyersGuideAccess';
 
 export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGateProps) {
@@ -175,12 +178,33 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
       formPayload.append('htmlContent', generateHtmlContent(formData));
       Object.entries(utmParams).forEach(([key, val]) => formPayload.append(key, val));
 
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        body: formPayload,
-      });
+      // Send to Summit AI (attribution) and Zapier (email notifications) in parallel
+      const summitAiData = {
+        full_name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        zip_code: formData.zipCode,
+        form_type: 'buyers_guide',
+        page_submitted_from: landingUrlRef.current || window.location.href,
+        submitted_at: new Date().toISOString(),
+        ...utmParams,
+      };
 
-      if (!response.ok) {
+      const [summitResult, zapierResult] = await Promise.allSettled([
+        fetch(SUMMIT_AI_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(summitAiData),
+        }),
+        fetch(WEBHOOK_URL, {
+          method: 'POST',
+          body: formPayload,
+        }),
+      ]);
+
+      // Consider it a success if either one worked
+      const anySucceeded = summitResult.status === 'fulfilled' || zapierResult.status === 'fulfilled';
+      if (!anySucceeded) {
         throw new Error('Failed to submit form');
       }
 
