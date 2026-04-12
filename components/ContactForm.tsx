@@ -479,6 +479,7 @@ const ContactForm = () => {
         page_submitted_from: currentPage,
         submitted_at: new Date().toISOString(),
         form_type: isShedMove ? 'shed_move' : 'contact',
+        html_content: htmlContent,
         ...utmParams,
       };
 

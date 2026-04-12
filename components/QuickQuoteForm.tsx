@@ -125,6 +125,7 @@ export default function QuickQuoteForm() {
         page_submitted_from: currentPage,
         submitted_at: new Date().toISOString(),
         form_type: 'quick_quote',
+        html_content: htmlContent,
         ...utmParams,
       };
 
@@ -139,7 +140,7 @@ export default function QuickQuoteForm() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           mode: 'no-cors',
-          body: JSON.stringify({ ...submissionData, html_content: htmlContent }),
+          body: JSON.stringify(submissionData),
         }),
       ]);
 

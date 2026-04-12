@@ -187,6 +187,7 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
         form_type: 'buyers_guide',
         page_submitted_from: landingUrlRef.current || window.location.href,
         submitted_at: new Date().toISOString(),
+        html_content: generateHtmlContent(formData),
         ...utmParams,
       };
 
