@@ -145,9 +145,14 @@ export default function QuickQuoteForm() {
         set('phone', formData.phone);
         set('postal_code', formData.zipCode);
         hiddenForm.addEventListener('submit', (e) => e.preventDefault(), { once: true });
-        const evt = new Event('submit', { bubbles: true, cancelable: true });
-        const result = hiddenForm.dispatchEvent(evt);
-        console.log('[GHL-TRACK] dispatched, defaultPrevented:', !result);
+        try {
+          hiddenForm.requestSubmit();
+          console.log('[GHL-TRACK] requestSubmit called');
+        } catch (err) {
+          const evt = new Event('submit', { bubbles: true, cancelable: true });
+          hiddenForm.dispatchEvent(evt);
+          console.log('[GHL-TRACK] fell back to dispatchEvent');
+        }
       }
 
       // Zapier fires immediately (email notifications).

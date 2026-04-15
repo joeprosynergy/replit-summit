@@ -489,12 +489,10 @@ const ContactForm = () => {
       // submission — avoids Chrome's "non-secure form" warning from the
       // fake action URL while still triggering the tracking capture.
       // Fire hidden vanilla form so GHL's external-tracking.js can capture.
-      // Query via DOM (not React ref) to avoid any ref-timing issues, and
-      // log so we can verify in the Network tab that GHL captured.
       const hiddenForm = document.querySelector<HTMLFormElement>(
         'form[action="about:blank"][data-ghl-tracking="true"]'
       );
-      console.log('[GHL-TRACK] hidden form:', !!hiddenForm, hiddenForm);
+      console.log('[GHL-TRACK] hidden form:', !!hiddenForm);
       if (hiddenForm) {
         const set = (name: string, value: string) => {
           const el = hiddenForm.elements.namedItem(name) as HTMLInputElement | null;
@@ -506,9 +504,17 @@ const ContactForm = () => {
         set('phone', formData.phone);
         set('postal_code', formData.zipCode);
         hiddenForm.addEventListener('submit', (e) => e.preventDefault(), { once: true });
-        const evt = new Event('submit', { bubbles: true, cancelable: true });
-        const result = hiddenForm.dispatchEvent(evt);
-        console.log('[GHL-TRACK] dispatched, defaultPrevented:', !result);
+        // requestSubmit fires a real submit event via the standard browser
+        // path (same as clicking a submit button), which GHL's listener
+        // definitely responds to. Fall back to dispatchEvent in older browsers.
+        try {
+          hiddenForm.requestSubmit();
+          console.log('[GHL-TRACK] requestSubmit called');
+        } catch (err) {
+          const evt = new Event('submit', { bubbles: true, cancelable: true });
+          hiddenForm.dispatchEvent(evt);
+          console.log('[GHL-TRACK] fell back to dispatchEvent');
+        }
       }
 
       // Zapier fires immediately (email notifications).
