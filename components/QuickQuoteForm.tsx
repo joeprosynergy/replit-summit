@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { trackFormSubmit } from '@/lib/ghl-track';
 
 const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/20240386/uwfjnan/';
 const SUMMIT_AI_WEBHOOK_URL = process.env.NEXT_PUBLIC_SUMMIT_AI_URL
@@ -130,30 +131,15 @@ export default function QuickQuoteForm() {
       };
 
       // Fire hidden vanilla form so GHL's external-tracking.js can capture.
-      const hiddenForm = document.querySelector<HTMLFormElement>(
-        'form[action="about:blank"][data-ghl-tracking="true"]'
-      );
-      console.log('[GHL-TRACK] hidden form:', !!hiddenForm);
-      if (hiddenForm) {
-        const set = (name: string, value: string) => {
-          const el = hiddenForm.elements.namedItem(name) as HTMLInputElement | null;
-          if (el) el.value = value;
-        };
-        set('first_name', firstName);
-        set('last_name', lastName);
-        set('email', formData.email);
-        set('phone', formData.phone);
-        set('postal_code', formData.zipCode);
-        hiddenForm.addEventListener('submit', (e) => e.preventDefault(), { once: true });
-        try {
-          hiddenForm.requestSubmit();
-          console.log('[GHL-TRACK] requestSubmit called');
-        } catch (err) {
-          const evt = new Event('submit', { bubbles: true, cancelable: true });
-          hiddenForm.dispatchEvent(evt);
-          console.log('[GHL-TRACK] fell back to dispatchEvent');
-        }
-      }
+      // Primary: call GHL external-tracking directly via its JS API.
+      trackFormSubmit({
+        formId: 'Summit Quick Quote',
+        firstName,
+        lastName,
+        email: formData.email,
+        phone: formData.phone,
+        postalCode: formData.zipCode,
+      });
 
       // Zapier fires immediately (email notifications).
       // Summit AI is delayed ~1.5s so GHL's external-tracking.js (primary)
@@ -192,29 +178,7 @@ export default function QuickQuoteForm() {
   };
 
   return (
-    <>
-      {/* Hidden vanilla form + iframe for GHL external-tracking.js capture.
-          Placed OUTSIDE the React form (nested forms are invalid HTML).
-          No onSubmit, no JS handlers — required by GHL rule #5. */}
-      <iframe name="ghl_tracking_sink" title="ghl-tracking" style={{ display: 'none' }} />
-      <form
-        action="about:blank"
-        target="ghl_tracking_sink"
-        method="post"
-        style={{ display: 'none' }}
-        aria-hidden="true"
-        tabIndex={-1}
-        data-ghl-tracking="true"
-      >
-        <input type="text" name="first_name" defaultValue="" />
-        <input type="text" name="last_name" defaultValue="" />
-        <input type="email" name="email" defaultValue="" />
-        <input type="tel" name="phone" defaultValue="" />
-        <input type="text" name="postal_code" defaultValue="" />
-        <input type="submit" value="Submit" />
-      </form>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Honeypot */}
       <div className="absolute opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
         <input type="text" name="website" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} tabIndex={-1} autoComplete="off" />
@@ -246,6 +210,5 @@ export default function QuickQuoteForm() {
         No spam. We&apos;ll reach out with your quote, that&apos;s it.
       </p>
     </form>
-    </>
   );
 }

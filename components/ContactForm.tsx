@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Send, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePathname } from 'next/navigation';
+import { trackFormSubmit } from '@/lib/ghl-track';
 
 const interestOptions = [
   { value: 'storage-shed', label: 'Storage Shed' },
@@ -483,39 +484,15 @@ const ContactForm = () => {
         ...utmParams,
       };
 
-      // Fire hidden vanilla form so GHL's external-tracking.js can capture.
-      // We populate the fields, dispatch a cancelable submit event (which
-      // GHL's listener sees), then preventDefault to block the actual form
-      // submission — avoids Chrome's "non-secure form" warning from the
-      // fake action URL while still triggering the tracking capture.
-      // Fire hidden vanilla form so GHL's external-tracking.js can capture.
-      const hiddenForm = document.querySelector<HTMLFormElement>(
-        'form[action="about:blank"][data-ghl-tracking="true"]'
-      );
-      console.log('[GHL-TRACK] hidden form:', !!hiddenForm);
-      if (hiddenForm) {
-        const set = (name: string, value: string) => {
-          const el = hiddenForm.elements.namedItem(name) as HTMLInputElement | null;
-          if (el) el.value = value;
-        };
-        set('first_name', firstName);
-        set('last_name', lastName);
-        set('email', formData.email);
-        set('phone', formData.phone);
-        set('postal_code', formData.zipCode);
-        hiddenForm.addEventListener('submit', (e) => e.preventDefault(), { once: true });
-        // requestSubmit fires a real submit event via the standard browser
-        // path (same as clicking a submit button), which GHL's listener
-        // definitely responds to. Fall back to dispatchEvent in older browsers.
-        try {
-          hiddenForm.requestSubmit();
-          console.log('[GHL-TRACK] requestSubmit called');
-        } catch (err) {
-          const evt = new Event('submit', { bubbles: true, cancelable: true });
-          hiddenForm.dispatchEvent(evt);
-          console.log('[GHL-TRACK] fell back to dispatchEvent');
-        }
-      }
+      // Primary: call GHL external-tracking directly via its JS API.
+      trackFormSubmit({
+        formId: isShedMove ? 'Summit Shed Move' : 'Summit Contact',
+        firstName,
+        lastName,
+        email: formData.email,
+        phone: formData.phone,
+        postalCode: formData.zipCode,
+      });
 
       // Zapier fires immediately (email notifications).
       // Summit AI is delayed ~1.5s so GHL's external-tracking.js (primary)
@@ -596,29 +573,7 @@ const ContactForm = () => {
   };
 
   return (
-    <>
-      {/* Hidden vanilla form + iframe for GHL external-tracking.js capture.
-          Placed OUTSIDE the React form (nested forms are invalid HTML).
-          No onSubmit, no JS handlers — required by GHL rule #5. */}
-      <iframe name="ghl_tracking_sink" title="ghl-tracking" style={{ display: 'none' }} />
-      <form
-        action="about:blank"
-        target="ghl_tracking_sink"
-        method="post"
-        style={{ display: 'none' }}
-        aria-hidden="true"
-        tabIndex={-1}
-        data-ghl-tracking="true"
-      >
-        <input type="text" name="first_name" defaultValue="" />
-        <input type="text" name="last_name" defaultValue="" />
-        <input type="email" name="email" defaultValue="" />
-        <input type="tel" name="phone" defaultValue="" />
-        <input type="text" name="postal_code" defaultValue="" />
-        <input type="submit" value="Submit" />
-      </form>
-
-      <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {/* Honeypot field - hidden from real users, bots will fill it */}
       <div className="absolute opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
         <label htmlFor="website">Website</label>
@@ -1019,7 +974,6 @@ const ContactForm = () => {
         <Send className="w-4 h-4" />
       </Button>
     </form>
-    </>
   );
 };
 
