@@ -484,10 +484,11 @@ const ContactForm = () => {
         ...utmParams,
       };
 
-      // Fire hidden vanilla form so GHL's external-tracking.js can capture
-      // the submit event. The script ignores forms with JS-bound handlers,
-      // so we need a plain form with no onSubmit. It posts to about:blank
-      // via a hidden iframe so nothing navigates.
+      // Fire hidden vanilla form so GHL's external-tracking.js can capture.
+      // We populate the fields, dispatch a cancelable submit event (which
+      // GHL's listener sees), then preventDefault to block the actual form
+      // submission — avoids Chrome's "non-secure form" warning from the
+      // fake action URL while still triggering the tracking capture.
       if (ghlFormRef.current) {
         const f = ghlFormRef.current;
         const set = (name: string, value: string) => {
@@ -499,7 +500,9 @@ const ContactForm = () => {
         set('email', formData.email);
         set('phone', formData.phone);
         set('postal_code', formData.zipCode);
-        try { f.requestSubmit(); } catch { f.submit(); }
+        const evt = new Event('submit', { bubbles: true, cancelable: true });
+        f.addEventListener('submit', (e) => e.preventDefault(), { once: true });
+        f.dispatchEvent(evt);
       }
 
       // Zapier fires immediately (email notifications).
