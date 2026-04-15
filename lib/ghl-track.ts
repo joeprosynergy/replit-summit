@@ -1,13 +1,14 @@
 /**
  * Fire a GHL external-tracking form submission event.
  *
- * Calls the GHL tracker directly via `window._lcTracking.tracker.sendEvent()`
- * rather than dispatching a synthetic submit event on a hidden form. Direct
- * API call is reliable; form-submit-based capture failed intermittently when
- * triggered from within React event handlers.
+ * Calls our first-party /api/ghl-track proxy, which forwards to GHL's
+ * backend server-side. This bypasses Safari's Intelligent Tracking
+ * Prevention (ITP) which silently blocks direct browser POSTs to
+ * known-tracker domains like backend.leadconnectorhq.com.
  *
- * Safe to call anywhere — if GHL's tracker isn't loaded (ad blocker, network
- * error, ITP), this silently no-ops.
+ * If GHL's own tracking script loaded successfully we also grab its
+ * sessionId so prior anonymous page views on the contact's browser
+ * get attributed to the new contact.
  */
 export function trackFormSubmit(params: {
   formId: string
@@ -19,40 +20,42 @@ export function trackFormSubmit(params: {
   extra?: Record<string, string>
 }) {
   if (typeof window === 'undefined') return
+
+  // Grab GHL session info if the tracking script loaded (for page-view
+  // attribution). On Safari the script loads but its outbound POSTs are
+  // blocked; the session state is still available to read.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const w = window as any
-  // eslint-disable-next-line no-console
-  console.log('[GHL-TRACK] calling sendEvent', {
-    hasLcTracking: !!w._lcTracking,
-    hasTracker: !!w._lcTracking?.tracker,
-    hasSendEvent: typeof w._lcTracking?.tracker?.sendEvent === 'function',
-    formId: params.formId,
+  const sessionId: string | undefined = w._lcTracking?.tracker?.state?.sessionId
+
+  const formData: Record<string, string> = {
+    first_name: params.firstName || '',
+    last_name: params.lastName || '',
     email: params.email,
-  })
-  const tracker = w._lcTracking?.tracker
-  if (!tracker || typeof tracker.sendEvent !== 'function') {
-    // eslint-disable-next-line no-console
-    console.warn('[GHL-TRACK] tracker not ready — skipping')
-    return
+    phone: params.phone || '',
+    postal_code: params.postalCode || '',
+    ...(params.extra || {}),
   }
+
+  const payload = {
+    formId: params.formId,
+    formData,
+    sessionId,
+    url: window.location.href,
+    title: document.title,
+    path: window.location.pathname,
+    referrer: document.referrer,
+  }
+
+  // Fire-and-forget. keepalive lets the request survive page navigation.
   try {
-    const formData: Record<string, string> = {
-      first_name: params.firstName || '',
-      last_name: params.lastName || '',
-      email: params.email,
-      phone: params.phone || '',
-      postal_code: params.postalCode || '',
-      ...(params.extra || {}),
-    }
-    const result = tracker.sendEvent({
-      type: 'external_form_submission',
-      formId: params.formId,
-      formData,
-    })
-    // eslint-disable-next-line no-console
-    console.log('[GHL-TRACK] sendEvent returned', result)
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('[GHL-TRACK] sendEvent threw', err)
+    fetch('/api/ghl-track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    }).catch(() => {})
+  } catch {
+    // ignore — Summit AI webhook is the reliable fallback
   }
 }
