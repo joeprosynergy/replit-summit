@@ -483,20 +483,24 @@ const ContactForm = () => {
         ...utmParams,
       };
 
-      // Send to Summit AI and Zapier in parallel
-      await Promise.allSettled([
+      // Zapier fires immediately (email notifications).
+      // Summit AI is delayed ~1.5s so GHL's external-tracking.js (primary)
+      // has time to create the contact with full attribution before we
+      // enrich it with a detailed note.
+      fetch(ZAPIER_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        body: JSON.stringify(zapierData),
+      }).catch(() => {});
+
+      setTimeout(() => {
         fetch(SUMMIT_AI_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(summitAiData),
-        }),
-        fetch(ZAPIER_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          mode: 'no-cors',
-          body: JSON.stringify(zapierData),
-        }),
-      ]);
+        }).catch(() => {});
+      }, 1500);
 
       // GTM dataLayer event for conversion tracking
       window.dataLayer?.push({ event: 'form_submit', form_type: isShedMove ? 'shed_move' : 'contact' });

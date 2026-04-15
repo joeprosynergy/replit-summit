@@ -129,20 +129,24 @@ export default function QuickQuoteForm() {
         ...utmParams,
       };
 
-      // Send to Summit AI (attribution tracking + GHL contact) and Zapier (email notifications) in parallel
-      await Promise.allSettled([
+      // Zapier fires immediately (email notifications).
+      // Summit AI is delayed ~1.5s so GHL's external-tracking.js (primary)
+      // has time to create the contact with full attribution before we
+      // enrich it with a detailed note.
+      fetch(ZAPIER_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        body: JSON.stringify(submissionData),
+      }).catch(() => {});
+
+      setTimeout(() => {
         fetch(SUMMIT_AI_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(submissionData),
-        }),
-        fetch(ZAPIER_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          mode: 'no-cors',
-          body: JSON.stringify(submissionData),
-        }),
-      ]);
+        }).catch(() => {});
+      }, 1500);
 
       // GTM dataLayer event for conversion tracking
       window.dataLayer?.push({ event: 'form_submit', form_type: 'quick_quote' });
