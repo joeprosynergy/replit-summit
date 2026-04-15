@@ -51,7 +51,6 @@ const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [utmParams, setUtmParams] = useState<Record<string, string>>({});
   const landingUrlRef = useRef('');
-  const ghlFormRef = useRef<HTMLFormElement>(null);
 
   // Capture UTM parameters and full landing URL on mount
   useEffect(() => {
@@ -489,10 +488,16 @@ const ContactForm = () => {
       // GHL's listener sees), then preventDefault to block the actual form
       // submission — avoids Chrome's "non-secure form" warning from the
       // fake action URL while still triggering the tracking capture.
-      if (ghlFormRef.current) {
-        const f = ghlFormRef.current;
+      // Fire hidden vanilla form so GHL's external-tracking.js can capture.
+      // Query via DOM (not React ref) to avoid any ref-timing issues, and
+      // log so we can verify in the Network tab that GHL captured.
+      const hiddenForm = document.querySelector<HTMLFormElement>(
+        'form[action="about:blank"][data-ghl-tracking="true"]'
+      );
+      console.log('[GHL-TRACK] hidden form:', !!hiddenForm, hiddenForm);
+      if (hiddenForm) {
         const set = (name: string, value: string) => {
-          const el = f.elements.namedItem(name) as HTMLInputElement | null;
+          const el = hiddenForm.elements.namedItem(name) as HTMLInputElement | null;
           if (el) el.value = value;
         };
         set('first_name', firstName);
@@ -500,9 +505,10 @@ const ContactForm = () => {
         set('email', formData.email);
         set('phone', formData.phone);
         set('postal_code', formData.zipCode);
+        hiddenForm.addEventListener('submit', (e) => e.preventDefault(), { once: true });
         const evt = new Event('submit', { bubbles: true, cancelable: true });
-        f.addEventListener('submit', (e) => e.preventDefault(), { once: true });
-        f.dispatchEvent(evt);
+        const result = hiddenForm.dispatchEvent(evt);
+        console.log('[GHL-TRACK] dispatched, defaultPrevented:', !result);
       }
 
       // Zapier fires immediately (email notifications).
@@ -590,13 +596,13 @@ const ContactForm = () => {
           No onSubmit, no JS handlers — required by GHL rule #5. */}
       <iframe name="ghl_tracking_sink" title="ghl-tracking" style={{ display: 'none' }} />
       <form
-        ref={ghlFormRef}
         action="about:blank"
         target="ghl_tracking_sink"
         method="post"
         style={{ display: 'none' }}
         aria-hidden="true"
         tabIndex={-1}
+        data-ghl-tracking="true"
       >
         <input type="text" name="first_name" defaultValue="" />
         <input type="text" name="last_name" defaultValue="" />

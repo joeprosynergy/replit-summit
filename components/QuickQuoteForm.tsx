@@ -24,7 +24,6 @@ export default function QuickQuoteForm() {
   const [utmParams, setUtmParams] = useState<Record<string, string>>({});
   const landingUrlRef = useRef('');
   const [honeypot, setHoneypot] = useState('');
-  const ghlFormRef = useRef<HTMLFormElement>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -131,10 +130,13 @@ export default function QuickQuoteForm() {
       };
 
       // Fire hidden vanilla form so GHL's external-tracking.js can capture.
-      if (ghlFormRef.current) {
-        const f = ghlFormRef.current;
+      const hiddenForm = document.querySelector<HTMLFormElement>(
+        'form[action="about:blank"][data-ghl-tracking="true"]'
+      );
+      console.log('[GHL-TRACK] hidden form:', !!hiddenForm);
+      if (hiddenForm) {
         const set = (name: string, value: string) => {
-          const el = f.elements.namedItem(name) as HTMLInputElement | null;
+          const el = hiddenForm.elements.namedItem(name) as HTMLInputElement | null;
           if (el) el.value = value;
         };
         set('first_name', firstName);
@@ -142,9 +144,10 @@ export default function QuickQuoteForm() {
         set('email', formData.email);
         set('phone', formData.phone);
         set('postal_code', formData.zipCode);
+        hiddenForm.addEventListener('submit', (e) => e.preventDefault(), { once: true });
         const evt = new Event('submit', { bubbles: true, cancelable: true });
-        f.addEventListener('submit', (e) => e.preventDefault(), { once: true });
-        f.dispatchEvent(evt);
+        const result = hiddenForm.dispatchEvent(evt);
+        console.log('[GHL-TRACK] dispatched, defaultPrevented:', !result);
       }
 
       // Zapier fires immediately (email notifications).
@@ -190,13 +193,13 @@ export default function QuickQuoteForm() {
           No onSubmit, no JS handlers — required by GHL rule #5. */}
       <iframe name="ghl_tracking_sink" title="ghl-tracking" style={{ display: 'none' }} />
       <form
-        ref={ghlFormRef}
         action="about:blank"
         target="ghl_tracking_sink"
         method="post"
         style={{ display: 'none' }}
         aria-hidden="true"
         tabIndex={-1}
+        data-ghl-tracking="true"
       >
         <input type="text" name="first_name" defaultValue="" />
         <input type="text" name="last_name" defaultValue="" />
