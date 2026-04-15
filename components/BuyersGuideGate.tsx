@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { trackFormSubmit } from '@/lib/ghl-track';
 
 interface BuyersGuideFormData {
   name: string;
@@ -164,6 +165,17 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
     }
 
     setIsSubmitting(true);
+
+    // Primary: fire GHL external-tracking via our same-origin proxy.
+    const nameParts = formData.name.trim().split(/\s+/);
+    trackFormSubmit({
+      formId: 'Summit Buyers Guide',
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' '),
+      email: formData.email,
+      phone: formData.phone,
+      postalCode: formData.zipCode,
+    });
 
     try {
       // Use URLSearchParams to avoid CORS issues with Zapier webhooks
