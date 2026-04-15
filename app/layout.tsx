@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Oswald, Open_Sans } from "next/font/google";
+import Script from "next/script";
 import Providers from "./providers";
 import "./globals.css";
+
+const GTM_ID = "GTM-W65NW3KB";
 
 const oswald = Oswald({
   subsets: ["latin"],
@@ -93,8 +96,23 @@ export default function RootLayout({
           as="image"
           fetchPriority="high"
         />
+        <Script id="gtm-init" strategy="afterInteractive">
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${GTM_ID}');`}
+        </Script>
       </head>
       <body className="bg-background text-foreground font-sans antialiased">
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
         <Providers>{children}</Providers>
         <script
           src="https://summit-ops-journal.netlify.app/widget/chat-widget.js"
