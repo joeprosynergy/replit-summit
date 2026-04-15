@@ -489,6 +489,7 @@ const ContactForm = () => {
       // GHL's listener sees), then preventDefault to block the actual form
       // submission — avoids Chrome's "non-secure form" warning from the
       // fake action URL while still triggering the tracking capture.
+      console.log('[GHL-TRACK] hidden form ref:', !!ghlFormRef.current);
       if (ghlFormRef.current) {
         const f = ghlFormRef.current;
         const set = (name: string, value: string) => {
@@ -502,7 +503,8 @@ const ContactForm = () => {
         set('postal_code', formData.zipCode);
         const evt = new Event('submit', { bubbles: true, cancelable: true });
         f.addEventListener('submit', (e) => e.preventDefault(), { once: true });
-        f.dispatchEvent(evt);
+        const dispatched = f.dispatchEvent(evt);
+        console.log('[GHL-TRACK] dispatched submit event, defaultPrevented=', !dispatched);
       }
 
       // Zapier fires immediately (email notifications).
