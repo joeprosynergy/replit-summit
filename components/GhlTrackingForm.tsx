@@ -56,21 +56,18 @@ const GhlTrackingForm = forwardRef<GhlTrackingFormHandle, Props>(function GhlTra
     },
   }));
 
-  const sinkName = `ghl_sink_${formName.replace(/\s+/g, '_').toLowerCase()}`;
-
   return (
     <>
-      <iframe name={sinkName} title="ghl-tracking" style={{ display: 'none' }} />
+      <iframe name="ghl_tracking_sink" title="ghl-tracking" style={{ display: 'none' }} />
       <form
         ref={formRef}
-        name={formName}
-        id={formName.replace(/\s+/g, '-').toLowerCase()}
         action="about:blank"
-        target={sinkName}
+        target="ghl_tracking_sink"
         method="post"
         style={{ display: 'none' }}
         aria-hidden="true"
         tabIndex={-1}
+        data-form-name={formName}
       >
         <input type="text" name="first_name" defaultValue="" />
         <input type="text" name="last_name" defaultValue="" />
