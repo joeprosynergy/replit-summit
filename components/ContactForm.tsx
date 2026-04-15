@@ -51,6 +51,7 @@ const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [utmParams, setUtmParams] = useState<Record<string, string>>({});
   const landingUrlRef = useRef('');
+  const ghlFormRef = useRef<HTMLFormElement>(null);
 
   // Capture UTM parameters and full landing URL on mount
   useEffect(() => {
@@ -483,6 +484,24 @@ const ContactForm = () => {
         ...utmParams,
       };
 
+      // Fire hidden vanilla form so GHL's external-tracking.js can capture
+      // the submit event. The script ignores forms with JS-bound handlers,
+      // so we need a plain form with no onSubmit. It posts to about:blank
+      // via a hidden iframe so nothing navigates.
+      if (ghlFormRef.current) {
+        const f = ghlFormRef.current;
+        const set = (name: string, value: string) => {
+          const el = f.elements.namedItem(name) as HTMLInputElement | null;
+          if (el) el.value = value;
+        };
+        set('first_name', firstName);
+        set('last_name', lastName);
+        set('email', formData.email);
+        set('phone', formData.phone);
+        set('postal_code', formData.zipCode);
+        try { f.requestSubmit(); } catch { f.submit(); }
+      }
+
       // Zapier fires immediately (email notifications).
       // Summit AI is delayed ~1.5s so GHL's external-tracking.js (primary)
       // has time to create the contact with full attribution before we
@@ -562,7 +581,29 @@ const ContactForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <>
+      {/* Hidden vanilla form + iframe for GHL external-tracking.js capture.
+          Placed OUTSIDE the React form (nested forms are invalid HTML).
+          No onSubmit, no JS handlers — required by GHL rule #5. */}
+      <iframe name="ghl_tracking_sink" title="ghl-tracking" style={{ display: 'none' }} />
+      <form
+        ref={ghlFormRef}
+        action="about:blank"
+        target="ghl_tracking_sink"
+        method="post"
+        style={{ display: 'none' }}
+        aria-hidden="true"
+        tabIndex={-1}
+      >
+        <input type="text" name="first_name" defaultValue="" />
+        <input type="text" name="last_name" defaultValue="" />
+        <input type="email" name="email" defaultValue="" />
+        <input type="tel" name="phone" defaultValue="" />
+        <input type="text" name="postal_code" defaultValue="" />
+        <input type="submit" value="Submit" />
+      </form>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
       {/* Honeypot field - hidden from real users, bots will fill it */}
       <div className="absolute opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
         <label htmlFor="website">Website</label>
@@ -963,6 +1004,7 @@ const ContactForm = () => {
         <Send className="w-4 h-4" />
       </Button>
     </form>
+    </>
   );
 };
 
