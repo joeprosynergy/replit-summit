@@ -119,6 +119,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           data-widget-key="summit-chat-2026"
           async
         />
+        <Script
+          src="https://link.msgsndr.com/js/external-tracking.js"
+          data-tracking-id="tk_33a3d5407109484983c9ca4b6357a80d"
+          strategy="afterInteractive"
+        />
 
       </body>
     </html>
