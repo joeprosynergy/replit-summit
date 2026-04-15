@@ -131,7 +131,6 @@ export default function QuickQuoteForm() {
       };
 
       // Fire hidden vanilla form so GHL's external-tracking.js can capture.
-      console.log('[GHL-TRACK] hidden form ref:', !!ghlFormRef.current);
       if (ghlFormRef.current) {
         const f = ghlFormRef.current;
         const set = (name: string, value: string) => {
@@ -145,8 +144,7 @@ export default function QuickQuoteForm() {
         set('postal_code', formData.zipCode);
         const evt = new Event('submit', { bubbles: true, cancelable: true });
         f.addEventListener('submit', (e) => e.preventDefault(), { once: true });
-        const dispatched = f.dispatchEvent(evt);
-        console.log('[GHL-TRACK] dispatched submit event, defaultPrevented=', !dispatched);
+        f.dispatchEvent(evt);
       }
 
       // Zapier fires immediately (email notifications).
@@ -166,7 +164,7 @@ export default function QuickQuoteForm() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(submissionData),
         }).catch(() => {});
-      }, 1500);
+      }, 5000);
 
       // GTM dataLayer event for conversion tracking
       window.dataLayer?.push({ event: 'form_submit', form_type: 'quick_quote' });
