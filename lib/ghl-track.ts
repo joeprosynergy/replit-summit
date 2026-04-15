@@ -20,8 +20,21 @@ export function trackFormSubmit(params: {
 }) {
   if (typeof window === 'undefined') return
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tracker = (window as any)._lcTracking?.tracker
-  if (!tracker || typeof tracker.sendEvent !== 'function') return
+  const w = window as any
+  // eslint-disable-next-line no-console
+  console.log('[GHL-TRACK] calling sendEvent', {
+    hasLcTracking: !!w._lcTracking,
+    hasTracker: !!w._lcTracking?.tracker,
+    hasSendEvent: typeof w._lcTracking?.tracker?.sendEvent === 'function',
+    formId: params.formId,
+    email: params.email,
+  })
+  const tracker = w._lcTracking?.tracker
+  if (!tracker || typeof tracker.sendEvent !== 'function') {
+    // eslint-disable-next-line no-console
+    console.warn('[GHL-TRACK] tracker not ready — skipping')
+    return
+  }
   try {
     const formData: Record<string, string> = {
       first_name: params.firstName || '',
@@ -31,12 +44,15 @@ export function trackFormSubmit(params: {
       postal_code: params.postalCode || '',
       ...(params.extra || {}),
     }
-    tracker.sendEvent({
+    const result = tracker.sendEvent({
       type: 'external_form_submission',
       formId: params.formId,
       formData,
     })
-  } catch {
-    // silently ignore — Summit AI webhook is the reliable fallback
+    // eslint-disable-next-line no-console
+    console.log('[GHL-TRACK] sendEvent returned', result)
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[GHL-TRACK] sendEvent threw', err)
   }
 }
