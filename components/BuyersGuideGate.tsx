@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import GhlTrackingForm, { GhlTrackingFormHandle } from './GhlTrackingForm';
 
 interface BuyersGuideFormData {
   name: string;
@@ -49,6 +50,7 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
   const { toast } = useToast();
   const [utmParams, setUtmParams] = useState<Record<string, string>>({});
   const landingUrlRef = useRef('');
+  const ghlTrackingRef = useRef<GhlTrackingFormHandle>(null);
 
   useEffect(() => {
     // Capture UTM parameters and full landing URL on mount
@@ -165,6 +167,16 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
 
     setIsSubmitting(true);
 
+    // Trigger GHL external-tracking.js capture via hidden vanilla form
+    const nameParts = formData.name.trim().split(/\s+/);
+    ghlTrackingRef.current?.fire({
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' '),
+      email: formData.email,
+      phone: formData.phone,
+      postalCode: formData.zipCode,
+    });
+
     try {
       // Use URLSearchParams to avoid CORS issues with Zapier webhooks
       const formPayload = new URLSearchParams();
@@ -247,6 +259,7 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
 
   return (
     <>
+      <GhlTrackingForm ref={ghlTrackingRef} formName="Summit Buyers Guide" />
       {/* Greyed out content */}
       <div className="relative">
         <div className="filter blur-sm pointer-events-none opacity-50">

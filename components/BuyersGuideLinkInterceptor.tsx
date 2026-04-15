@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import GhlTrackingForm, { GhlTrackingFormHandle } from './GhlTrackingForm';
 
 interface BuyersGuideFormData {
   name: string;
@@ -44,6 +45,7 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
   const [honeypot, setHoneypot] = useState('');
   const [utmParams, setUtmParams] = useState<Record<string, string>>({});
   const landingUrlRef = useRef('');
+  const ghlTrackingRef = useRef<GhlTrackingFormHandle>(null);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -190,6 +192,16 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
 
     setIsSubmitting(true);
 
+    // Trigger GHL external-tracking.js capture via hidden vanilla form
+    const nameParts = formData.name.trim().split(/\s+/);
+    ghlTrackingRef.current?.fire({
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' '),
+      email: formData.email,
+      phone: formData.phone,
+      postalCode: formData.zipCode,
+    });
+
     try {
       // Use URLSearchParams to avoid CORS issues with Zapier webhooks
       const formPayload = new URLSearchParams();
@@ -273,8 +285,9 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
 
   return (
     <>
+      <GhlTrackingForm ref={ghlTrackingRef} formName="Summit Buyers Guide" />
       {children}
-      
+
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
