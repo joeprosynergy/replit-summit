@@ -115,7 +115,7 @@ export const financingDefaults: FinancingContent = {
     button1OpenInNewTab: false,
     button2Text: 'Apply for Financing',
     button2Link: '#financing',
-    button2OpenInNewTab: false,
+    button2OpenInNewTab: true,
   },
   
   // How it works section
@@ -212,8 +212,8 @@ export const financingDefaults: FinancingContent = {
     button1Link: 'https://summitbuildings.shedpro.co/',
     button1OpenInNewTab: true,
     button2Text: 'Browse Our Inventory',
-    button2Link: '/inventory',
-    button2OpenInNewTab: false,
+    button2Link: 'https://summitportablebuildings.shedsuite.com/821',
+    button2OpenInNewTab: true,
     button3Text: 'Contact Us',
     button3Link: '/contact-us',
     button3OpenInNewTab: false,

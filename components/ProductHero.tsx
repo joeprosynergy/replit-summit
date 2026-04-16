@@ -49,9 +49,9 @@ const defaultCTAButtons: CTAButton[] = [
   },
   {
     text: 'Browse Our Inventory',
-    href: '/inventory',
+    href: 'https://summitportablebuildings.shedsuite.com/821',
     variant: 'heroOutline',
-    external: false,
+    external: true,
   },
 ];
 

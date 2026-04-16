@@ -77,7 +77,7 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                   ctaButtons={[
                     {
                       text: content.heroButton1Text || 'Browse Our Inventory',
-                      href: content.heroButton1Link || '/inventory',
+                      href: content.heroButton1Link || 'https://summitportablebuildings.shedsuite.com/821',
                       variant: 'hero',
                       external: content.heroButton1OpenInNewTab ?? false,
                     },
@@ -106,7 +106,7 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                       <div className="space-y-3">
                         <InlineEditableButton
                           text={content.heroButton1Text || 'Browse Our Inventory'}
-                          href={content.heroButton1Link || '/inventory'}
+                          href={content.heroButton1Link || 'https://summitportablebuildings.shedsuite.com/821'}
                           isExternal={content.heroButton1OpenInNewTab ?? false}
                           onTextChange={(val) => updateField('heroButton1Text', val)}
                           onHrefChange={(val) => updateField('heroButton1Link', val)}
@@ -582,7 +582,7 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <InlineEditableButton
                       text={content.ctaPrimaryButton || 'Browse Our Inventory'}
-                      href={content.ctaPrimaryButtonLink || '/inventory'}
+                      href={content.ctaPrimaryButtonLink || 'https://summitportablebuildings.shedsuite.com/821'}
                       isExternal={content.ctaPrimaryButtonOpenInNewTab ?? false}
                       onTextChange={(val) => updateField('ctaPrimaryButton', val)}
                       onHrefChange={(val) => updateField('ctaPrimaryButtonLink', val)}
@@ -590,7 +590,7 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                       isEditMode={isEditMode}
                     >
                       <a
-                        href={content.ctaPrimaryButtonLink || '/inventory'}
+                        href={content.ctaPrimaryButtonLink || 'https://summitportablebuildings.shedsuite.com/821'}
                         target={content.ctaPrimaryButtonOpenInNewTab ? '_blank' : undefined}
                         rel={content.ctaPrimaryButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
                       >

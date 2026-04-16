@@ -85,7 +85,7 @@ export function ModernShedView({ content }: ModernShedViewProps) {
             },
             {
               text: content.heroButton2Text || 'Browse Inventory',
-              href: content.heroButton2Link || '/inventory',
+              href: content.heroButton2Link || 'https://summitportablebuildings.shedsuite.com/821',
               variant: 'heroOutline',
               external: content.heroButton2OpenInNewTab ?? false,
             },

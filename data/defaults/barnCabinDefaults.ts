@@ -110,8 +110,8 @@ export const barnCabinDefaults: ProductPageContent = {
   heroButton1Link: 'https://summitbuildings.shedpro.co/',
   heroButton1OpenInNewTab: true,
   heroButton2Text: 'Browse Inventory',
-  heroButton2Link: '/inventory',
-  heroButton2OpenInNewTab: false,
+  heroButton2Link: 'https://summitportablebuildings.shedsuite.com/821',
+  heroButton2OpenInNewTab: true,
 
   // === GALLERY SECTION ===
   galleryImages: [
@@ -185,8 +185,8 @@ export const barnCabinDefaults: ProductPageContent = {
   ctaPrimaryButtonLink: 'https://summitbuildings.shedpro.co/',
   ctaPrimaryButtonOpenInNewTab: true,
   ctaSecondaryButton: 'Browse Inventory',
-  ctaSecondaryButtonLink: '/inventory',
-  ctaSecondaryButtonOpenInNewTab: false,
+  ctaSecondaryButtonLink: 'https://summitportablebuildings.shedsuite.com/821',
+  ctaSecondaryButtonOpenInNewTab: true,
 
   // === BACK PATH CONFIGURATION ===
   backPath: {

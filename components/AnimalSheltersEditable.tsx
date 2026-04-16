@@ -77,7 +77,7 @@ export default function AnimalSheltersEditable({ initialContent }: AnimalShelter
                     },
                     {
                       text: content.heroButton2Text || 'Browse Inventory',
-                      href: content.heroButton2Link || '/inventory',
+                      href: content.heroButton2Link || 'https://summitportablebuildings.shedsuite.com/821',
                       variant: 'heroOutline',
                       external: content.heroButton2OpenInNewTab ?? false,
                     },
@@ -113,7 +113,7 @@ export default function AnimalSheltersEditable({ initialContent }: AnimalShelter
                         </InlineEditableButton>
                         <InlineEditableButton
                           text={content.heroButton2Text || 'Browse Inventory'}
-                          href={content.heroButton2Link || '/inventory'}
+                          href={content.heroButton2Link || 'https://summitportablebuildings.shedsuite.com/821'}
                           isExternal={content.heroButton2OpenInNewTab ?? false}
                           onTextChange={(val) => updateField('heroButton2Text', val)}
                           onHrefChange={(val) => updateField('heroButton2Link', val)}

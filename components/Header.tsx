@@ -105,18 +105,34 @@ const Header = ({ serverConfig }: HeaderProps = {}) => {
           {!isMinimalNav && (
             <nav className="hidden lg:flex items-center gap-8">
               {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onMouseEnter={() => prefetchForRoute(link.href)}
-                  className={`font-medium transition-colors duration-200 ${
-                    useLightText
-                      ? 'text-primary-foreground/90 hover:text-secondary-foreground'
-                      : 'text-foreground/80 hover:text-secondary'
-                  }`}
-                >
-                  {link.label}
-                </Link>
+                link.isExternal ? (
+                  <a
+                    key={link.id || link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`font-medium transition-colors duration-200 ${
+                      useLightText
+                        ? 'text-primary-foreground/90 hover:text-secondary-foreground'
+                        : 'text-foreground/80 hover:text-secondary'
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.id || link.href}
+                    href={link.href}
+                    onMouseEnter={() => prefetchForRoute(link.href)}
+                    className={`font-medium transition-colors duration-200 ${
+                      useLightText
+                        ? 'text-primary-foreground/90 hover:text-secondary-foreground'
+                        : 'text-foreground/80 hover:text-secondary'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                )
               ))}
             </nav>
           )}
@@ -166,15 +182,28 @@ const Header = ({ serverConfig }: HeaderProps = {}) => {
           <div className="lg:hidden bg-card border-t border-border animate-fade-in">
             <nav className="flex flex-col py-4">
               {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="px-4 py-3 text-foreground/80 hover:text-secondary hover:bg-muted transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  onMouseEnter={() => prefetchForRoute(link.href)}
-                >
-                  {link.label}
-                </Link>
+                link.isExternal ? (
+                  <a
+                    key={link.id || link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-3 text-foreground/80 hover:text-secondary hover:bg-muted transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.id || link.href}
+                    href={link.href}
+                    className="px-4 py-3 text-foreground/80 hover:text-secondary hover:bg-muted transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    onMouseEnter={() => prefetchForRoute(link.href)}
+                  >
+                    {link.label}
+                  </Link>
+                )
               ))}
               <div className="px-4 pt-4 border-t border-border mt-4">
                 {headerConfig.ctaButtonIsRoute ? (

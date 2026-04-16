@@ -108,7 +108,7 @@ export const farmingtonDefaults: LocationContent = {
   heroButton1OpenInNewTab: true,
   heroButton2Text: 'Get Free Buying Guide',
   heroButton2Link: '/buyers-guide',
-  heroButton2OpenInNewTab: false,
+  heroButton2OpenInNewTab: true,
   heroServiceText: 'Located in Farmington — serving St. Francois County and surrounding areas since 2016',
   heroBadges: [
     { icon: 'truck', label: 'Free Delivery (50mi)' },

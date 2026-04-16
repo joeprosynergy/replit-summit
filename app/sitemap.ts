@@ -12,7 +12,7 @@ const staticRoutes = [
   "/privacy-policy",
   "/buyers-guide",
   "/gallery",
-  "/inventory",
+  // /inventory removed - now links directly to ShedSuite external site
   "/block-chart",
   // Types (categories)
   "/types",

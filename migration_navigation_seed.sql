@@ -30,8 +30,8 @@ VALUES (
       {
         "id": "inventory",
         "label": "See Inventory",
-        "href": "/inventory",
-        "isRoute": true
+        "href": "https://summitportablebuildings.shedsuite.com/821",
+        "isExternal": true
       },
       {
         "id": "contact-us",
@@ -43,8 +43,8 @@ VALUES (
     "ctaPhone": "tel:5737474700",
     "ctaPhoneDisplay": "573-747-4700",
     "ctaButtonText": "Design Your Shed",
-    "ctaButtonLink": "/3d-configurator",
-    "ctaButtonIsRoute": true
+    "ctaButtonLink": "https://summitbuildings.shedpro.co/",
+    "ctaButtonIsRoute": false
   }'::jsonb,
   NOW(),
   NOW()
@@ -255,8 +255,8 @@ VALUES (
     "ctaPhone": "tel:5737474700",
     "ctaPhoneDisplay": "(573) 747-4700",
     "button1Text": "Browse Inventory",
-    "button1Link": "/inventory",
-    "button1IsExternal": false,
+    "button1Link": "https://summitportablebuildings.shedsuite.com/821",
+    "button1IsExternal": true,
     "button2Text": "Design Now",
     "button2Link": "https://summitbuildings.shedpro.co/",
     "button2IsExternal": true,

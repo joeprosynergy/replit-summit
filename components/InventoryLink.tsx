@@ -1,7 +1,5 @@
 "use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { ReactNode } from 'react';
 
 interface InventoryLinkProps {
@@ -10,21 +8,22 @@ interface InventoryLinkProps {
   onClick?: () => void;
 }
 
+const SHEDSUITE_INVENTORY_URL = 'https://summitportablebuildings.shedsuite.com/821';
+
 /**
- * A Link component that navigates to /inventory while passing the current path as state
- * so the back button on the inventory page can return to the correct page.
+ * A Link component that navigates directly to the ShedSuite inventory website in a new tab.
  */
 const InventoryLink = ({ children, className, onClick }: InventoryLinkProps) => {
-  const pathname = usePathname();
-  
   return (
-    <Link 
-      href={pathname ? `/inventory?from=${encodeURIComponent(pathname)}` : '/inventory'}
+    <a
+      href={SHEDSUITE_INVENTORY_URL}
+      target="_blank"
+      rel="noopener noreferrer"
       className={className}
       onClick={onClick}
     >
       {children}
-    </Link>
+    </a>
   );
 };
 

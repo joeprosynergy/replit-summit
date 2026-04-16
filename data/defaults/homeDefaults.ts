@@ -136,7 +136,7 @@ export const homeDefaults: HomeContent = {
   heroButton1OpenInNewTab: true,
   heroButton2Text: 'Get Free Buying Guide',
   heroButton2Link: '/buyers-guide',
-  heroButton2OpenInNewTab: false,
+  heroButton2OpenInNewTab: true,
   heroServiceText: 'Serving Missouri, Illinois, Kentucky & Arkansas since 2016',
   heroBadges: [
     { icon: 'truck', label: 'Free Delivery (50mi)' },

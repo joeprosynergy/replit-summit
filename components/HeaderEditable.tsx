@@ -130,16 +130,31 @@ const HeaderEditable = ({ config, onSave, isSaving }: HeaderEditableProps) => {
                   onDelete={() => handleNavLinkDelete(index)}
                   isEditMode={true}
                 >
-                  <Link
-                    href={link.href}
-                    className={`font-medium transition-colors duration-200 ${
-                      useLightText
-                        ? 'text-primary-foreground/90 hover:text-secondary-foreground'
-                        : 'text-foreground/80 hover:text-secondary'
-                    } ${link.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {link.label}
-                  </Link>
+                  {link.isExternal ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`font-medium transition-colors duration-200 ${
+                        useLightText
+                          ? 'text-primary-foreground/90 hover:text-secondary-foreground'
+                          : 'text-foreground/80 hover:text-secondary'
+                      } ${link.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className={`font-medium transition-colors duration-200 ${
+                        useLightText
+                          ? 'text-primary-foreground/90 hover:text-secondary-foreground'
+                          : 'text-foreground/80 hover:text-secondary'
+                      } ${link.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </InlineEditableNavLink>
               ))}
               <Button
@@ -220,14 +235,25 @@ const HeaderEditable = ({ config, onSave, isSaving }: HeaderEditableProps) => {
                     onDelete={() => handleNavLinkDelete(index)}
                     isEditMode={true}
                   >
-                    <Link
-                      to={link.href}
-                      state={link.href === '/inventory' ? { from: location.pathname } : undefined}
-                      className="px-4 py-3 text-foreground/80 hover:text-secondary hover:bg-muted transition-colors block"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
+                    {link.isExternal ? (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-3 text-foreground/80 hover:text-secondary hover:bg-muted transition-colors block"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="px-4 py-3 text-foreground/80 hover:text-secondary hover:bg-muted transition-colors block"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </InlineEditableNavLink>
                 ))}
                 <div className="px-4 py-2">

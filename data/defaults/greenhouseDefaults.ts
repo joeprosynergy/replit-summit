@@ -47,8 +47,8 @@ export const greenhouseDefaults: ProductPageContent = {
   heroButton1Link: 'https://summitbuildings.shedpro.co/',
   heroButton1OpenInNewTab: true,
   heroButton2Text: 'Browse Inventory',
-  heroButton2Link: '/inventory',
-  heroButton2OpenInNewTab: false,
+  heroButton2Link: 'https://summitportablebuildings.shedsuite.com/821',
+  heroButton2OpenInNewTab: true,
 
   // === GALLERY SECTION ===
   galleryImages: [

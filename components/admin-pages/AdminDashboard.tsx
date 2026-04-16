@@ -215,10 +215,10 @@ function AdminDashboard() {
                   <Button variant="outline" className="justify-start" onClick={() => router.push('/privacy-policy')}>
                     Privacy Policy
                   </Button>
-                  <Button variant="outline" className="justify-start" onClick={() => router.push('/inventory')}>
+                  <Button variant="outline" className="justify-start" onClick={() => window.open('https://summitportablebuildings.shedsuite.com/821', '_blank')}>
                     Inventory
                   </Button>
-                  <Button variant="outline" className="justify-start" onClick={() => router.push('/3d-configurator')}>
+                  <Button variant="outline" className="justify-start" onClick={() => window.open('https://summitbuildings.shedpro.co/', '_blank')}>
                     3D Configurator
                   </Button>
                 </div>

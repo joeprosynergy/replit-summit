@@ -7,7 +7,7 @@ import { Plus, Save, Trash2, GripVertical } from 'lucide-react';
 import { FooterConfig, FooterSection, NavLink } from '@/shared/navigationSchema';
 import InlineEditableNavLink from '@/components/admin/InlineEditableNavLink';
 import { InlineEditable } from '@/components/admin/InlineEditable';
-import InventoryLink from '@/components/InventoryLink';
+
 
 interface FooterEditableProps {
   config: FooterConfig;
@@ -234,7 +234,9 @@ const FooterEditable = ({ config, onSave, isSaving }: FooterEditableProps) => {
                   className="bg-primary-foreground border-border text-foreground hover:bg-primary-foreground/90 px-8"
                   asChild
                 >
-                  <InventoryLink>{editedConfig.button1Text}</InventoryLink>
+                  <a href={editedConfig.button1Link} target={editedConfig.button1IsExternal ? "_blank" : undefined} rel={editedConfig.button1IsExternal ? "noopener noreferrer" : undefined}>
+                    {editedConfig.button1Text}
+                  </a>
                 </Button>
                 <InlineEditable
                   value={editedConfig.button1Text}

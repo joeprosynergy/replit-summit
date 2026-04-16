@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import Link from "next/link";
 import { Check, X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import InventoryLink from '@/components/InventoryLink';
+// InventoryLink removed - linking directly to ShedSuite
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 import InlineEditableButton from '@/components/admin/InlineEditableButton';
@@ -234,11 +234,11 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
                                       </Button>
                                     </a>
                                   ) : (
-                                    <InventoryLink>
+                                    <a href="https://summitportablebuildings.shedsuite.com/821" target="_blank" rel="noopener noreferrer">
                                       <Button variant="outline" size="lg">
                                         {model.inventoryButtonText}
                                       </Button>
-                                    </InventoryLink>
+                                    </a>
                                   )}
                                 </>
                               )}

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import InventoryLink from '@/components/InventoryLink';
+
 import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 import { useNavigationConfig } from '@/hooks/useNavigationConfig';
 import type { FooterConfig } from '@/shared/navigationSchema';
@@ -93,7 +93,9 @@ const Footer = ({ serverConfig }: FooterProps = {}) => {
               className="bg-primary-foreground border-border text-foreground hover:bg-primary-foreground/90 px-8"
               asChild
             >
-              <InventoryLink>{footerConfig.button1Text}</InventoryLink>
+              <a href={footerConfig.button1Link} target={footerConfig.button1IsExternal ? "_blank" : undefined} rel={footerConfig.button1IsExternal ? "noopener noreferrer" : undefined}>
+                {footerConfig.button1Text}
+              </a>
             </Button>
             <Button
               className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8"

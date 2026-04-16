@@ -116,7 +116,7 @@ export const traditionalShedDefaults: TraditionalShedContent = {
   heroButton1OpenInNewTab: true,
   heroButton2Text: 'Get Free Buying Guide',
   heroButton2Link: '/buyers-guide',
-  heroButton2OpenInNewTab: false,
+  heroButton2OpenInNewTab: true,
   heroServiceText: 'Hand-crafted in Farmington, MO — Free delivery within 50 miles across MO, IL, KY & AR',
   heroBadges: [
     { icon: 'truck', label: 'Free Delivery (50mi)' },
