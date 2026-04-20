@@ -1,5 +1,27 @@
 import { getTrackingParams, TrackingParams } from '@/lib/tracking-params'
 
+// GHL stores custom contact fields under fieldKeys like `contact.search_term`.
+// UTM/gclid keys are handled by GHL's built-in attribution and stay as-is.
+// Values under any of these keys get rewritten to `contact.<key>` before being
+// sent to the GHL external-tracking endpoint so they map to the custom field.
+const GHL_CUSTOM_FIELD_KEYS = new Set([
+  'search_term',
+  'matched_keyword',
+  'match_type',
+  'campaign_id',
+  'ad_group_id',
+  'creative',
+])
+
+function trackingForGhl(tracking: TrackingParams): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const [key, val] of Object.entries(tracking)) {
+    if (!val) continue
+    out[GHL_CUSTOM_FIELD_KEYS.has(key) ? `contact.${key}` : key] = val
+  }
+  return out
+}
+
 /**
  * Fire a GHL external-tracking form submission event.
  *
@@ -43,7 +65,7 @@ export function trackFormSubmit(params: {
     email: params.email,
     phone: params.phone || '',
     postal_code: params.postalCode || '',
-    ...tracking,
+    ...trackingForGhl(tracking),
     ...(params.extra || {}),
   }
 
