@@ -15,6 +15,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { trackFormSubmit } from '@/lib/ghl-track';
+import { getTrackingParams } from '@/lib/tracking-params';
 
 interface BuyersGuideFormData {
   name: string;
@@ -48,16 +49,11 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
   const router = useRouter();
   const { toast } = useToast();
 
-  // Capture UTM parameters on mount
+  // Capture attribution params (UTMs + Google Ads ValueTrack) on mount
   useEffect(() => {
     landingUrlRef.current = window.location.href;
-    const params = new URLSearchParams(window.location.search);
-    const utms: Record<string, string> = {};
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'].forEach((key) => {
-      const val = params.get(key);
-      if (val) utms[key] = val;
-    });
-    if (Object.keys(utms).length > 0) setUtmParams(utms);
+    const tracking = getTrackingParams();
+    if (Object.keys(tracking).length > 0) setUtmParams(tracking);
   }, []);
 
   useEffect(() => {
@@ -200,6 +196,7 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
       email: formData.email,
       phone: formData.phone,
       postalCode: formData.zipCode,
+      tracking: utmParams,
     });
 
     try {
