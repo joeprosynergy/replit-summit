@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { trackFormSubmit } from '@/lib/ghl-track';
+import { getTrackingParams } from '@/lib/tracking-params';
 
 const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/20240386/uwfjnan/';
 const SUMMIT_AI_WEBHOOK_URL = process.env.NEXT_PUBLIC_SUMMIT_AI_URL
@@ -36,13 +37,8 @@ export default function QuickQuoteForm() {
 
   useEffect(() => {
     landingUrlRef.current = window.location.href;
-    const params = new URLSearchParams(window.location.search);
-    const utms: Record<string, string> = {};
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'].forEach((key) => {
-      const val = params.get(key);
-      if (val) utms[key] = val;
-    });
-    if (Object.keys(utms).length > 0) setUtmParams(utms);
+    const tracking = getTrackingParams();
+    if (Object.keys(tracking).length > 0) setUtmParams(tracking);
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -139,6 +135,7 @@ export default function QuickQuoteForm() {
         email: formData.email,
         phone: formData.phone,
         postalCode: formData.zipCode,
+        tracking: utmParams,
       });
 
       // Zapier fires immediately (email notifications).

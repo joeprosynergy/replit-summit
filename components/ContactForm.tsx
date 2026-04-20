@@ -11,6 +11,7 @@ import { Send, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePathname } from 'next/navigation';
 import { trackFormSubmit } from '@/lib/ghl-track';
+import { getTrackingParams } from '@/lib/tracking-params';
 
 const interestOptions = [
   { value: 'storage-shed', label: 'Storage Shed' },
@@ -53,16 +54,13 @@ const ContactForm = () => {
   const [utmParams, setUtmParams] = useState<Record<string, string>>({});
   const landingUrlRef = useRef('');
 
-  // Capture UTM parameters and full landing URL on mount
+  // Capture attribution params (UTMs + Google Ads ValueTrack) and the
+  // full landing URL on mount so we retain them even if the user
+  // navigates before submitting.
   useEffect(() => {
     landingUrlRef.current = window.location.href;
-    const params = new URLSearchParams(window.location.search);
-    const utms: Record<string, string> = {};
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'].forEach((key) => {
-      const val = params.get(key);
-      if (val) utms[key] = val;
-    });
-    if (Object.keys(utms).length > 0) setUtmParams(utms);
+    const tracking = getTrackingParams();
+    if (Object.keys(tracking).length > 0) setUtmParams(tracking);
   }, []);
   const [formData, setFormData] = useState({
     name: '',
@@ -485,6 +483,8 @@ const ContactForm = () => {
       };
 
       // Primary: call GHL external-tracking directly via its JS API.
+      // Pass the mount-captured tracking params so we don't lose them
+      // if the user navigated away from the landing page before submit.
       trackFormSubmit({
         formId: isShedMove ? 'Summit Shed Move' : 'Summit Contact',
         firstName,
@@ -492,6 +492,7 @@ const ContactForm = () => {
         email: formData.email,
         phone: formData.phone,
         postalCode: formData.zipCode,
+        tracking: utmParams,
       });
 
       // Zapier fires immediately (email notifications).

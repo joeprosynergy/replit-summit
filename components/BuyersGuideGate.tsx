@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { trackFormSubmit } from '@/lib/ghl-track';
+import { getTrackingParams } from '@/lib/tracking-params';
 
 interface BuyersGuideFormData {
   name: string;
@@ -52,15 +53,11 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
   const landingUrlRef = useRef('');
 
   useEffect(() => {
-    // Capture UTM parameters and full landing URL on mount
+    // Capture attribution params (UTMs + Google Ads ValueTrack) and the
+    // full landing URL on mount.
     landingUrlRef.current = window.location.href;
-    const params = new URLSearchParams(window.location.search);
-    const utms: Record<string, string> = {};
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'].forEach((key) => {
-      const val = params.get(key);
-      if (val) utms[key] = val;
-    });
-    if (Object.keys(utms).length > 0) setUtmParams(utms);
+    const tracking = getTrackingParams();
+    if (Object.keys(tracking).length > 0) setUtmParams(tracking);
 
     // Check if user has already submitted the form
     const hasStoredAccess = localStorage.getItem(STORAGE_KEY) === 'true';
@@ -175,6 +172,7 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
       email: formData.email,
       phone: formData.phone,
       postalCode: formData.zipCode,
+      tracking: utmParams,
     });
 
     try {

@@ -1,3 +1,5 @@
+import { getTrackingParams, TrackingParams } from '@/lib/tracking-params'
+
 /**
  * Fire a GHL external-tracking form submission event.
  *
@@ -9,6 +11,10 @@
  * If GHL's own tracking script loaded successfully we also grab its
  * sessionId so prior anonymous page views on the contact's browser
  * get attributed to the new contact.
+ *
+ * Pass `tracking` explicitly when you captured params on mount — by
+ * the time the user submits they may have navigated to a non-landing
+ * page where URL params are no longer present.
  */
 export function trackFormSubmit(params: {
   formId: string
@@ -18,6 +24,7 @@ export function trackFormSubmit(params: {
   phone?: string
   postalCode?: string
   extra?: Record<string, string>
+  tracking?: TrackingParams
 }) {
   if (typeof window === 'undefined') return
 
@@ -28,12 +35,15 @@ export function trackFormSubmit(params: {
   const w = window as any
   const sessionId: string | undefined = w._lcTracking?.tracker?.state?.sessionId
 
+  const tracking = params.tracking ?? getTrackingParams()
+
   const formData: Record<string, string> = {
     first_name: params.firstName || '',
     last_name: params.lastName || '',
     email: params.email,
     phone: params.phone || '',
     postal_code: params.postalCode || '',
+    ...tracking,
     ...(params.extra || {}),
   }
 
