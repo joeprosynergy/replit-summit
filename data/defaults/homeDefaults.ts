@@ -310,7 +310,7 @@ export const homeDefaults: HomeContent = {
   contactHeading: 'Request a Quote',
   contactSubheading: 'Have questions? Ready to get started? Fill out the form below and we\'ll get back to you promptly.',
   contactCallTitle: 'Call Us',
-  contactPhoneNumber: '(573) 747-4700',
+  contactPhoneNumber: '573-747-4700',
   contactLocationTitle: 'Main Location',
   contactAddress1: '7336 State Highway 32',
   contactAddress2: 'Farmington, MO 63640',

@@ -1021,7 +1021,7 @@ export default function HomePageClient({ initialContent }: { initialContent: any
                         isEditMode={isEditMode}
                         as="span"
                       />{' '}
-                      <a href="tel:5737474700" className="hover:text-secondary transition-colors underline">(573) 747-4700</a>
+                      <a href="tel:5737474700" className="hover:text-secondary transition-colors underline">573-747-4700</a>
                     </p>
                   </div>
                 </div>

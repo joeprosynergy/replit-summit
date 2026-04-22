@@ -11,7 +11,7 @@ const BUSINESS_INFO = {
   description:
     "Affordable, high quality, hand crafted storage buildings built in the USA. Serving Missouri, Illinois, Kentucky, and Arkansas.",
   phone: "+15737474700",
-  phoneDisplay: "(573) 747-4700",
+  phoneDisplay: "573-747-4700",
   email: "ervin@summitbuildings.com",
   address: {
     street: "7336 State Highway 32",

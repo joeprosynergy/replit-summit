@@ -127,7 +127,7 @@ export const defaultFooterConfig: FooterConfig = {
   ],
   ctaHeading: 'Get the building of your dreams',
   ctaPhone: 'tel:5737474700',
-  ctaPhoneDisplay: '(573) 747-4700',
+  ctaPhoneDisplay: '573-747-4700',
   button1Text: 'Browse Inventory',
   button1Link: 'https://summitportablebuildings.shedsuite.com/821',
   button1IsExternal: true,

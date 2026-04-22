@@ -283,7 +283,7 @@ export const traditionalShedDefaults: TraditionalShedContent = {
   contactHeading: 'Ready to Talk Traditional Sheds?',
   contactSubheading: 'Fill out the form below and we\'ll get back to you with a quote. Or just give us a call — we\'re real people, not a call center.',
   contactCallTitle: 'Call Us',
-  contactPhoneNumber: '(573) 747-4700',
+  contactPhoneNumber: '573-747-4700',
   contactLocationTitle: 'Visit Our Lot',
   contactAddress1: '7336 State Highway 32',
   contactAddress2: 'Farmington, MO 63640',

@@ -248,7 +248,7 @@ export function AnimalSheltersView({ content }: AnimalSheltersViewProps) {
                   rel={content.ctaSecondaryButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
                 >
                   <Button variant="heroOutline" size="xl">
-                    {content.ctaSecondaryButton || 'Call (573) 747-4700'}
+                    {content.ctaSecondaryButton || 'Call 573-747-4700'}
                   </Button>
                 </a>
               </div>

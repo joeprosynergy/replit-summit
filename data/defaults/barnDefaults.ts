@@ -265,7 +265,7 @@ export const barnDefaults: BarnContent = {
   finalCtaHeading: 'Ready to Get Started?',
   finalCtaDescription: 'Fill out the form and we\'ll get back to you with a quote. Or just call us. We\'re real people, not a call center.',
   finalCtaFormHeading: 'Get Your Free Quote',
-  contactPhoneNumber: '(573) 747-4700',
+  contactPhoneNumber: '573-747-4700',
   contactAddress1: '7336 State Highway 32',
   contactAddress2: 'Farmington, MO 63640',
   contactHours1: 'Mon - Fri: 8am - 5pm',

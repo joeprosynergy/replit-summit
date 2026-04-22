@@ -33,7 +33,7 @@ const Contact = () => {
               </h3>
               <a href="tel:5737474700" className="flex items-center gap-3 text-secondary text-2xl font-bold hover:underline">
                 <Phone className="w-6 h-6" />
-                (573) 747-4700
+                573-747-4700
               </a>
             </div>
 

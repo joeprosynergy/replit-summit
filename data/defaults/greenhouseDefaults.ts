@@ -111,7 +111,7 @@ export const greenhouseDefaults: ProductPageContent = {
   ctaPrimaryButton: 'Design Your Greenhouse',
   ctaPrimaryButtonLink: 'https://summitbuildings.shedpro.co/',
   ctaPrimaryButtonOpenInNewTab: true,
-  ctaSecondaryButton: 'Call (573) 747-4700',
+  ctaSecondaryButton: 'Call 573-747-4700',
   ctaSecondaryButtonLink: 'tel:5737474700',
   ctaSecondaryButtonOpenInNewTab: false,
 

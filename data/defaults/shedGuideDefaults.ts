@@ -322,7 +322,7 @@ export const shedGuideDefaults: ShedGuideContent = {
   ctaSecondaryLink: 'https://summitbuildings.shedpro.co/',
 
   // CONTACT
-  contactPhoneNumber: '(573) 747-4700',
+  contactPhoneNumber: '573-747-4700',
   contactAddress1: '7336 State Highway 32',
   contactAddress2: 'Farmington, MO 63640',
   contactHours1: 'Mon - Fri: 9am - 5pm',

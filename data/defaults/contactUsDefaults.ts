@@ -83,7 +83,7 @@ export const contactUsDefaults: ContactUsContent = {
   // Contact Info
   contactInfoHeading: 'Contact Information',
   phone: 'tel:5737474700',
-  phoneDisplay: '(573) 747-4700',
+  phoneDisplay: '573-747-4700',
   email: 'summitmainoffice@gmail.com',
   addressLine1: 'Summit Portable Buildings',
   addressLine2: '7336 State Highway 32',

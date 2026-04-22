@@ -414,7 +414,7 @@ export default function AnimalSheltersEditable({ initialContent }: AnimalShelter
                       </a>
                     </InlineEditableButton>
                     <InlineEditableButton
-                      text={content.ctaSecondaryButton || 'Call (573) 747-4700'}
+                      text={content.ctaSecondaryButton || 'Call 573-747-4700'}
                       href={content.ctaSecondaryButtonLink || 'tel:5737474700'}
                       isExternal={content.ctaSecondaryButtonOpenInNewTab ?? false}
                       onTextChange={(val) => updateField('ctaSecondaryButton', val)}
@@ -428,7 +428,7 @@ export default function AnimalSheltersEditable({ initialContent }: AnimalShelter
                         rel={content.ctaSecondaryButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
                       >
                         <Button variant="heroOutline" size="xl">
-                          {content.ctaSecondaryButton || 'Call (573) 747-4700'}
+                          {content.ctaSecondaryButton || 'Call 573-747-4700'}
                         </Button>
                       </a>
                     </InlineEditableButton>

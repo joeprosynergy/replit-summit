@@ -242,7 +242,7 @@ export const farmingtonDefaults: LocationContent = {
   contactHeading: 'Visit Us in Farmington',
   contactSubheading: 'Stop by our lot to see our buildings in person, or give us a call. We\'re happy to answer any questions.',
   contactCallTitle: 'Call Us',
-  contactPhoneNumber: '(573) 747-4700',
+  contactPhoneNumber: '573-747-4700',
   contactLocationTitle: 'Our Location',
   contactAddress1: '7336 State Highway 32',
   contactAddress2: 'Farmington, MO 63640',
