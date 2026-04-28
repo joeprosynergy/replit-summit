@@ -8,6 +8,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import ScrollToTop from "@/components/ScrollToTop";
 import { CodeSnippetInjector } from "@/components/CodeSnippetInjector";
 import { BuyersGuideLinkInterceptor } from "@/components/BuyersGuideLinkInterceptor";
+import TrackingParamsCapture from "@/components/TrackingParamsCapture";
 
 // Lazy-load admin toolbar so it doesn't bloat the public bundle
 const GlobalEditToolbar = lazy(() =>
@@ -22,6 +23,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <TooltipProvider>
         <BuyersGuideLinkInterceptor>
           <ScrollToTop />
+          <TrackingParamsCapture />
           <CodeSnippetInjector />
           {children}
           <Suspense fallback={null}>

@@ -142,11 +142,14 @@ export default function QuickQuoteForm() {
       // Summit AI is delayed ~1.5s so GHL's external-tracking.js (primary)
       // has time to create the contact with full attribution before we
       // enrich it with a detailed note.
+      // keepalive lets both requests survive the user closing the tab or
+      // navigating away immediately after submit.
       fetch(ZAPIER_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         mode: 'no-cors',
         body: JSON.stringify(submissionData),
+        keepalive: true,
       }).catch(() => {});
 
       setTimeout(() => {
@@ -154,8 +157,9 @@ export default function QuickQuoteForm() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(submissionData),
+          keepalive: true,
         }).catch(() => {});
-      }, 5000);
+      }, 1500);
 
       // GTM dataLayer event for conversion tracking
       window.dataLayer?.push({ event: 'form_submit', form_type: 'quick_quote' });
