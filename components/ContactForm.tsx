@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { usePathname } from 'next/navigation';
 import { trackFormSubmit } from '@/lib/ghl-track';
 import { getTrackingParams } from '@/lib/tracking-params';
+import { getHomepageVariant } from '@/lib/abTest';
 
 const interestOptions = [
   { value: 'storage-shed', label: 'Storage Shed' },
@@ -414,6 +415,9 @@ const ContactForm = () => {
         `;
       }
 
+      // Homepage A/B test cohort — set by middleware on first visit to /
+      const homepageVariant = getHomepageVariant() ?? 'unassigned';
+
       // Build zapier data based on form type
       let zapierData: Record<string, unknown>;
 
@@ -443,6 +447,7 @@ const ContactForm = () => {
             base64: img.base64,
             index: i + 1,
           })),
+          homepage_variant: homepageVariant,
           ...utmParams,
         };
       } else {
@@ -461,6 +466,7 @@ const ContactForm = () => {
           page_submitted_from: currentPage,
           submitted_at: new Date().toISOString(),
           html_content: htmlContent,
+          homepage_variant: homepageVariant,
           ...utmParams,
         };
       }
@@ -479,6 +485,7 @@ const ContactForm = () => {
         submitted_at: new Date().toISOString(),
         form_type: isShedMove ? 'shed_move' : 'contact',
         html_content: htmlContent,
+        homepage_variant: homepageVariant,
         ...utmParams,
       };
 
