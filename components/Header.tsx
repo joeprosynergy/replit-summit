@@ -19,9 +19,17 @@ const MINIMAL_NAV_ROUTES = ['/traditional'];
 
 interface HeaderProps {
   serverConfig?: HeaderConfig | null;
+  /**
+   * Force the dark-hero treatment on/off, ignoring the route-based default.
+   * Used by the (public) layout to handle the homepage A/B test: when
+   * middleware rewrites / → /v2, the URL bar still reads / so a naive
+   * pathname lookup would hit the V1 dark-hero rule and render unreadable
+   * white text over V2's light cream hero.
+   */
+  isDarkHeroOverride?: boolean;
 }
 
-const Header = ({ serverConfig }: HeaderProps = {}) => {
+const Header = ({ serverConfig, isDarkHeroOverride }: HeaderProps = {}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -31,7 +39,10 @@ const Header = ({ serverConfig }: HeaderProps = {}) => {
   });
 
   // Pages with dark hero sections (need light text when not scrolled)
-  const hasDarkHero = DARK_HERO_ROUTES.includes(pathname);
+  const hasDarkHero =
+    isDarkHeroOverride !== undefined
+      ? isDarkHeroOverride
+      : DARK_HERO_ROUTES.includes(pathname);
   const isMinimalNav = MINIMAL_NAV_ROUTES.includes(pathname);
   
   // Determine if we should use light text (for dark backgrounds)

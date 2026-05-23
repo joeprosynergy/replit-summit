@@ -81,7 +81,14 @@ export async function middleware(req: NextRequest) {
     if (variant === "v2") {
       const rewriteUrl = req.nextUrl.clone();
       rewriteUrl.pathname = "/v2";
-      response = NextResponse.rewrite(rewriteUrl);
+      // Propagate variant on the rewritten request so the layout (server
+      // component) can pick it up via headers() and tell Header to use the
+      // light-hero treatment instead of its / dark-hero default.
+      const requestHeaders = new Headers(req.headers);
+      requestHeaders.set("x-summit-homepage-variant", "v2");
+      response = NextResponse.rewrite(rewriteUrl, {
+        request: { headers: requestHeaders },
+      });
     } else {
       response = NextResponse.next();
     }
@@ -93,7 +100,11 @@ export async function middleware(req: NextRequest) {
 
   // ─── Direct /v2 visits → sticky cookie ─────────────────────
   if (pathname === "/v2") {
-    const response = NextResponse.next();
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-summit-homepage-variant", "v2");
+    const response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
     if (!isBot) setVariantCookie(response, "v2");
     return response;
   }
