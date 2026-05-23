@@ -200,7 +200,7 @@ export const privacyPolicyDefaults: PrivacyPolicyContent = {
   smsFrequencyText: "Message frequency may vary. Message and data rates may apply depending on your mobile carrier.",
   usageDataHeading: "Usage Data",
   usageDataText1: "Usage Data is collected automatically when using the Service.",
-  usageDataText2: "Usage Data may include information such as Your Device's Internet Protocol address (e.g. IP address), browser type, browser version, the pages of our Service that You visit, the time and date of Your visit, the time spent on those pages, unique device identifiers and other diagnostic data.",
+  usageDataText2: "Usage Data may include information such as Your Device's Internet Protocol address (e.g. IP address), browser type, browser version, the pages of our Service that You visit, the time and date of Your visit, the time spent on those pages, unique device identifiers and other diagnostic data. We retain this session-level technical information (including IP address and browser) for up to 90 days and may link it to inquiries You submit so we can attribute conversions to the marketing channel that referred You (for example, a Google Ads campaign or organic search).",
   usageDataText3: "When You access the Service by or through a mobile device, We may collect certain information automatically, including, but not limited to, the type of mobile device You use, Your mobile device unique ID, the IP address of Your mobile device, Your mobile operating system, the type of mobile Internet browser You use, unique device identifiers and other diagnostic data.",
   
   // Tracking
