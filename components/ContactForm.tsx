@@ -11,7 +11,7 @@ import { Send, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePathname } from 'next/navigation';
 import { trackFormSubmit } from '@/lib/ghl-track';
-import { getTrackingParams } from '@/lib/tracking-params';
+import { getTrackingParams, getLandingUrl } from '@/lib/tracking-params';
 import { getHomepageVariant } from '@/lib/abTest';
 
 const interestOptions = [
@@ -418,6 +418,11 @@ const ContactForm = () => {
       // Homepage A/B test cohort — set by middleware on first visit to /
       const homepageVariant = getHomepageVariant() ?? 'unassigned';
 
+      // First-touch landing URL with full query string. The Summit AI
+      // server prefers this over page_submitted_from so a form submitted
+      // on /contact-us still reports the original /?gclid=… URL.
+      const landingUrl = getLandingUrl();
+
       // Build zapier data based on form type
       let zapierData: Record<string, unknown>;
 
@@ -448,6 +453,7 @@ const ContactForm = () => {
             index: i + 1,
           })),
           homepage_variant: homepageVariant,
+          landing_url: landingUrl,
           ...utmParams,
         };
       } else {
@@ -467,6 +473,7 @@ const ContactForm = () => {
           submitted_at: new Date().toISOString(),
           html_content: htmlContent,
           homepage_variant: homepageVariant,
+          landing_url: landingUrl,
           ...utmParams,
         };
       }
@@ -486,6 +493,7 @@ const ContactForm = () => {
         form_type: isShedMove ? 'shed_move' : 'contact',
         html_content: htmlContent,
         homepage_variant: homepageVariant,
+        landing_url: landingUrl,
         ...utmParams,
       };
 

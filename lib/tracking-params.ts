@@ -21,6 +21,7 @@
 export type TrackingParams = Record<string, string>;
 
 const STORAGE_KEY = 'summit_tracking_params';
+const LANDING_URL_KEY = 'summit_landing_url';
 
 const UTM_KEYS = [
   'utm_source',
@@ -96,6 +97,24 @@ function readGclidCookie(): string | null {
  */
 export function captureTrackingParams(): void {
   if (typeof window === 'undefined') return;
+
+  // ─── First-touch landing URL ──────────────────────────────
+  // Persist the very first URL the visitor hit — query string and all —
+  // so a form submitted later on a clean URL like /contact-us can still
+  // report the original landing URL with ?gclid=… for attribution.
+  // First write wins: a return visit to /?gclid=NEW must not overwrite
+  // the original landing context that drove the session.
+  try {
+    if (!window.sessionStorage.getItem(LANDING_URL_KEY)) {
+      window.sessionStorage.setItem(
+        LANDING_URL_KEY,
+        window.location.href,
+      );
+    }
+  } catch {
+    /* storage disabled — skip */
+  }
+
   const fromUrl = readFromUrl();
   if (Object.keys(fromUrl).length === 0) return;
 
@@ -108,6 +127,22 @@ export function captureTrackingParams(): void {
   } catch {
     /* storage may be disabled (private mode) — fall back to URL-only */
   }
+}
+
+/**
+ * Read the first-touch landing URL captured by captureTrackingParams.
+ * Returns null if storage is empty or unavailable; callers should fall
+ * back to window.location.href.
+ */
+export function getLandingUrl(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = window.sessionStorage.getItem(LANDING_URL_KEY);
+    if (stored) return stored;
+  } catch {
+    /* fall through */
+  }
+  return window.location.href;
 }
 
 /**
