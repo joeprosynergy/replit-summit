@@ -188,7 +188,7 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
                                 </li>
                               ))}
                             </ul>
-                            <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
                               {isEditMode ? (
                                 <>
                                   <InlineEditableButton
@@ -213,6 +213,21 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
                                   >
                                     <Button variant="outline" size="lg">{model.inventoryButtonText}</Button>
                                   </InlineEditableButton>
+                                  {(model.id === 'carports' || model.id === 'rv-covers') && (
+                                    <InlineEditableButton
+                                      text={model.id === 'rv-covers' ? content.rvDesignButtonText : content.carportDesignButtonText}
+                                      href={content.carportDesignButtonLink}
+                                      isExternal={content.carportDesignButtonOpenInNewTab}
+                                      onTextChange={(v) => updateField(model.id === 'rv-covers' ? 'rvDesignButtonText' : 'carportDesignButtonText', v)}
+                                      onHrefChange={(v) => updateField('carportDesignButtonLink', v)}
+                                      onExternalChange={(v) => updateField('carportDesignButtonOpenInNewTab', v)}
+                                      isEditMode={isEditMode}
+                                    >
+                                      <Button variant="hero" size="lg">
+                                        {model.id === 'rv-covers' ? content.rvDesignButtonText : content.carportDesignButtonText}
+                                      </Button>
+                                    </InlineEditableButton>
+                                  )}
                                 </>
                               ) : (
                                 <>
@@ -237,6 +252,17 @@ export default function GaragesCarportsPageClient({ initialContent }: { initialC
                                     <a href="https://summitportablebuildings.shedsuite.com/821" target="_blank" rel="noopener noreferrer">
                                       <Button variant="outline" size="lg">
                                         {model.inventoryButtonText}
+                                      </Button>
+                                    </a>
+                                  )}
+                                  {(model.id === 'carports' || model.id === 'rv-covers') && (
+                                    <a
+                                      href={content.carportDesignButtonLink}
+                                      target={content.carportDesignButtonOpenInNewTab ? '_blank' : undefined}
+                                      rel={content.carportDesignButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
+                                    >
+                                      <Button variant="hero" size="lg">
+                                        {model.id === 'rv-covers' ? content.rvDesignButtonText : content.carportDesignButtonText}
                                       </Button>
                                     </a>
                                   )}

@@ -76,16 +76,16 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                   }
                   ctaButtons={[
                     {
-                      text: content.heroButton1Text || 'Browse Our Inventory',
-                      href: content.heroButton1Link || 'https://summitportablebuildings.shedsuite.com/821',
+                      text: content.designButtonText || 'Design Your Carport in 3D',
+                      href: content.designButtonLink || 'https://custom3dbuilder.legacybuildings.us/?dealer=SummitPortableBuildings',
                       variant: 'hero',
-                      external: content.heroButton1OpenInNewTab ?? false,
+                      external: content.designButtonOpenInNewTab ?? true,
                     },
                     {
-                      text: content.heroButton2Text || 'View All Models',
-                      href: content.heroButton2Link || '/types',
+                      text: content.heroButton1Text || 'Browse Our Inventory',
+                      href: content.heroButton1Link || 'https://summitportablebuildings.shedsuite.com/821',
                       variant: 'heroOutline',
-                      external: content.heroButton2OpenInNewTab ?? false,
+                      external: content.heroButton1OpenInNewTab ?? false,
                     },
                   ]}
                 />
@@ -105,6 +105,19 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                       <p className="text-sm font-medium text-foreground mb-2">Hero Buttons</p>
                       <div className="space-y-3">
                         <InlineEditableButton
+                          text={content.designButtonText || 'Design Your Carport in 3D'}
+                          href={content.designButtonLink || 'https://custom3dbuilder.legacybuildings.us/?dealer=SummitPortableBuildings'}
+                          isExternal={content.designButtonOpenInNewTab ?? true}
+                          onTextChange={(val) => updateField('designButtonText', val)}
+                          onHrefChange={(val) => updateField('designButtonLink', val)}
+                          onExternalChange={(val) => updateField('designButtonOpenInNewTab', val)}
+                          isEditMode={isEditMode}
+                        >
+                          <Button variant="outline" size="sm" className="w-full justify-start">
+                            {content.designButtonText || 'Design Your Carport in 3D'}
+                          </Button>
+                        </InlineEditableButton>
+                        <InlineEditableButton
                           text={content.heroButton1Text || 'Browse Our Inventory'}
                           href={content.heroButton1Link || 'https://summitportablebuildings.shedsuite.com/821'}
                           isExternal={content.heroButton1OpenInNewTab ?? false}
@@ -115,19 +128,6 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                         >
                           <Button variant="outline" size="sm" className="w-full justify-start">
                             {content.heroButton1Text || 'Browse Our Inventory'}
-                          </Button>
-                        </InlineEditableButton>
-                        <InlineEditableButton
-                          text={content.heroButton2Text || 'View All Models'}
-                          href={content.heroButton2Link || '/types'}
-                          isExternal={content.heroButton2OpenInNewTab ?? false}
-                          onTextChange={(val) => updateField('heroButton2Text', val)}
-                          onHrefChange={(val) => updateField('heroButton2Link', val)}
-                          onExternalChange={(val) => updateField('heroButton2OpenInNewTab', val)}
-                          isEditMode={isEditMode}
-                        >
-                          <Button variant="outline" size="sm" className="w-full justify-start">
-                            {content.heroButton2Text || 'View All Models'}
                           </Button>
                         </InlineEditableButton>
                       </div>
@@ -430,6 +430,29 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                         )}
                       </div>
                     </div>
+
+                    <div className="mt-10 text-center">
+                      <InlineEditableButton
+                        text={content.rvDesignButtonText || 'Design Your RV Cover in 3D'}
+                        href={content.designButtonLink || 'https://custom3dbuilder.legacybuildings.us/?dealer=SummitPortableBuildings'}
+                        isExternal={content.designButtonOpenInNewTab ?? true}
+                        onTextChange={(val) => updateField('rvDesignButtonText', val)}
+                        onHrefChange={(val) => updateField('designButtonLink', val)}
+                        onExternalChange={(val) => updateField('designButtonOpenInNewTab', val)}
+                        isEditMode={isEditMode}
+                      >
+                        <a
+                          href={content.designButtonLink || 'https://custom3dbuilder.legacybuildings.us/?dealer=SummitPortableBuildings'}
+                          target={content.designButtonOpenInNewTab ? '_blank' : undefined}
+                          rel={content.designButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
+                        >
+                          <Button variant="hero" size="xl">
+                            {content.rvDesignButtonText || 'Design Your RV Cover in 3D'}
+                            <ArrowRight className="w-5 h-5" />
+                          </Button>
+                        </a>
+                      </InlineEditableButton>
+                    </div>
                   </div>
                 </div>
               </section>
@@ -579,7 +602,31 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                       as="span"
                     />
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 justify-center">
+                    <InlineEditableButton
+                      text={content.designButtonText || 'Design Your Carport in 3D'}
+                      href={content.designButtonLink || 'https://custom3dbuilder.legacybuildings.us/?dealer=SummitPortableBuildings'}
+                      isExternal={content.designButtonOpenInNewTab ?? true}
+                      onTextChange={(val) => updateField('designButtonText', val)}
+                      onHrefChange={(val) => updateField('designButtonLink', val)}
+                      onExternalChange={(val) => updateField('designButtonOpenInNewTab', val)}
+                      isEditMode={isEditMode}
+                    >
+                      <a
+                        href={content.designButtonLink || 'https://custom3dbuilder.legacybuildings.us/?dealer=SummitPortableBuildings'}
+                        target={content.designButtonOpenInNewTab ? '_blank' : undefined}
+                        rel={content.designButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
+                      >
+                        <Button
+                          variant="heroOutline"
+                          size="xl"
+                          className="bg-primary-foreground text-foreground hover:bg-primary-foreground/90"
+                        >
+                          {content.designButtonText || 'Design Your Carport in 3D'}
+                          <ArrowRight className="w-5 h-5" />
+                        </Button>
+                      </a>
+                    </InlineEditableButton>
                     <InlineEditableButton
                       text={content.ctaPrimaryButton || 'Browse Our Inventory'}
                       href={content.ctaPrimaryButtonLink || 'https://summitportablebuildings.shedsuite.com/821'}
@@ -594,11 +641,7 @@ export default function CarportsEditable({ initialContent }: CarportsEditablePro
                         target={content.ctaPrimaryButtonOpenInNewTab ? '_blank' : undefined}
                         rel={content.ctaPrimaryButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
                       >
-                        <Button
-                          variant="heroOutline"
-                          size="xl"
-                          className="bg-primary-foreground text-foreground hover:bg-primary-foreground/90"
-                        >
+                        <Button variant="heroOutline" size="xl">
                           {content.ctaPrimaryButton || 'Browse Our Inventory'}
                           <ArrowRight className="w-5 h-5" />
                         </Button>

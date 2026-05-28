@@ -128,16 +128,16 @@ export function CarportsView({ content }: CarportsViewProps) {
             }
             ctaButtons={[
               {
-                text: content.heroButton1Text,
-                href: content.heroButton1Link,
+                text: content.designButtonText,
+                href: content.designButtonLink,
                 variant: 'hero',
-                external: content.heroButton1OpenInNewTab,
+                external: content.designButtonOpenInNewTab,
               },
               {
-                text: content.heroButton2Text,
-                href: content.heroButton2Link,
+                text: content.heroButton1Text,
+                href: content.heroButton1Link,
                 variant: 'heroOutline',
-                external: content.heroButton2OpenInNewTab,
+                external: content.heroButton1OpenInNewTab,
               },
             ]}
           />
@@ -191,6 +191,19 @@ export function CarportsView({ content }: CarportsViewProps) {
                       {content.rvProduct.badge}
                     </div>
                   </div>
+                </div>
+
+                <div className="mt-10 text-center">
+                  <a
+                    href={content.designButtonLink}
+                    target={content.designButtonOpenInNewTab ? '_blank' : undefined}
+                    rel={content.designButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
+                  >
+                    <Button variant="hero" size="xl">
+                      {content.rvDesignButtonText}
+                      <ArrowRight className="w-5 h-5" />
+                    </Button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -283,17 +296,27 @@ export function CarportsView({ content }: CarportsViewProps) {
               <p className="text-primary-foreground/90 text-lg mb-8 max-w-2xl mx-auto">
                 {content.ctaDescription}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 justify-center">
                 <a
-                  href={content.ctaPrimaryButtonLink}
-                  target={content.ctaPrimaryButtonOpenInNewTab ? '_blank' : undefined}
-                  rel={content.ctaPrimaryButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
+                  href={content.designButtonLink}
+                  target={content.designButtonOpenInNewTab ? '_blank' : undefined}
+                  rel={content.designButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
                 >
                   <Button
                     variant="heroOutline"
                     size="xl"
                     className="bg-primary-foreground text-foreground hover:bg-primary-foreground/90"
                   >
+                    {content.designButtonText}
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </a>
+                <a
+                  href={content.ctaPrimaryButtonLink}
+                  target={content.ctaPrimaryButtonOpenInNewTab ? '_blank' : undefined}
+                  rel={content.ctaPrimaryButtonOpenInNewTab ? 'noopener noreferrer' : undefined}
+                >
+                  <Button variant="heroOutline" size="xl">
                     {content.ctaPrimaryButton}
                     <ArrowRight className="w-5 h-5" />
                   </Button>

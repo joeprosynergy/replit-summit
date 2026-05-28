@@ -46,6 +46,10 @@ export interface CarportsContent {
   heroButton2Text: string;
   heroButton2Link: string;
   heroButton2OpenInNewTab: boolean;
+  designButtonText: string;
+  designButtonLink: string;
+  designButtonOpenInNewTab: boolean;
+  rvDesignButtonText: string;
 
   // === GALLERY SECTION ===
   galleryImages: Array<{ src: string; alt: string }>;
@@ -105,6 +109,10 @@ export const carportsDefaults: CarportsContent = {
   heroButton2Text: 'View All Models',
   heroButton2Link: '/types',
   heroButton2OpenInNewTab: false,
+  designButtonText: 'Design Your Carport in 3D',
+  designButtonLink: 'https://custom3dbuilder.legacybuildings.us/?dealer=SummitPortableBuildings',
+  designButtonOpenInNewTab: true,
+  rvDesignButtonText: 'Design Your RV Cover in 3D',
 
   // === GALLERY SECTION ===
   galleryImages: [

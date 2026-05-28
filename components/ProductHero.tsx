@@ -255,7 +255,7 @@ const ProductHero = ({
 
             {extraContent}
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
               {ctaButtons.map((button, index) => (
                 button.external ? (
                   <a key={index} href={button.href} target="_blank" rel="noopener noreferrer">

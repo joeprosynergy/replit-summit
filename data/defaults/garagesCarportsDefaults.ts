@@ -37,6 +37,12 @@ export interface GaragesCarportsContent {
   // Models
   models: ModelItem[];
 
+  // Carport 3D configurator (Legacy Buildings) - shown on the Carports & RV Covers model cards
+  carportDesignButtonText: string;
+  carportDesignButtonLink: string;
+  carportDesignButtonOpenInNewTab: boolean;
+  rvDesignButtonText: string;
+
   // CTA section
   ctaHeading: string;
   ctaDescription: string;
@@ -120,6 +126,12 @@ export const garagesCarportsDefaults: GaragesCarportsContent = {
       inventoryLinkOpenInNewTab: false,
     },
   ],
+
+  // Carport 3D configurator (Legacy Buildings) - shown on the Carports & RV Covers model cards
+  carportDesignButtonText: 'Design Your Carport in 3D',
+  carportDesignButtonLink: 'https://custom3dbuilder.legacybuildings.us/?dealer=SummitPortableBuildings',
+  carportDesignButtonOpenInNewTab: true,
+  rvDesignButtonText: 'Design Your RV Cover in 3D',
 
   // CTA section
   ctaHeading: "Can't Decide? We Can Help.",
