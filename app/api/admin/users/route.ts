@@ -93,15 +93,25 @@ export async function PATCH(req: NextRequest) {
   }
 
   if (action === "approve") {
-    const { error: roleError } = await supabase
+    // user_roles has no unique constraint on user_id, so upsert(onConflict)
+    // silently errored and the admin role was never granted — approved users
+    // ended up unable to edit. Check-then-insert grants it reliably. (The
+    // admin role is what content-table RLS / has_role(admin) require to edit.)
+    const { data: existingRoles, error: roleSelError } = await supabase
       .from("user_roles")
-      .upsert(
-        { user_id: targetProfile.user_id, role: "admin" },
-        { onConflict: "user_id" }
-      );
+      .select("role")
+      .eq("user_id", targetProfile.user_id);
 
-    if (roleError) {
-      console.error("[admin/users] Failed to add admin role:", roleError);
+    if (roleSelError) {
+      console.error("[admin/users] Failed to read roles:", roleSelError);
+    } else if (!(existingRoles || []).some((r: { role: string }) => r.role === "admin")) {
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .insert({ user_id: targetProfile.user_id, role: "admin" });
+
+      if (roleError) {
+        console.error("[admin/users] Failed to add admin role:", roleError);
+      }
     }
   }
 

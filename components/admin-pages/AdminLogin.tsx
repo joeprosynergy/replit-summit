@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { setAdminSessionCookie } from "@/lib/adminSessionCookie";
+import { setAdminSessionCookie, clearAdminSessionCookie } from "@/lib/adminSessionCookie";
 
 const AdminLogin = () => {
   const router = useRouter();
@@ -14,6 +14,30 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [envError, setEnvError] = useState<string | null>(null);
+
+  // Self-heal on load: wipe any stale/expired Supabase session left in
+  // localStorage plus the marker cookie before a fresh login. A corrupt or
+  // expired token here is what wedged logins in normal browsers ("works in
+  // incognito but not my usual browser") — clearing it makes login reliable.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { getBackendClient } = await import("@/lib/backendClient");
+        const supabase = getBackendClient();
+        if (supabase && !cancelled) {
+          await supabase.auth.signOut({ scope: "local" });
+        }
+      } catch {
+        // best-effort; clearing the cookie below is the important part
+      } finally {
+        clearAdminSessionCookie();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handlePasswordLogin = async () => {
     setMessage(null);
