@@ -89,7 +89,7 @@ export default function FinancingEditable({ initialContent }: FinancingEditableP
                         isExternal={hero.button2OpenInNewTab}
                         onExternalChange={(v) => updateNestedField('hero', 'button2OpenInNewTab', v)}
                       >
-                        <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 text-lg px-8 py-6">{hero.button2Text}</Button>
+                        <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 text-lg px-8 py-6">{hero.button2Text}</Button>
                       </InlineEditableButton>
                     </div>
                   </div>

@@ -46,7 +46,7 @@ export const FinancingView = ({ content }: FinancingViewProps) => {
               <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-lg px-8 py-6" asChild>
                 <a href={hero.button1Link} target={hero.button1OpenInNewTab ? '_blank' : undefined} rel={hero.button1OpenInNewTab ? 'noopener noreferrer' : undefined}>{hero.button1Text}</a>
               </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 text-lg px-8 py-6" asChild>
+              <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 text-lg px-8 py-6" asChild>
                 <a href={hero.button2Link} target={hero.button2OpenInNewTab ? '_blank' : undefined} rel={hero.button2OpenInNewTab ? 'noopener noreferrer' : undefined}>{hero.button2Text}</a>
               </Button>
             </div>
