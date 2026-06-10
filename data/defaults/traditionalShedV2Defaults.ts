@@ -257,7 +257,7 @@ export const traditionalShedV2Defaults: TraditionalShedV2Content = {
   ],
 
   // URGENCY
-  urgencyText: 'Spring is our busiest season — order now to lock in your delivery date.',
+  urgencyText: 'In-stock buildings deliver now. Custom orders build in 10 to 30 business days.',
 
   // FINAL CTA
   finalCtaHeading: 'Ready to Get Started?',

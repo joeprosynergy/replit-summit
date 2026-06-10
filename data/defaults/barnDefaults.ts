@@ -259,7 +259,7 @@ export const barnDefaults: BarnContent = {
   ],
 
   // URGENCY
-  urgencyText: 'Spring is our busiest season. Order now to lock in your delivery date.',
+  urgencyText: 'In-stock buildings deliver now. Custom orders build in 10 to 30 business days.',
 
   // FINAL CTA
   finalCtaHeading: 'Ready to Get Started?',
