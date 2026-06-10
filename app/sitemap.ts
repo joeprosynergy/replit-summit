@@ -67,6 +67,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           "types/animal-shelters", // actual page is /styles/animal-shelters
           "dealer-locator",       // page no longer exists
           "blog",                 // external blog, not a CMS page
+          "trial",                // test page
+          "welly",                // test page
+          "newy",                 // test page
         ]);
 
         dynamicEntries = pages
@@ -75,7 +78,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             return (
               !excludedSlugs.has(slug) &&
               !slug.startsWith("admin") &&
-              !slug.startsWith("cms/")
+              !slug.startsWith("cms/") &&
+              !slug.includes("working-copy")
             );
           })
           .map((page) => ({
