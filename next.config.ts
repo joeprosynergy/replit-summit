@@ -27,6 +27,18 @@ const nextConfig: NextConfig = {
   },
   // Preserve trailing slashes to match existing URL structure
   trailingSlash: false,
+  // 301s for pre-migration WordPress URLs that are still indexed/bookmarked
+  async redirects() {
+    return [
+      { source: "/our-models/cabin", destination: "/cabin", permanent: true },
+      { source: "/our-models/utility-shed", destination: "/utility-shed", permanent: true },
+      { source: "/our-models/garage", destination: "/types/garages-carports/garage", permanent: true },
+      { source: "/our-models/tiny-homes", destination: "/types/deluxe-storage-cabins#cabins-tiny-home", permanent: true },
+      { source: "/our-models/:path*", destination: "/types", permanent: true },
+      { source: "/farmington", destination: "/farmington-mo", permanent: true },
+      { source: "/home", destination: "/", permanent: true },
+    ];
+  },
   // Powered-by header is unnecessary and reveals tech stack
   poweredByHeader: false,
   // Security headers
