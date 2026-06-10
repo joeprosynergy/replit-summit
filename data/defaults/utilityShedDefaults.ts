@@ -112,7 +112,7 @@ export const utilityShedDefaults: ProductPageContent = {
 
   // === IMPORTANT NOTES ===
   showImportantNote: true,
-  importantNote: '*Free delivery within 50 miles. Transom windows come at an up-charge. Prices subject to change without warning.',
+  importantNote: '*Free delivery within 50 miles. Transom windows come at an up-charge. Prices subject to change without notice.',
 
   // === CTA SECTION ===
   ctaHeading: 'Ready to Build Your Utility Shed?',

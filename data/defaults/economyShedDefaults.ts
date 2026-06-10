@@ -141,7 +141,7 @@ export const economyShedDefaults: EconomyShedContent = {
   valueNote: '*Please note: Windows and moisture barriers are not available on Economy Shed models. This series is only available with metal siding.',
   colorHeading: 'COLOR OPTIONS',
   colorAccordionTitle: 'Metal Siding Options',
-  importantNote: '*Free delivery within 50 miles. Economy Sheds are available with metal siding only. Windows and moisture barriers are not available on this series. Prices subject to change without warning.',
+  importantNote: '*Free delivery within 50 miles. Economy Sheds are available with metal siding only. Windows and moisture barriers are not available on this series. Prices subject to change without notice.',
   heroButton1Text: 'Build Your Own',
   heroButton1Link: 'https://summitbuildings.shedpro.co/',
   heroButton1OpenInNewTab: true,

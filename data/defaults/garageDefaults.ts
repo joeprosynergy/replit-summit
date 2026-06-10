@@ -104,7 +104,7 @@ export const garageDefaults: ProductPageContent = {
 
   // === IMPORTANT NOTES ===
   showImportantNote: true,
-  importantNote: '*Free delivery within 50 miles. Ramps available at additional cost. Prices subject to change without warning.',
+  importantNote: '*Free delivery within 50 miles. Ramps available at additional cost. Prices subject to change without notice.',
 
   // === CTA SECTION ===
   ctaHeading: 'Ready to Get Started?',

@@ -239,7 +239,7 @@ export const cabinDefaults: CabinContent = {
   upgradeCategories: CABIN_UPGRADES,
 
   // === IMPORTANT NOTES ===
-  importantNote: '*Free delivery within 50 miles. Prices subject to change without warning. Base price shown is for standard configuration.',
+  importantNote: '*Free delivery within 50 miles. Prices subject to change without notice. Base price shown is for standard configuration.',
 
   // === CTA SECTION ===
   ctaHeading: 'Ready to Get Started?',

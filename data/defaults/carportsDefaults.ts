@@ -181,7 +181,7 @@ export const carportsDefaults: CarportsContent = {
   sidingCategories: CARPORTS_SIDING,
 
   // === IMPORTANT NOTES ===
-  importantNote: '*Free delivery within 50 miles. Prices subject to change without warning. Custom sizes and configurations available upon request.',
+  importantNote: '*Free delivery within 50 miles. Prices subject to change without notice. Custom sizes and configurations available upon request.',
 
   // === CTA SECTION ===
   ctaHeading: 'Ready to Get Started?',
