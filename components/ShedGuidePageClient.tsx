@@ -145,7 +145,7 @@ export default function ShedGuidePageClient({ slug, defaults }: ShedGuidePageCli
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </a>
-                <a href="/3d-configurator">
+                <a href="https://summitbuildings.shedpro.co/" target="_blank" rel="noopener noreferrer">
                   <Button variant="heroOutline" size="xl">
                     Or Jump to the 3D Designer
                   </Button>
