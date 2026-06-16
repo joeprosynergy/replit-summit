@@ -14,6 +14,13 @@ const AB_COOKIE_NAME = "summit_homepage_variant";
 const AB_COOKIE_MAX_AGE = 60 * 60 * 24 * 60; // 60 days
 const V2_SHARE = 0.5;
 
+// A/B test PAUSED 2026-06-16 — V1 won on engagement (lower bounce in GA4).
+// While false: all public traffic gets clean V1, and existing V2 cookies are
+// ignored so returning visitors roll back too. V2 is NOT deleted — preview it
+// internally via ?ab=v2 or the /v2 route. Flip back to true to resume the 50/50
+// test (and consider replacing the leaky V2 <title> with a GA4 custom dimension).
+const AB_ENABLED: boolean = false;
+
 // Match the most common bots/crawlers/social previewers so Googlebot
 // & friends always see V1 (the indexed page) and don't accidentally
 // "consume" V2 slots that should go to real visitors.
@@ -36,6 +43,17 @@ function setVariantCookie(res: NextResponse, variant: Variant) {
     maxAge: AB_COOKIE_MAX_AGE,
     sameSite: "lax",
   });
+}
+
+// V2 is rendered by the /v2 route. Rewrite there (URL stays "/") and flag the
+// variant on the request so the layout (server component) can pick it up via
+// headers() and apply the light-hero treatment instead of the dark-hero default.
+function rewriteToV2(req: NextRequest): NextResponse {
+  const rewriteUrl = req.nextUrl.clone();
+  rewriteUrl.pathname = "/v2";
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-summit-homepage-variant", "v2");
+  return NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } });
 }
 
 export async function middleware(req: NextRequest) {
@@ -64,6 +82,15 @@ export async function middleware(req: NextRequest) {
   // ─── Homepage A/B split ─────────────────────────────────────
   if (pathname === "/") {
     const forced = searchParams.get("ab");           // ?ab=v1 | ?ab=v2 for QA
+
+    // ─── A/B test paused: serve clean V1 to everyone ───────────
+    // Old V2 cookies are intentionally ignored so returning visitors roll
+    // back too. ?ab=v2 still previews V2 internally (no sticky cookie set).
+    if (!AB_ENABLED) {
+      if (forced === "v2") return rewriteToV2(req); // QA preview, no sticky cookie
+      return NextResponse.next(); // clean V1 for all public traffic
+    }
+
     const existing = req.cookies.get(AB_COOKIE_NAME)?.value;
 
     let variant: Variant;
@@ -77,21 +104,8 @@ export async function middleware(req: NextRequest) {
       variant = pickVariant();
     }
 
-    let response: NextResponse;
-    if (variant === "v2") {
-      const rewriteUrl = req.nextUrl.clone();
-      rewriteUrl.pathname = "/v2";
-      // Propagate variant on the rewritten request so the layout (server
-      // component) can pick it up via headers() and tell Header to use the
-      // light-hero treatment instead of its / dark-hero default.
-      const requestHeaders = new Headers(req.headers);
-      requestHeaders.set("x-summit-homepage-variant", "v2");
-      response = NextResponse.rewrite(rewriteUrl, {
-        request: { headers: requestHeaders },
-      });
-    } else {
-      response = NextResponse.next();
-    }
+    const response =
+      variant === "v2" ? rewriteToV2(req) : NextResponse.next();
 
     // Don't pin bots into a variant via cookies.
     if (!isBot) setVariantCookie(response, variant);
