@@ -1,10 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { buildBuilderUrl } from "@/lib/builder-link-capture";
+
+const BUILDER_URL = "https://summitbuildings.shedpro.co/";
 
 export default function Configurator3DPageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Start with the bare builder URL (matches SSR → no hydration mismatch),
+  // then decorate with the visitor's gclid/visitor_id/UTMs once mounted so
+  // the embedded builder carries the same attribution as the new-tab CTAs.
+  const [builderSrc, setBuilderSrc] = useState(BUILDER_URL);
+  useEffect(() => {
+    setBuilderSrc(buildBuilderUrl(BUILDER_URL));
+  }, []);
 
   const handleBack = () => {
     // Priority 1: Check query param
@@ -46,7 +58,7 @@ export default function Configurator3DPageClient() {
 
       {/* Iframe Container */}
       <iframe
-        src="https://summitbuildings.shedpro.co/"
+        src={builderSrc}
         className="w-full border-0 flex-1"
         style={{ height: "calc(100vh - 40px)" }}
         loading="lazy"

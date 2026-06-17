@@ -12,6 +12,7 @@ import TrackingParamsCapture from "@/components/TrackingParamsCapture";
 import VisitorSessionTracker from "@/components/VisitorSessionTracker";
 import VisitorIdentityEnricher from "@/components/VisitorIdentityEnricher";
 import PhoneClickCapture from "@/components/PhoneClickCapture";
+import BuilderLinkCapture from "@/components/BuilderLinkCapture";
 
 // Lazy-load admin toolbar so it doesn't bloat the public bundle
 const GlobalEditToolbar = lazy(() =>
@@ -30,6 +31,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <VisitorSessionTracker />
           <VisitorIdentityEnricher />
           <PhoneClickCapture />
+          <BuilderLinkCapture />
           <CodeSnippetInjector />
           {children}
           <Suspense fallback={null}>
