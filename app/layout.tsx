@@ -114,10 +114,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           />
         </noscript>
         <Providers>{children}</Providers>
-        <script
-          src="https://summit-ops-journal.netlify.app/widget/chat-widget.js"
-          data-widget-key="summit-chat-2026"
-          async
+        {/* Summit AI webchat — messages land in summit-ai-nextjs /webchat + leads */}
+        <Script id="summit-chat-config" strategy="afterInteractive">
+          {`window.SummitChatConfig={apiUrl:'https://summit-ai-nextjs.vercel.app/api/chat',widgetKey:'summit-chat-2026',headerTitle:'Summit Portable Buildings',headerSubtitle:'We typically reply right away'};`}
+        </Script>
+        <Script
+          src="https://summit-ai-nextjs.vercel.app/widget/chat-widget.js"
+          strategy="afterInteractive"
         />
         <Script
           src="https://link.msgsndr.com/js/external-tracking.js"
