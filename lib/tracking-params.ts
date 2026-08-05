@@ -146,6 +146,24 @@ export function getLandingUrl(): string | null {
 }
 
 /**
+ * Session-scoped tracking only: sessionStorage + current URL.
+ * Does NOT fall back to the `_gcl_aw` cookie (that cookie can last ~90 days).
+ *
+ * Use for display decisions like website DNI, where a cookie lookback would
+ * mis-label later organic / direct / GBP visits as ads sessions. For form
+ * and phone-click attribution (where a wider lookback is desirable), use
+ * getTrackingParams() instead.
+ */
+export function getSessionTrackingParams(): TrackingParams {
+  if (typeof window === 'undefined') return {};
+
+  const stored = readFromStorage();
+  const fromUrl = readFromUrl();
+  // Stored wins (original landing context); URL fills any gaps.
+  return { ...fromUrl, ...stored };
+}
+
+/**
  * Read tracking params for a form submission. Order of precedence:
  *   1. sessionStorage (original landing-page params, survives navigation)
  *   2. current URL query string
@@ -154,10 +172,7 @@ export function getLandingUrl(): string | null {
 export function getTrackingParams(): TrackingParams {
   if (typeof window === 'undefined') return {};
 
-  const stored = readFromStorage();
-  const fromUrl = readFromUrl();
-  // Stored wins (it's the original landing context); URL fills any gaps.
-  const merged: TrackingParams = { ...fromUrl, ...stored };
+  const merged: TrackingParams = { ...getSessionTrackingParams() };
 
   if (!merged.gclid) {
     const cookieGclid = readGclidCookie();

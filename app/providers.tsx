@@ -9,6 +9,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import { CodeSnippetInjector } from "@/components/CodeSnippetInjector";
 import { BuyersGuideLinkInterceptor } from "@/components/BuyersGuideLinkInterceptor";
 import TrackingParamsCapture from "@/components/TrackingParamsCapture";
+import AdsDni from "@/components/AdsDni";
 import VisitorSessionTracker from "@/components/VisitorSessionTracker";
 import VisitorIdentityEnricher from "@/components/VisitorIdentityEnricher";
 import PhoneClickCapture from "@/components/PhoneClickCapture";
@@ -28,6 +29,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <BuyersGuideLinkInterceptor>
           <ScrollToTop />
           <TrackingParamsCapture />
+          <AdsDni />
           <VisitorSessionTracker />
           <VisitorIdentityEnricher />
           <PhoneClickCapture />
