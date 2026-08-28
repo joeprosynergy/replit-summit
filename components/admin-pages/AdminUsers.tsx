@@ -37,7 +37,7 @@ import {
   UserX,
   Shield
 } from "lucide-react";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useAdminAuthContext } from "@/contexts/AdminAuthContext";
 import { authFetch } from "@/lib/authFetch";
 
 interface UserProfile {
@@ -56,20 +56,13 @@ type ActionType = "approve" | "reject" | null;
 
 const AdminUsers = () => {
   const router = useRouter();
-  const { user, isAdmin, isLoading: authLoading } = useAdminAuth();
+  const { user, isAdmin, isLoading: authLoading } = useAdminAuthContext();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionUser, setActionUser] = useState<UserProfile | null>(null);
   const [actionType, setActionType] = useState<ActionType>(null);
   const [isActioning, setIsActioning] = useState(false);
-
-  // Redirect if not admin
-  useEffect(() => {
-    if (!authLoading && (!user || !isAdmin)) {
-      router.push("/admin/login");
-    }
-  }, [user, isAdmin, authLoading, router]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -214,10 +207,18 @@ const AdminUsers = () => {
     </Table>
   );
 
-  if (authLoading || isLoading) {
+  if (authLoading || (isAdmin && isLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>You don't have admin access.</p>
       </div>
     );
   }

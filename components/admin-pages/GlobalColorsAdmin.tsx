@@ -8,14 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Save } from 'lucide-react';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { useGlobalColors } from '@/hooks/useGlobalColors';
 import InlineEditableColorSwatch from '@/components/admin/InlineEditableColorSwatch';
 import { GlobalColor } from '@/shared/globalColorsSchema';
 
 export default function GlobalColorsAdmin() {
   const router = useRouter();
-  const { isAdmin, isLoading: authLoading } = useAdminAuth();
+  const { isAdmin, isLoading: authLoading } = useAdminAuthContext();
   const { colors, isLoading, isSaving, saveColors } = useGlobalColors();
   const [editedColors, setEditedColors] = useState<GlobalColor[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
@@ -75,8 +75,11 @@ export default function GlobalColorsAdmin() {
   }
 
   if (!isAdmin) {
-    router.replace("/admin/login");
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>You don't have admin access.</p>
+      </div>
+    );
   }
 
   return (

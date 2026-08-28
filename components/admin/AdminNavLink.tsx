@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Settings } from 'lucide-react';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useOptionalAdminAuth } from '@/contexts/useOptionalAdminAuth';
 
 export function AdminNavLink() {
-  const { isAdmin } = useAdminAuth();
+  const { isAdmin } = useOptionalAdminAuth();
   const pathname = usePathname();
   
   if (!isAdmin) return null;

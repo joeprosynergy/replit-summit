@@ -26,12 +26,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Plus, Save, Trash2, Edit, Code, ArrowLeft } from 'lucide-react';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { useCodeSnippets, CodeSnippet } from '@/hooks/useCodeSnippets';
 
 export default function AdminCodeSnippets() {
   const router = useRouter();
-  const { isAdmin, isLoading: authLoading } = useAdminAuth();
+  const { isAdmin, isLoading: authLoading } = useAdminAuthContext();
   const { snippets, isLoading, isSaving, saveSnippets, addSnippet } = useCodeSnippets();
   const [editedSnippets, setEditedSnippets] = useState<CodeSnippet[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
@@ -145,8 +145,11 @@ export default function AdminCodeSnippets() {
   }
 
   if (!isAdmin) {
-    router.replace("/admin/login");
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>You don't have admin access.</p>
+      </div>
+    );
   }
 
   return (

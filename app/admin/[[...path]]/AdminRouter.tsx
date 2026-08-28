@@ -1,8 +1,8 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Suspense, lazy } from "react";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useEffect, useState, Suspense, lazy, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAdminAuthContext } from "@/contexts/AdminAuthContext";
 import { Loader2 } from "lucide-react";
 
 // Lazy-load admin pages for code splitting
@@ -15,30 +15,52 @@ const AdminUsers = lazy(() => import("@/components/admin-pages/AdminUsers"));
 const GlobalColorsAdmin = lazy(() => import("@/components/admin-pages/GlobalColorsAdmin"));
 const AdminCodeSnippets = lazy(() => import("@/components/admin-pages/AdminCodeSnippets"));
 
-function AdminLoadingFallback() {
+function AdminLoadingFallback({ onRetry }: { onRetry?: () => void }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-4">
         <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
         <p className="text-muted-foreground">Loading admin panel...</p>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="text-sm text-primary hover:underline"
+          >
+            Retry
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAdminAuth();
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { sessionStatus } = useAdminAuthContext();
+  const router = useRouter();
+  const [showRetry, setShowRetry] = useState(false);
 
-  if (isLoading) {
-    return <AdminLoadingFallback />;
-  }
-
-  if (!user) {
-    // Redirect to login
-    if (typeof window !== "undefined") {
-      window.location.href = "/admin/login";
+  useEffect(() => {
+    if (sessionStatus === "signed-out") {
+      router.replace("/admin/login");
     }
-    return <AdminLoadingFallback />;
+  }, [sessionStatus, router]);
+
+  useEffect(() => {
+    if (sessionStatus !== "unknown") {
+      setShowRetry(false);
+      return;
+    }
+    const timer = setTimeout(() => setShowRetry(true), 8000);
+    return () => clearTimeout(timer);
+  }, [sessionStatus]);
+
+  if (sessionStatus === "signed-out" || sessionStatus === "unknown") {
+    return (
+      <AdminLoadingFallback
+        onRetry={sessionStatus === "unknown" && showRetry ? () => window.location.reload() : undefined}
+      />
+    );
   }
 
   return <>{children}</>;

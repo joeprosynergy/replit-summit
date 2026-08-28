@@ -11,6 +11,7 @@ export function useOptionalAdminAuth() {
     user: null,
     error: null,
     approvalStatus: null,
+    sessionStatus: "signed-out" as const,
     recheckAdmin: async () => {},
   };
 }

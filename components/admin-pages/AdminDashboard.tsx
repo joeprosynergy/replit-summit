@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { LogOut, Settings, Users, FileText, ShieldX, ChevronDown, RefreshCw, Copy } from "lucide-react";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useAdminAuthContext } from "@/contexts/AdminAuthContext";
 import { getBackendClient, isBackendAvailable } from "@/lib/backendClient";
 import { clearAdminSessionCookie } from "@/lib/adminSessionCookie";
 
@@ -38,7 +38,7 @@ const STATIC_PAGE_SLUGS = [
 
 function AdminDashboard() {
   const router = useRouter();
-  const { user, isAdmin, isLoading, error, recheckAdmin } = useAdminAuth();
+  const { user, isAdmin, isLoading, error, recheckAdmin } = useAdminAuthContext();
   const client = getBackendClient();
   const [isRechecking, setIsRechecking] = useState(false);
   const [debugOpen, setDebugOpen] = useState(false);
@@ -109,7 +109,6 @@ function AdminDashboard() {
   }
 
   if (!user) {
-    router.replace("/admin/login");
     return null;
   }
 

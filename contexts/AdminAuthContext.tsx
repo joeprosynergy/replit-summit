@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, ReactNode, useRef, useMemo, useEffect } from 'react';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useAdminAuth, type SessionStatus } from '@/hooks/useAdminAuth';
 import type { User } from '@supabase/supabase-js';
 
 interface AdminAuthContextValue {
@@ -11,6 +11,7 @@ interface AdminAuthContextValue {
   isRevalidating: boolean;
   error: string | null;
   approvalStatus: 'pending' | 'approved' | 'rejected' | null;
+  sessionStatus: SessionStatus;
   recheckAdmin: () => Promise<void>;
 }
 

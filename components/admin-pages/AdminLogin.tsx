@@ -15,29 +15,71 @@ const AdminLogin = () => {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [envError, setEnvError] = useState<string | null>(null);
 
-  // Self-heal on load: wipe any stale/expired Supabase session left in
-  // localStorage plus the marker cookie before a fresh login. A corrupt or
-  // expired token here is what wedged logins in normal browsers ("works in
-  // incognito but not my usual browser") — clearing it makes login reliable.
+  // Self-heal only on definitive invalidity. A valid session must survive a
+  // bounce to this page: set the marker cookie, then continue to /admin.
+  // Timeout/network errors must not destroy local auth.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const { getBackendClient } = await import("@/lib/backendClient");
         const supabase = getBackendClient();
-        if (supabase && !cancelled) {
-          await supabase.auth.signOut({ scope: "local" });
+        if (!supabase || cancelled) return;
+
+        let session: { access_token?: string } | null = null;
+        try {
+          const timeout = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("timeout")), 4000)
+          );
+          const { data } = await Promise.race([supabase.auth.getSession(), timeout]);
+          session = data.session;
+        } catch {
+          return;
+        }
+        if (cancelled) return;
+
+        if (!session) {
+          clearAdminSessionCookie();
+          return;
+        }
+
+        try {
+          const timeout = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("timeout")), 4000)
+          );
+          const { data, error } = await Promise.race([supabase.auth.getUser(), timeout]);
+          if (cancelled) return;
+
+          const status = (error as { status?: number } | null)?.status;
+          const message = ((error as { message?: string } | null)?.message || "").toLowerCase();
+          const rejected =
+            status === 401 ||
+            status === 403 ||
+            message.includes("invalid refresh") ||
+            message.includes("refresh token") ||
+            message.includes("jwt expired") ||
+            message.includes("session expired");
+          if (error && rejected) {
+            await supabase.auth.signOut({ scope: "local" });
+            clearAdminSessionCookie();
+            return;
+          }
+
+          if (data?.user) {
+            setAdminSessionCookie();
+            router.replace("/admin");
+          }
+        } catch {
+          return;
         }
       } catch {
-        // best-effort; clearing the cookie below is the important part
-      } finally {
-        clearAdminSessionCookie();
+        // best-effort; never destroy a session from an unexpected error
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [router]);
 
   const handlePasswordLogin = async () => {
     setMessage(null);

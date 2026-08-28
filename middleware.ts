@@ -62,11 +62,7 @@ export async function middleware(req: NextRequest) {
   // ─── Admin auth (unchanged behavior) ───────────────────────
   if (pathname.startsWith("/admin")) {
     if (PUBLIC_ADMIN_PATHS.has(pathname)) {
-      const response = NextResponse.next();
-      if (pathname === "/admin/login" && req.cookies.get(ADMIN_COOKIE_NAME)) {
-        response.cookies.set(ADMIN_COOKIE_NAME, "", { path: "/", maxAge: 0 });
-      }
-      return response;
+      return NextResponse.next();
     }
     const hasSession = req.cookies.get(ADMIN_COOKIE_NAME);
     if (!hasSession) {
