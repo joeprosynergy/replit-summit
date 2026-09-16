@@ -46,7 +46,7 @@ export default function InventoryPageClient() {
 
       {/* Iframe Container */}
       <iframe
-        src="https://summitportablebuildings.shedsuite.com/821"
+        src="https://lotoffice.app/embed/summit/inventory"
         className="w-full border-0 flex-1"
         style={{ height: "calc(100vh - 40px)" }}
         loading="lazy"
