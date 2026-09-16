@@ -15,6 +15,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { trackFormSubmit } from '@/lib/ghl-track';
+import { notifyLotlineLead } from '@/lib/lotline-lead';
 import { getTrackingParams } from '@/lib/tracking-params';
 
 interface BuyersGuideFormData {
@@ -198,6 +199,24 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
       postalCode: formData.zipCode,
       tracking: utmParams,
     });
+
+    // Exclusive of BuyersGuideGate for a single submit: this modal
+    // only runs on link intercept. After success we set
+    // buyersGuideAccess so the page gate does not collect again.
+    notifyLotlineLead(
+      {
+        name: formData.name,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' '),
+        phone: formData.phone,
+        email: formData.email,
+        zipCode: formData.zipCode,
+        interest: 'Buyers Guide',
+        landing_url: landingUrlRef.current || window.location.href,
+        tracking: utmParams,
+      },
+      { keepalive: true },
+    );
 
     try {
       // Use URLSearchParams to avoid CORS issues with Zapier webhooks

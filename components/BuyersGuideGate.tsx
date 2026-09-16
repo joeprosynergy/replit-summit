@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { trackFormSubmit } from '@/lib/ghl-track';
+import { notifyLotlineLead } from '@/lib/lotline-lead';
 import { getTrackingParams } from '@/lib/tracking-params';
 
 interface BuyersGuideFormData {
@@ -174,6 +175,26 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
       postalCode: formData.zipCode,
       tracking: utmParams,
     });
+
+    // Exclusive of BuyersGuideLinkInterceptor for a single submit: the
+    // interceptor only opens on buyers-guide <a> clicks (and writes
+    // buyersGuideAccess before navigation). This gate only collects on
+    // a direct /buyers-guide visit without that key. One submit cannot
+    // invoke both handlers.
+    notifyLotlineLead(
+      {
+        name: formData.name,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' '),
+        phone: formData.phone,
+        email: formData.email,
+        zipCode: formData.zipCode,
+        interest: 'Buyers Guide',
+        landing_url: landingUrlRef.current || window.location.href,
+        tracking: utmParams,
+      },
+      { keepalive: true },
+    );
 
     try {
       // Use URLSearchParams to avoid CORS issues with Zapier webhooks

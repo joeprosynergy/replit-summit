@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { trackFormSubmit } from '@/lib/ghl-track';
+import { notifyLotlineLead } from '@/lib/lotline-lead';
 import { getTrackingParams } from '@/lib/tracking-params';
 
 const ZAPIER_WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/20240386/uwfjnan/';
@@ -137,6 +138,22 @@ export default function QuickQuoteForm() {
         postalCode: formData.zipCode,
         tracking: utmParams,
       });
+
+      notifyLotlineLead(
+        {
+          name: formData.name,
+          firstName,
+          lastName,
+          phone: formData.phone,
+          email: formData.email,
+          message: formData.message,
+          zipCode: formData.zipCode,
+          interest: 'Traditional A-Frame Shed (Quick Quote)',
+          landing_url: landingUrlRef.current || window.location.href,
+          tracking: utmParams,
+        },
+        { keepalive: true },
+      );
 
       // Zapier fires immediately (email notifications).
       // Summit AI is delayed ~1.5s so GHL's external-tracking.js (primary)
