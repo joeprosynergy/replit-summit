@@ -11,6 +11,7 @@ import { Send, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { usePathname } from 'next/navigation';
 import { trackFormSubmit } from '@/lib/ghl-track';
+import { notifyLotlineLead } from '@/lib/lotline-lead';
 import { getTrackingParams, getLandingUrl } from '@/lib/tracking-params';
 import { getHomepageVariant } from '@/lib/abTest';
 
@@ -509,6 +510,28 @@ const ContactForm = () => {
         postalCode: formData.zipCode,
         tracking: utmParams,
       });
+
+      notifyLotlineLead(
+        {
+          name: formData.name,
+          firstName,
+          lastName,
+          phone: formData.phone,
+          email: formData.email,
+          message: formData.message,
+          zipCode: formData.zipCode,
+          interest: isShedMove
+            ? 'shed-move'
+            : formData.interest === 'other' && formData.otherInterest.trim()
+              ? formData.otherInterest
+              : formData.interest,
+          size: isShedMove ? formData.shedSize : formData.size,
+          contactMethod: formData.contactMethod,
+          landing_url: landingUrl,
+          tracking: utmParams,
+        },
+        { keepalive: true },
+      );
 
       // Zapier fires immediately (email notifications).
       // Summit AI is delayed ~1.5s so GHL's external-tracking.js (primary)

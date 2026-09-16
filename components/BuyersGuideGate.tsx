@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { trackFormSubmit } from '@/lib/ghl-track';
+import { notifyLotlineLead } from '@/lib/lotline-lead';
 import { getTrackingParams } from '@/lib/tracking-params';
 
 interface BuyersGuideFormData {
@@ -174,6 +175,21 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
       postalCode: formData.zipCode,
       tracking: utmParams,
     });
+
+    notifyLotlineLead(
+      {
+        name: formData.name,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' '),
+        phone: formData.phone,
+        email: formData.email,
+        zipCode: formData.zipCode,
+        interest: 'Buyers Guide',
+        landing_url: landingUrlRef.current || window.location.href,
+        tracking: utmParams,
+      },
+      { keepalive: true },
+    );
 
     try {
       // Use URLSearchParams to avoid CORS issues with Zapier webhooks
