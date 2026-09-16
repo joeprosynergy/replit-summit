@@ -30,7 +30,7 @@ VALUES (
       {
         "id": "inventory",
         "label": "See Inventory",
-        "href": "https://summitportablebuildings.shedsuite.com/821",
+        "href": "https://lotoffice.app/t/summit/inventory",
         "isExternal": true
       },
       {
@@ -255,7 +255,7 @@ VALUES (
     "ctaPhone": "tel:5737474700",
     "ctaPhoneDisplay": "(573) 747-4700",
     "button1Text": "Browse Inventory",
-    "button1Link": "https://summitportablebuildings.shedsuite.com/821",
+    "button1Link": "https://lotoffice.app/t/summit/inventory",
     "button1IsExternal": true,
     "button2Text": "Design Now",
     "button2Link": "https://summitbuildings.shedpro.co/",

@@ -52,7 +52,7 @@ export const defaultHeaderConfig: HeaderConfig = {
   navLinks: [
     { id: 'about-us', label: 'About Us', href: '/about-us', isRoute: true },
     { id: 'building-styles', label: 'Building Styles', href: '/styles', isRoute: true },
-    { id: 'inventory', label: 'See Inventory', href: 'https://summitportablebuildings.shedsuite.com/821', isExternal: true },
+    { id: 'inventory', label: 'See Inventory', href: 'https://lotoffice.app/t/summit/inventory', isExternal: true },
     { id: 'contact-us', label: 'Contact Us', href: '/contact-us', isRoute: true },
   ],
   ctaPhone: 'tel:5737474700',
@@ -129,7 +129,7 @@ export const defaultFooterConfig: FooterConfig = {
   ctaPhone: 'tel:5737474700',
   ctaPhoneDisplay: '573-747-4700',
   button1Text: 'Browse Inventory',
-  button1Link: 'https://summitportablebuildings.shedsuite.com/821',
+  button1Link: 'https://lotoffice.app/t/summit/inventory',
   button1IsExternal: true,
   button2Text: 'Design Now',
   button2Link: 'https://summitbuildings.shedpro.co/',

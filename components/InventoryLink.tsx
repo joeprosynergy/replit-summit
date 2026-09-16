@@ -8,15 +8,15 @@ interface InventoryLinkProps {
   onClick?: () => void;
 }
 
-const SHEDSUITE_INVENTORY_URL = 'https://summitportablebuildings.shedsuite.com/821';
+const LOTLINE_INVENTORY_URL = 'https://lotoffice.app/t/summit/inventory';
 
 /**
- * A Link component that navigates directly to the ShedSuite inventory website in a new tab.
+ * A Link component that navigates directly to Lotline inventory in a new tab.
  */
 const InventoryLink = ({ children, className, onClick }: InventoryLinkProps) => {
   return (
     <a
-      href={SHEDSUITE_INVENTORY_URL}
+      href={LOTLINE_INVENTORY_URL}
       target="_blank"
       rel="noopener noreferrer"
       className={className}
