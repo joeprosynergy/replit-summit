@@ -200,6 +200,9 @@ export function BuyersGuideLinkInterceptor({ children }: { children: React.React
       tracking: utmParams,
     });
 
+    // Exclusive of BuyersGuideGate for a single submit: this modal
+    // only runs on link intercept. After success we set
+    // buyersGuideAccess so the page gate does not collect again.
     notifyLotlineLead(
       {
         name: formData.name,

@@ -176,6 +176,11 @@ export function BuyersGuideGate({ children, bypassGate = false }: BuyersGuideGat
       tracking: utmParams,
     });
 
+    // Exclusive of BuyersGuideLinkInterceptor for a single submit: the
+    // interceptor only opens on buyers-guide <a> clicks (and writes
+    // buyersGuideAccess before navigation). This gate only collects on
+    // a direct /buyers-guide visit without that key. One submit cannot
+    // invoke both handlers.
     notifyLotlineLead(
       {
         name: formData.name,
