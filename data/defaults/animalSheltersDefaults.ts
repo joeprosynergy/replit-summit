@@ -91,7 +91,7 @@ export const animalSheltersDefaults: AnimalSheltersContent = {
   // === META & SEO ===
   metaTitle: 'Animal Shelters, Dog Kennels & Chicken Coops | Summit Portable Buildings',
   metaDescription: 'Quality animal housing solutions from Summit Buildings. Dog kennels, chicken coops, and animal shelters built with durable materials for comfort, safety, and security.',
-  canonicalUrl: 'https://summitbuildings.com/types/animal-shelters',
+  canonicalUrl: 'https://summitbuildings.com/styles/animal-shelters',
 
   // === HERO SECTION ===
   title: 'ANIMAL',

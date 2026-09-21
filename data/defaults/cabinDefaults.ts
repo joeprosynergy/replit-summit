@@ -161,7 +161,7 @@ export const cabinDefaults: CabinContent = {
   // === META & SEO ===
   metaTitle: 'Summit Cabin | Summit Portable Buildings',
   metaDescription: 'The Summit Cabin is perfect for your lake lot, hunting cabin, or tiny home. Features 7/12 pitch roof, 6\' treated wood porch, LED lighting, electrical package, and double pane windows. Starting at $29,717.89. Free delivery within 50 miles.',
-  canonicalUrl: 'https://summitbuildings.com/types/deluxe-storage-cabins/cabin',
+  canonicalUrl: 'https://summitbuildings.com/styles/cabin',
 
   // === HERO SECTION ===
   title: 'SUMMIT',

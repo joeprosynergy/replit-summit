@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || budgetProUtilityDefaults.metaTitle },
     description: content?.metaDescription || budgetProUtilityDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/types/basic-storage/budget-pro-utility",
+      canonical: "https://summitbuildings.com/styles/budget-pro-utility",
     },
     openGraph: {
       title: content?.metaTitle || budgetProUtilityDefaults.metaTitle,
       description: content?.metaDescription || budgetProUtilityDefaults.metaDescription,
-      url: "https://summitbuildings.com/types/basic-storage/budget-pro-utility",
+      url: "https://summitbuildings.com/styles/budget-pro-utility",
       images: [OG_IMAGE],
     },
   };
@@ -37,15 +37,14 @@ export default async function BudgetProUtilityPage() {
     <>
       <JsonLdScript data={getBreadcrumbJsonLd([
         { name: "Home", url: "/" },
-        { name: "Our Models", url: "/types" },
-        { name: "Basic Storage", url: "/types/basic-storage" },
-        { name: "Budget Pro Utility", url: "/types/basic-storage/budget-pro-utility" },
+        { name: "Building Styles", url: "/styles" },
+        { name: "Budget Pro Utility", url: "/styles/budget-pro-utility" },
       ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,
         image: initialContent.heroImage,
-        url: "/types/basic-storage/budget-pro-utility",
+        url: "/styles/budget-pro-utility",
         category: "Basic Storage",
       })} />
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>

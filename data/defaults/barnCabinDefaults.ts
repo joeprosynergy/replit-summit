@@ -96,7 +96,7 @@ export const barnCabinDefaults: ProductPageContent = {
   // === META & SEO ===
   metaTitle: 'Lofted Cabin | Barn Style | Summit Portable Buildings',
   metaDescription: 'The Lofted Cabin features a classic gambrel roof design with two lofts for maximum storage. Perfect for lake lots, hunting cabins, or tiny homes. Free delivery within 50 miles.',
-  canonicalUrl: 'https://summitbuildings.com/types/deluxe-storage-cabins/barn-cabin',
+  canonicalUrl: 'https://summitbuildings.com/styles/barn-cabin',
 
   // === HERO SECTION ===
   title: '',

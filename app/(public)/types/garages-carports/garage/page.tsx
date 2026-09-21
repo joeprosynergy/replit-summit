@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || garageDefaults.metaTitle },
     description: content?.metaDescription || garageDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/types/garages-carports/garage",
+      canonical: "https://summitbuildings.com/styles/garage",
     },
     openGraph: {
       title: content?.metaTitle || garageDefaults.metaTitle,
       description: content?.metaDescription || garageDefaults.metaDescription,
-      url: "https://summitbuildings.com/types/garages-carports/garage",
+      url: "https://summitbuildings.com/styles/garage",
       images: [OG_IMAGE],
     },
   };
@@ -37,15 +37,14 @@ export default async function GaragePage() {
     <>
       <JsonLdScript data={getBreadcrumbJsonLd([
         { name: "Home", url: "/" },
-        { name: "Our Models", url: "/types" },
-        { name: "Garages & Carports", url: "/types/garages-carports" },
-        { name: "Garage", url: "/types/garages-carports/garage" },
+        { name: "Building Styles", url: "/styles" },
+        { name: "Garage", url: "/styles/garage" },
       ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,
         image: initialContent.heroImage,
-        url: "/types/garages-carports/garage",
+        url: "/styles/garage",
         category: "Garages & Carports",
       })} />
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>

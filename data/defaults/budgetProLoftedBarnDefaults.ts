@@ -31,7 +31,7 @@ export const budgetProLoftedBarnDefaults: ProductPageContent = {
   // === META & SEO ===
   metaTitle: 'Budget Pro - Lofted Barn | Summit Portable Buildings',
   metaDescription: 'The Budget Pro Lofted Barn offers classic barn styling at an affordable price. Features 1 loft for extra storage, double doors with T-handle lock. Sizes 8×8 to 14×40. Free delivery within 50 miles.',
-  canonicalUrl: 'https://summitbuildings.com/types/basic-storage/budget-pro-lofted-barn',
+  canonicalUrl: 'https://summitbuildings.com/styles/budget-pro-lofted-barn',
 
   // === HERO SECTION ===
   title: 'BUDGET PRO -',

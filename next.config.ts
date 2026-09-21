@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { productStyleRewrites } from "./shared/productStyleRoutes";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -38,6 +39,12 @@ const nextConfig: NextConfig = {
       { source: "/farmington", destination: "/farmington-mo", permanent: true },
       { source: "/home", destination: "/", permanent: true },
     ];
+  },
+  // Phase 2: beforeFiles so /styles/{product} is not swallowed by the [...slug] CMS catch-all.
+  async rewrites() {
+    return {
+      beforeFiles: productStyleRewrites(),
+    };
   },
   // Powered-by header is unnecessary and reveals tech stack
   poweredByHeader: false,

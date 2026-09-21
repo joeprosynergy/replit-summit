@@ -8,10 +8,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-/** Append ?from=styles to product links so breadcrumbs know the origin */
-const withStylesFrom = (link: string) =>
-  link.startsWith('/types/') ? `${link}?from=styles` : link;
+import { withStylesFromParam as withStylesFrom } from "@/shared/productStyleRoutes";
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableLink from '@/components/admin/InlineEditableLink';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';

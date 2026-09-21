@@ -143,7 +143,7 @@ export const modernShedDefaults: ModernShedContent = {
   // === META & SEO ===
   metaTitle: 'Modern Shed | Summit Portable Buildings',
   metaDescription: 'Discover our Modern Shed with single slope roof design. Features LP SmartSide siding, 6-inch overhangs, and contemporary aesthetics. Perfect for offices, studios, or storage.',
-  canonicalUrl: 'https://summitbuildings.com/types/deluxe-storage-cabins/modern-shed',
+  canonicalUrl: 'https://summitbuildings.com/styles/modern-shed',
 
   // === HERO SECTION ===
   title: 'MODERN',

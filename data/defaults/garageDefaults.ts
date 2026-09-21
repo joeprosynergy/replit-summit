@@ -31,7 +31,7 @@ export const garageDefaults: ProductPageContent = {
   // === META & SEO ===
   metaTitle: 'Garage | Summit Portable Buildings',
   metaDescription: 'Summit Garages are built to handle the weight of any average size vehicle or small tractor. Features 9\'x7\' insulated overhead door, steel walk-in door, and floor joists spaced 12 inches on center. Protect your vehicle from hail damage. Free delivery within 50 miles.',
-  canonicalUrl: 'https://summitbuildings.com/types/garages-carports/garage',
+  canonicalUrl: 'https://summitbuildings.com/styles/garage',
 
   // === HERO SECTION ===
   title: '',

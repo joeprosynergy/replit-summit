@@ -33,7 +33,7 @@ export const greenhouseDefaults: ProductPageContent = {
   // === META & SEO ===
   metaTitle: 'Greenhouse | Summit Portable Buildings',
   metaDescription: 'Summit Buildings Greenhouses feature treated decking floors, exhaust fans, thermostat controllers, shelving, potting benches, and electrical packages. Perfect for year-round growing.',
-  canonicalUrl: 'https://summitbuildings.com/types/greenhouse',
+  canonicalUrl: 'https://summitbuildings.com/styles/greenhouse',
 
   // === HERO SECTION ===
   title: '',

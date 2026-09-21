@@ -31,7 +31,7 @@ export const proLoftedBarnDefaults: ProductPageContent = {
   // === META & SEO ===
   metaTitle: 'Pro - Lofted Barn | Summit Portable Buildings',
   metaDescription: 'The Pro Lofted Barn is our best seller - the most versatile building for all purposes. Features 2 lofts for extra storage, windows for natural light, and classic barn styling. Sizes 8×8 to 14×40. Free delivery within 50 miles.',
-  canonicalUrl: 'https://summitbuildings.com/types/deluxe-storage-cabins/pro-lofted-barn',
+  canonicalUrl: 'https://summitbuildings.com/styles/pro-lofted-barn',
 
   // === HERO SECTION ===
   title: 'PRO -',

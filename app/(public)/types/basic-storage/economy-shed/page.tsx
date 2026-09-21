@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || economyShedDefaults.metaTitle },
     description: content?.metaDescription || economyShedDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/types/basic-storage/economy-shed",
+      canonical: "https://summitbuildings.com/styles/economy-shed",
     },
     openGraph: {
       title: content?.metaTitle || economyShedDefaults.metaTitle,
       description: content?.metaDescription || economyShedDefaults.metaDescription,
-      url: "https://summitbuildings.com/types/basic-storage/economy-shed",
+      url: "https://summitbuildings.com/styles/economy-shed",
       images: [OG_IMAGE],
     },
   };
@@ -37,15 +37,14 @@ export default async function EconomyShedPage() {
     <>
       <JsonLdScript data={getBreadcrumbJsonLd([
         { name: "Home", url: "/" },
-        { name: "Our Models", url: "/types" },
-        { name: "Basic Storage", url: "/types/basic-storage" },
-        { name: "Economy Shed", url: "/types/basic-storage/economy-shed" },
+        { name: "Building Styles", url: "/styles" },
+        { name: "Economy Shed", url: "/styles/economy-shed" },
       ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,
         image: initialContent.heroImage,
-        url: "/types/basic-storage/economy-shed",
+        url: "/styles/economy-shed",
         category: "Basic Storage",
       })} />
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>

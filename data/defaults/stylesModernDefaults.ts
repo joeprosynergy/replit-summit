@@ -64,7 +64,7 @@ export const stylesModernDefaults: StylesModernContent = {
       description: 'Premium quality with single slope roof and contemporary design.',
       features: ['LP SmartSide siding', '2x6 floor joists 12" OC', '6" Overhangs', 'Single slope roof'],
       image: modernShed1,
-      link: '/types/deluxe-storage-cabins/modern-shed',
+      link: '/styles/modern-shed',
       openInNewTab: false,
     },
     {
@@ -73,7 +73,7 @@ export const stylesModernDefaults: StylesModernContent = {
       description: 'Secure vehicle and equipment storage with easy access.',
       features: ['LP SmartSide siding', '2x6 floor joists 12" OC', 'Garage door included'],
       image: garageImage,
-      link: '/types/garages-carports/garage',
+      link: '/styles/garage',
       openInNewTab: false,
     },
   ],

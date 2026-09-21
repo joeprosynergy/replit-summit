@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || barnCabinDefaults.metaTitle },
     description: content?.metaDescription || barnCabinDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/types/deluxe-storage-cabins/barn-cabin",
+      canonical: "https://summitbuildings.com/styles/barn-cabin",
     },
     openGraph: {
       title: content?.metaTitle || barnCabinDefaults.metaTitle,
       description: content?.metaDescription || barnCabinDefaults.metaDescription,
-      url: "https://summitbuildings.com/types/deluxe-storage-cabins/barn-cabin",
+      url: "https://summitbuildings.com/styles/barn-cabin",
       images: [OG_IMAGE],
     },
   };
@@ -37,15 +37,14 @@ export default async function BarnCabinPage() {
     <>
       <JsonLdScript data={getBreadcrumbJsonLd([
         { name: "Home", url: "/" },
-        { name: "Our Models", url: "/types" },
-        { name: "Deluxe Storage & Cabins", url: "/types/deluxe-storage-cabins" },
-        { name: "Barn Cabin", url: "/types/deluxe-storage-cabins/barn-cabin" },
+        { name: "Building Styles", url: "/styles" },
+        { name: "Barn Cabin", url: "/styles/barn-cabin" },
       ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,
         image: initialContent.heroImage,
-        url: "/types/deluxe-storage-cabins/barn-cabin",
+        url: "/styles/barn-cabin",
         category: "Deluxe Storage & Cabins",
       })} />
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>

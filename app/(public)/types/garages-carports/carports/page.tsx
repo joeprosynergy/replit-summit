@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || carportsDefaults.metaTitle },
     description: content?.metaDescription || carportsDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/types/garages-carports/carports",
+      canonical: "https://summitbuildings.com/styles/carports",
     },
     openGraph: {
       title: content?.metaTitle || carportsDefaults.metaTitle,
       description: content?.metaDescription || carportsDefaults.metaDescription,
-      url: "https://summitbuildings.com/types/garages-carports/carports",
+      url: "https://summitbuildings.com/styles/carports",
       images: [OG_IMAGE],
     },
   };
@@ -37,15 +37,14 @@ export default async function CarportsPage() {
     <>
       <JsonLdScript data={getBreadcrumbJsonLd([
         { name: "Home", url: "/" },
-        { name: "Our Models", url: "/types" },
-        { name: "Garages & Carports", url: "/types/garages-carports" },
-        { name: "Carports", url: "/types/garages-carports/carports" },
+        { name: "Building Styles", url: "/styles" },
+        { name: "Carports", url: "/styles/carports" },
       ])} />
       <JsonLdScript data={getProductJsonLd({
         name: initialContent.metaTitle,
         description: initialContent.metaDescription,
         image: initialContent.heroImage,
-        url: "/types/garages-carports/carports",
+        url: "/styles/carports",
         category: "Garages & Carports",
       })} />
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>

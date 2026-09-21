@@ -8,10 +8,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-/** Append ?from=styles to product links so breadcrumbs know the origin */
-const withStylesFrom = (link: string) =>
-  link.startsWith('/types/') ? `${link}?from=styles` : link;
+import { withStylesFromParam } from "@/shared/productStyleRoutes";
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableLink from '@/components/admin/InlineEditableLink';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
@@ -97,7 +94,7 @@ export default function StylesUtilityPageClient({ initialContent }: { initialCon
           </>
         ) : (
           <Link
-            href={withStylesFrom(option.link)}
+            href={withStylesFromParam(option.link)}
             target={option.openInNewTab ? '_blank' : undefined}
             rel={option.openInNewTab ? 'noopener noreferrer' : undefined}
             className="block"

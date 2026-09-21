@@ -95,7 +95,7 @@ export const carportsDefaults: CarportsContent = {
   // === META & SEO ===
   metaTitle: 'Carports & RV Covers | Summit Portable Buildings',
   metaDescription: 'Steel carports and RV covers provide the best protection against cold, rain, sun, and wind – even tornadoes and hurricanes. Available for commercial, industrial, or residential use.',
-  canonicalUrl: 'https://summitbuildings.com/types/garages-carports/carports',
+  canonicalUrl: 'https://summitbuildings.com/styles/carports',
 
   // === HERO SECTION ===
   title: 'CARPORTS &',

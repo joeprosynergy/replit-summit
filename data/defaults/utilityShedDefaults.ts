@@ -31,7 +31,7 @@ export const utilityShedDefaults: ProductPageContent = {
   // === META & SEO ===
   metaTitle: 'Pro - Utility Shed | Summit Portable Buildings',
   metaDescription: 'The Pro Utility Shed is a classy, yet simple addition to your property. Perfect for outdoor power equipment, tack rooms, hay sheds, workshops, or even a lake cabin. Available with standard or side door entry. Sizes 8×8 to 14×40. Free delivery within 50 miles.',
-  canonicalUrl: 'https://summitbuildings.com/types/deluxe-storage-cabins/pro-utility-shed',
+  canonicalUrl: 'https://summitbuildings.com/styles/pro-utility-shed',
 
   // === HERO SECTION ===
   title: 'PRO -',
