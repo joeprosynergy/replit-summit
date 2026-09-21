@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { proLoftedBarnDefaults, proLoftedBarnConfig } from "@/data/defaults/proLoftedBarnDefaults";
-import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLdFromContent, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import { OG_IMAGE } from "@/lib/seo";
 import ProLoftedBarnPageClient from "./ProLoftedBarnPageClient";
 
@@ -40,10 +40,7 @@ export default async function ProLoftedBarnPage() {
         { name: "Building Styles", url: "/styles" },
         { name: "Pro Lofted Barn", url: "/styles/pro-lofted-barn" },
       ])} />
-      <JsonLdScript data={getProductJsonLd({
-        name: initialContent.metaTitle,
-        description: initialContent.metaDescription,
-        image: initialContent.heroImage,
+      <JsonLdScript data={getProductJsonLdFromContent(initialContent, {
         url: "/styles/pro-lofted-barn",
         category: "Deluxe Storage & Cabins",
       })} />

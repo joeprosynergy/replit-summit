@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { garageDefaults, garageConfig } from "@/data/defaults/garageDefaults";
-import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLdFromContent, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import { OG_IMAGE } from "@/lib/seo";
 import GaragePageClient from "./GaragePageClient";
 
@@ -40,10 +40,7 @@ export default async function GaragePage() {
         { name: "Building Styles", url: "/styles" },
         { name: "Garage", url: "/styles/garage" },
       ])} />
-      <JsonLdScript data={getProductJsonLd({
-        name: initialContent.metaTitle,
-        description: initialContent.metaDescription,
-        image: initialContent.heroImage,
+      <JsonLdScript data={getProductJsonLdFromContent(initialContent, {
         url: "/styles/garage",
         category: "Garages & Carports",
       })} />

@@ -99,7 +99,121 @@ export function getHomepageJsonLd() {
   ];
 }
 
-/** Product schema for individual product pages */
+function absoluteUrl(path: string): string {
+  return path.startsWith("http") ? path : `${SITE_URL}${path}`;
+}
+
+function productDisplayName(content: Record<string, unknown>): string {
+  const meta = typeof content.metaTitle === "string" ? content.metaTitle : "";
+  const stripped = meta.replace(/\s*\|\s*Summit Portable Buildings\s*$/i, "").trim();
+  if (stripped) return stripped;
+  const highlight = typeof content.titleHighlight === "string" ? content.titleHighlight.trim() : "";
+  return highlight || "Portable Building";
+}
+
+export type ProductSpec = { name: string; value: string };
+
+function nestedProductLabel(item: Record<string, unknown>): string {
+  if (typeof item.name === "string" && item.name.trim()) return item.name.trim();
+  const id = typeof item.id === "string" ? item.id : "";
+  if (id === "carports") return "Carport";
+  if (id === "rv-covers") return "RV Cover";
+  if (typeof item.highlight === "string" && item.highlight.trim()) {
+    return item.highlight.trim();
+  }
+  return "Specification";
+}
+
+/** Feature lines already shown on the page (arrays, nested products, Economy card features). */
+export function collectProductSpecs(content: Record<string, unknown>): ProductSpec[] {
+  const out: ProductSpec[] = [];
+  const seen = new Set<string>();
+  const push = (name: string, value: unknown) => {
+    if (typeof value !== "string" || !value.trim()) return;
+    const trimmed = value.trim();
+    const key = `${name}|${trimmed}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ name, value: trimmed });
+  };
+
+  if (Array.isArray(content.features)) {
+    content.features.forEach((value) => push("Specification", value));
+  }
+  let i = 1;
+  while (content[`feature${i}`]) {
+    push("Specification", content[`feature${i}`]);
+    i += 1;
+  }
+  for (const [key, value] of Object.entries(content)) {
+    if (/^card\d+Feature\d+$/.test(key)) push("Specification", value);
+  }
+
+  if (Array.isArray(content.shelters)) {
+    for (const item of content.shelters) {
+      if (!item || typeof item !== "object") continue;
+      const rec = item as Record<string, unknown>;
+      const label = nestedProductLabel(rec);
+      if (Array.isArray(rec.features)) {
+        rec.features.forEach((value) => push(label, value));
+      }
+    }
+  }
+  for (const key of ["carportProduct", "rvProduct"]) {
+    const item = content[key];
+    if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+    const rec = item as Record<string, unknown>;
+    const label = nestedProductLabel(rec);
+    if (Array.isArray(rec.features)) {
+      rec.features.forEach((value) => push(label, value));
+    }
+  }
+
+  return out;
+}
+
+function warrantyPromises(specs: string[]) {
+  return specs
+    .filter((line) => /warranty/i.test(line))
+    .map((line) => {
+      const years = line.match(/(\d+)\s*-?\s*year/i);
+      return {
+        "@type": "WarrantyPromise",
+        name: line,
+        ...(years && {
+          durationOfWarranty: {
+            "@type": "QuantitativeValue",
+            value: Number(years[1]),
+            unitCode: "ANN",
+          },
+        }),
+      };
+    });
+}
+
+function materialsFromSpecs(specs: string[]): string | undefined {
+  const found: string[] = [];
+  const blob = specs.join(" ");
+  if (/LP SmartSide/i.test(blob)) found.push("LP SmartSide");
+  if (/metal siding/i.test(blob)) found.push("Metal siding");
+  if (/Advantech|AdvanTech|Advantec/i.test(blob)) found.push("AdvanTech flooring");
+  if (/T\s*&\s*G|tongue/i.test(blob) && !found.includes("AdvanTech flooring")) {
+    found.push("Tongue and groove flooring");
+  }
+  return found.length ? found.join(", ") : undefined;
+}
+
+function startingPrice(content: Record<string, unknown>): string | undefined {
+  const fields = [content.subtitle, content.metaDescription, content.description];
+  for (const field of fields) {
+    if (typeof field !== "string") continue;
+    const match = field.match(/Starting at \$([0-9,]+(?:\.\d+)?)/i);
+    if (match) return match[1].replace(/,/g, "");
+  }
+  return undefined;
+}
+
+/** Product schema using the same spec lines the page already shows. */
 export function getProductJsonLd(product: {
   name: string;
   description: string;
@@ -107,18 +221,47 @@ export function getProductJsonLd(product: {
   url: string;
   category?: string;
   sku?: string;
+  specs?: Array<string | ProductSpec>;
+  sizes?: string;
+  freeDelivery?: boolean;
+  price?: string;
 }) {
+  const specs: ProductSpec[] = (product.specs || [])
+    .map((spec) =>
+      typeof spec === "string" ? { name: "Specification", value: spec } : spec
+    )
+    .filter((spec) => spec.value);
+  const specValues = specs.map((spec) => spec.value);
+  const additionalProperty = [
+    ...specs.map((spec) => ({
+      "@type": "PropertyValue",
+      name: spec.name,
+      value: spec.value,
+    })),
+    ...(product.sizes
+      ? [{ "@type": "PropertyValue", name: "Available sizes", value: product.sizes }]
+      : []),
+    ...(product.freeDelivery
+      ? [
+          {
+            "@type": "PropertyValue",
+            name: "Delivery",
+            value: "Free delivery within 50 miles",
+          },
+        ]
+      : []),
+  ];
+  const warranties = warrantyPromises(specValues);
+  const material = materialsFromSpecs(specValues);
+  const productUrl = absoluteUrl(product.url);
+
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
     description: product.description,
-    image: product.image.startsWith("http")
-      ? product.image
-      : `${SITE_URL}${product.image}`,
-    url: product.url.startsWith("http")
-      ? product.url
-      : `${SITE_URL}${product.url}`,
+    ...(product.image && { image: absoluteUrl(product.image) }),
+    url: productUrl,
     brand: {
       "@type": "Brand",
       name: BUSINESS_INFO.name,
@@ -130,16 +273,63 @@ export function getProductJsonLd(product: {
     },
     ...(product.category && { category: product.category }),
     ...(product.sku && { sku: product.sku }),
+    ...(material && { material }),
+    ...(warranties.length === 1 && { warranty: warranties[0] }),
+    ...(warranties.length > 1 && { warranty: warranties }),
+    ...(additionalProperty.length && { additionalProperty }),
     offers: {
       "@type": "Offer",
+      url: productUrl,
       availability: "https://schema.org/InStock",
       priceCurrency: "USD",
+      ...(product.price && { price: product.price }),
+      areaServed: BUSINESS_INFO.areaServed,
       seller: {
         "@type": "Organization",
         name: BUSINESS_INFO.name,
       },
     },
   };
+}
+
+/** Build Product JSON-LD from CMS/default page content. Does not invent specs or prices. */
+export function getProductJsonLdFromContent(
+  content: object,
+  opts: { url: string; category?: string }
+) {
+  const rec = content as Record<string, unknown>;
+  const specs = collectProductSpecs(rec);
+  const subtitle = typeof rec.subtitle === "string" ? rec.subtitle : "";
+  const sizes = /size/i.test(subtitle) ? subtitle : undefined;
+  const blob = [rec.metaDescription, rec.description, rec.importantNote, rec.featureNote]
+    .filter((v) => typeof v === "string")
+    .join(" ");
+  const gallery = Array.isArray(rec.galleryImages) ? rec.galleryImages[0] : null;
+  const gallerySrc =
+    gallery && typeof gallery === "object" && gallery !== null && "src" in gallery
+      ? (gallery as { src?: unknown }).src
+      : undefined;
+  const image =
+    (typeof rec.heroImage === "string" && rec.heroImage) ||
+    (typeof rec.galleryImage1 === "string" && rec.galleryImage1) ||
+    (typeof gallerySrc === "string" && gallerySrc) ||
+    "";
+  const description =
+    (typeof rec.metaDescription === "string" && rec.metaDescription) ||
+    (typeof rec.description === "string" && rec.description) ||
+    "";
+
+  return getProductJsonLd({
+    name: productDisplayName(rec),
+    description,
+    image,
+    url: opts.url,
+    category: opts.category,
+    specs,
+    sizes,
+    freeDelivery: /free delivery/i.test(blob),
+    price: startingPrice(rec),
+  });
 }
 
 /** ItemList schema for category/listing pages */

@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { budgetProUtilityDefaults, budgetProUtilityConfig } from "@/data/defaults/budgetProUtilityDefaults";
-import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLdFromContent, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import { OG_IMAGE } from "@/lib/seo";
 import BudgetProUtilityPageClient from "./BudgetProUtilityPageClient";
 
@@ -40,10 +40,7 @@ export default async function BudgetProUtilityPage() {
         { name: "Building Styles", url: "/styles" },
         { name: "Budget Pro Utility", url: "/styles/budget-pro-utility" },
       ])} />
-      <JsonLdScript data={getProductJsonLd({
-        name: initialContent.metaTitle,
-        description: initialContent.metaDescription,
-        image: initialContent.heroImage,
+      <JsonLdScript data={getProductJsonLdFromContent(initialContent, {
         url: "/styles/budget-pro-utility",
         category: "Basic Storage",
       })} />

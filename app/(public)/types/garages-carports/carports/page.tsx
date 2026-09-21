@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { carportsDefaults } from "@/data/defaults/carportsDefaults";
-import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLdFromContent, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import { OG_IMAGE } from "@/lib/seo";
 import CarportsPageClient from "./CarportsPageClient";
 
@@ -40,10 +40,7 @@ export default async function CarportsPage() {
         { name: "Building Styles", url: "/styles" },
         { name: "Carports", url: "/styles/carports" },
       ])} />
-      <JsonLdScript data={getProductJsonLd({
-        name: initialContent.metaTitle,
-        description: initialContent.metaDescription,
-        image: initialContent.heroImage,
+      <JsonLdScript data={getProductJsonLdFromContent(initialContent, {
         url: "/styles/carports",
         category: "Garages & Carports",
       })} />

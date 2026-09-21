@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { utilityShedDefaults, utilityShedConfig } from "@/data/defaults/utilityShedDefaults";
-import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLdFromContent, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import { OG_IMAGE } from "@/lib/seo";
 import UtilityShedPageClient from "./UtilityShedPageClient";
 
@@ -40,10 +40,7 @@ export default async function ProUtilityShedPage() {
         { name: "Building Styles", url: "/styles" },
         { name: "Pro Utility Shed", url: "/styles/pro-utility-shed" },
       ])} />
-      <JsonLdScript data={getProductJsonLd({
-        name: initialContent.metaTitle,
-        description: initialContent.metaDescription,
-        image: initialContent.heroImage,
+      <JsonLdScript data={getProductJsonLdFromContent(initialContent, {
         url: "/styles/pro-utility-shed",
         category: "Deluxe Storage & Cabins",
       })} />

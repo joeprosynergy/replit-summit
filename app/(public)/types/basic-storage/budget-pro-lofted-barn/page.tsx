@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { budgetProLoftedBarnDefaults, budgetProLoftedBarnConfig } from "@/data/defaults/budgetProLoftedBarnDefaults";
-import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLdFromContent, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import { OG_IMAGE } from "@/lib/seo";
 import BudgetProLoftedBarnPageClient from "./BudgetProLoftedBarnPageClient";
 
@@ -40,10 +40,7 @@ export default async function BudgetProLoftedBarnPage() {
         { name: "Building Styles", url: "/styles" },
         { name: "Budget Pro Lofted Barn", url: "/styles/budget-pro-lofted-barn" },
       ])} />
-      <JsonLdScript data={getProductJsonLd({
-        name: initialContent.metaTitle,
-        description: initialContent.metaDescription,
-        image: initialContent.heroImage,
+      <JsonLdScript data={getProductJsonLdFromContent(initialContent, {
         url: "/styles/budget-pro-lofted-barn",
         category: "Basic Storage",
       })} />

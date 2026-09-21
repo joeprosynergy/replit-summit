@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { barnCabinDefaults, barnCabinConfig } from "@/data/defaults/barnCabinDefaults";
-import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLdFromContent, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import { OG_IMAGE } from "@/lib/seo";
 import BarnCabinPageClient from "./BarnCabinPageClient";
 
@@ -40,10 +40,7 @@ export default async function BarnCabinPage() {
         { name: "Building Styles", url: "/styles" },
         { name: "Barn Cabin", url: "/styles/barn-cabin" },
       ])} />
-      <JsonLdScript data={getProductJsonLd({
-        name: initialContent.metaTitle,
-        description: initialContent.metaDescription,
-        image: initialContent.heroImage,
+      <JsonLdScript data={getProductJsonLdFromContent(initialContent, {
         url: "/styles/barn-cabin",
         category: "Deluxe Storage & Cabins",
       })} />

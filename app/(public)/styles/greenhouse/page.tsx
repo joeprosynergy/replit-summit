@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { greenhouseDefaults, greenhouseConfig } from "@/data/defaults/greenhouseDefaults";
-import { getProductJsonLd, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
+import { getProductJsonLdFromContent, getBreadcrumbJsonLd, JsonLdScript } from "@/lib/structuredData";
 import { OG_IMAGE } from "@/lib/seo";
 import GreenhousePageClient from "./GreenhousePageClient";
 
@@ -40,10 +40,7 @@ export default async function GreenhousePage() {
         { name: "Styles", url: "/styles" },
         { name: "Greenhouse", url: "/styles/greenhouse" },
       ])} />
-      <JsonLdScript data={getProductJsonLd({
-        name: initialContent.metaTitle,
-        description: initialContent.metaDescription,
-        image: initialContent.heroImage,
+      <JsonLdScript data={getProductJsonLdFromContent(initialContent, {
         url: "/styles/greenhouse",
         category: "Specialty Buildings",
       })} />
