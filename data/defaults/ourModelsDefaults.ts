@@ -89,8 +89,8 @@ export const ourModelsDefaults: OurModelsContent = {
       name: 'Outdoor Structures',
       description: 'Greenhouses and animal housing solutions',
       models: [
-        { name: 'Greenhouses', image: cloudinaryImages.greenhouse1, link: '/types/greenhouse', openInNewTab: false },
-        { name: 'Animal Shelters', image: cloudinaryImages.animalShelter1, link: '/types/animal-shelters', openInNewTab: false },
+        { name: 'Greenhouses', image: cloudinaryImages.greenhouse1, link: '/styles/greenhouse', openInNewTab: false },
+        { name: 'Animal Shelters', image: cloudinaryImages.animalShelter1, link: '/styles/animal-shelters', openInNewTab: false },
       ],
     },
   ],

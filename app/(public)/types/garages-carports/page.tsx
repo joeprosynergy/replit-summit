@@ -45,8 +45,8 @@ export default async function GaragesCarportsPage() {
           description: initialContent.metaDescription,
           url: "/types/garages-carports",
           items: [
-            { name: "Garage", url: "/types/garages-carports/garage" },
-            { name: "Carports", url: "/types/garages-carports/carports" },
+            { name: "Garage", url: "/styles/garage" },
+            { name: "Carports", url: "/styles/carports" },
           ],
         })}
       />

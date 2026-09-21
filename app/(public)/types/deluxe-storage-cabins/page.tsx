@@ -45,11 +45,11 @@ export default async function DeluxeStorageCabinsPage() {
           description: initialContent.metaDescription,
           url: "/types/deluxe-storage-cabins",
           items: [
-            { name: "Pro Utility Shed", url: "/types/deluxe-storage-cabins/pro-utility-shed" },
-            { name: "Pro Lofted Barn", url: "/types/deluxe-storage-cabins/pro-lofted-barn" },
-            { name: "Cabin", url: "/types/deluxe-storage-cabins/cabin" },
-            { name: "Barn Cabin", url: "/types/deluxe-storage-cabins/barn-cabin" },
-            { name: "Modern Shed", url: "/types/deluxe-storage-cabins/modern-shed" },
+            { name: "Pro Utility Shed", url: "/styles/pro-utility-shed" },
+            { name: "Pro Lofted Barn", url: "/styles/pro-lofted-barn" },
+            { name: "Cabin", url: "/styles/cabin" },
+            { name: "Barn Cabin", url: "/styles/barn-cabin" },
+            { name: "Modern Shed", url: "/styles/modern-shed" },
           ],
         })}
       />

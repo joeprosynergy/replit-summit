@@ -45,9 +45,9 @@ export default async function BasicStoragePage() {
           description: initialContent.metaDescription,
           url: "/types/basic-storage",
           items: [
-            { name: "Economy Shed", url: "/types/basic-storage/economy-shed" },
-            { name: "Budget Pro Lofted Barn", url: "/types/basic-storage/budget-pro-lofted-barn" },
-            { name: "Budget Pro Utility", url: "/types/basic-storage/budget-pro-utility" },
+            { name: "Economy Shed", url: "/styles/economy-shed" },
+            { name: "Budget Pro Lofted Barn", url: "/styles/budget-pro-lofted-barn" },
+            { name: "Budget Pro Utility", url: "/styles/budget-pro-utility" },
           ],
         })}
       />

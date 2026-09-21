@@ -35,16 +35,25 @@ export function stylesPathForTypesPath(typesPath: string): string {
   return row ? `/styles/${row.slug}` : typesPath;
 }
 
+export const STYLE_HUB_PATHS = [
+  "/styles",
+  "/styles/utility",
+  "/styles/barn",
+  "/styles/modern",
+  "/styles/greenhouse",
+  "/styles/animal-shelters",
+] as const;
+
+export const TYPES_CATEGORY_PATHS = [
+  "/types",
+  "/types/basic-storage",
+  "/types/deluxe-storage-cabins",
+  "/types/garages-carports",
+] as const;
+
 /** Hub pages that must never be treated as product rewrites */
 export function isStyleHubPath(path: string): boolean {
-  return (
-    path === "/styles" ||
-    path === "/styles/utility" ||
-    path === "/styles/barn" ||
-    path === "/styles/modern" ||
-    path === "/styles/greenhouse" ||
-    path === "/styles/animal-shelters"
-  );
+  return (STYLE_HUB_PATHS as readonly string[]).includes(path);
 }
 
 /** Map a types or styles product href onto /styles/{slug}?from=styles for hub cards */
@@ -113,4 +122,40 @@ export function productStyleRedirects(): StyleRedirect[] {
   ];
 
   return [...fromProducts, ...aliases, ...wordpress];
+}
+
+/** Public paths that 301 away. Sitemap must not list these. */
+export function redirectedPublicPaths(): string[] {
+  const paths = new Set<string>();
+  for (const r of PRODUCT_STYLE_ROUTES) {
+    paths.add(r.typesPath);
+    paths.add(`/${r.slug}`);
+  }
+  for (const a of PRODUCT_STYLE_ALIASES) {
+    paths.add(a.source);
+  }
+  paths.add("/our-models/cabin");
+  paths.add("/our-models/utility-shed");
+  paths.add("/our-models/garage");
+  paths.add("/our-models/tiny-homes");
+  return [...paths];
+}
+
+/** CMS slugs that would emit a redirected or duplicate URL in sitemap.xml */
+export function sitemapExcludedCmsSlugs(): Set<string> {
+  const slugs = new Set<string>([
+    "home",
+    "dealer-locator",
+    "blog",
+    "trial",
+    "welly",
+    "newy",
+    "basic-storage",
+    "garages-carports",
+    "deluxe-storage-cabins",
+  ]);
+  for (const path of redirectedPublicPaths()) {
+    slugs.add(path.replace(/^\//, ""));
+  }
+  return slugs;
 }
