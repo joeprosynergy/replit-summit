@@ -4,7 +4,7 @@
  */
 
 const SITE_URL = "https://summitbuildings.com";
-const LOGO_URL = "https://res.cloudinary.com/dmbzcxslt/image/upload/v1734462395/summit-logo_qfbfod.png";
+const LOGO_URL = "https://res.cloudinary.com/dwhwbbbev/image/upload/f_auto,q_auto,w_200/summit-buildings/summit-logo";
 
 const BUSINESS_INFO = {
   name: "Summit Portable Buildings",

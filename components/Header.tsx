@@ -88,6 +88,7 @@ const Header = ({ serverConfig, isDarkHeroOverride }: HeaderProps = {}) => {
 
   const resolvedConfig = resolveHeaderConfig(headerConfig);
   const navLinks = resolvedConfig.navLinks;
+  const logoSrc = resolvedConfig.logoImage;
 
   return (
     <header
@@ -102,10 +103,10 @@ const Header = ({ serverConfig, isDarkHeroOverride }: HeaderProps = {}) => {
       <div className="container-custom">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex shrink-0 items-center">
             <img
-              src={headerConfig.logoImage}
-              alt={headerConfig.logoAlt}
+              src={logoSrc}
+              alt={resolvedConfig.logoAlt}
               width={129}
               height={98}
               fetchPriority="high"

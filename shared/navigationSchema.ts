@@ -54,7 +54,7 @@ export interface FooterConfig {
 
 // Default header configuration (extracted from current Header.tsx)
 export const defaultHeaderConfig: HeaderConfig = {
-  logoImage: 'https://res.cloudinary.com/dmbzcxslt/image/upload/v1734462395/summit-logo_qfbfod.png',
+  logoImage: 'https://res.cloudinary.com/dwhwbbbev/image/upload/f_auto,q_auto,w_200/summit-buildings/summit-logo',
   logoAlt: 'Summit Portable Buildings',
   navVersion: NAV_CONFIG_VERSION,
   navLinks: [

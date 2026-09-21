@@ -92,7 +92,7 @@ export default function RootLayout({
         {/* Preload the header logo so it's cached before React hydrates */}
         <link
           rel="preload"
-          href="https://res.cloudinary.com/dmbzcxslt/image/upload/v1734462395/summit-logo_qfbfod.png"
+          href="https://res.cloudinary.com/dwhwbbbev/image/upload/f_auto,q_auto,w_200/summit-buildings/summit-logo"
           as="image"
           fetchPriority="high"
         />
