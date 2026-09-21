@@ -91,6 +91,8 @@ export const PRODUCT_STYLE_ALIASES = [
   { source: "/styles-utility", destination: "/styles/utility" },
   { source: "/styles-barn", destination: "/styles/barn" },
   { source: "/styles-modern", destination: "/styles/modern" },
+  { source: "/types/basic-storage/pro-utility-shed", destination: "/styles/pro-utility-shed" },
+  { source: "/types/basic-storage/pro-lofted-barn", destination: "/styles/pro-lofted-barn" },
 ] as const;
 
 type StyleRedirect = {
