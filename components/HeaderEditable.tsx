@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Menu, X, Phone, Plus, Save } from 'lucide-react';
+import { Menu, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { HeaderConfig } from '@/shared/navigationSchema';
-import InlineEditableNavLink from '@/components/admin/InlineEditableNavLink';
+import { resolveHeaderConfig } from '@/shared/resolveHeaderConfig';
+import HeaderNavLinks from '@/components/HeaderNavLinks';
 import { InlineEditable } from '@/components/admin/InlineEditable';
 import InlineEditableImage from '@/components/admin/InlineEditableImage';
 
@@ -19,7 +20,7 @@ interface HeaderEditableProps {
 const HeaderEditable = ({ config, onSave, isSaving }: HeaderEditableProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [editedConfig, setEditedConfig] = useState<HeaderConfig>(config);
+  const [editedConfig, setEditedConfig] = useState<HeaderConfig>(resolveHeaderConfig(config));
   const [hasChanges, setHasChanges] = useState(false);
   const pathname = usePathname();
   const isHomePage = pathname === '/';
@@ -36,7 +37,7 @@ const HeaderEditable = ({ config, onSave, isSaving }: HeaderEditableProps) => {
   }, []);
 
   useEffect(() => {
-    setEditedConfig(config);
+    setEditedConfig(resolveHeaderConfig(config));
     setHasChanges(false);
   }, [config]);
 
@@ -45,26 +46,7 @@ const HeaderEditable = ({ config, onSave, isSaving }: HeaderEditableProps) => {
     setHasChanges(true);
   };
 
-  const handleNavLinkUpdate = (index: number, updatedLink: any) => {
-    const newLinks = [...editedConfig.navLinks];
-    newLinks[index] = updatedLink;
-    handleConfigChange({ navLinks: newLinks });
-  };
-
-  const handleNavLinkDelete = (index: number) => {
-    const newLinks = editedConfig.navLinks.filter((_, i) => i !== index);
-    handleConfigChange({ navLinks: newLinks });
-  };
-
-  const handleAddNavLink = () => {
-    const newLink = {
-      id: `link-${Date.now()}`,
-      label: 'New Link',
-      href: '/new-page',
-      isRoute: true,
-    };
-    handleConfigChange({ navLinks: [...editedConfig.navLinks, newLink] });
-  };
+  const navLinks = resolveHeaderConfig(editedConfig).navLinks;
 
   const handleSave = async () => {
     await onSave(editedConfig);
@@ -120,51 +102,9 @@ const HeaderEditable = ({ config, onSave, isSaving }: HeaderEditableProps) => {
               </div>
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation — structure v2 (code defaults); logo/CTA editable below */}
             <nav className="hidden lg:flex items-center gap-6">
-              {editedConfig.navLinks.map((link, index) => (
-                <InlineEditableNavLink
-                  key={link.id}
-                  link={link}
-                  onUpdate={(updatedLink) => handleNavLinkUpdate(index, updatedLink)}
-                  onDelete={() => handleNavLinkDelete(index)}
-                  isEditMode={true}
-                >
-                  {link.isExternal ? (
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`font-medium transition-colors duration-200 ${
-                        useLightText
-                          ? 'text-primary-foreground/90 hover:text-secondary-foreground'
-                          : 'text-foreground/80 hover:text-secondary'
-                      } ${link.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link
-                      href={link.href}
-                      className={`font-medium transition-colors duration-200 ${
-                        useLightText
-                          ? 'text-primary-foreground/90 hover:text-secondary-foreground'
-                          : 'text-foreground/80 hover:text-secondary'
-                      } ${link.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {link.label}
-                    </Link>
-                  )}
-                </InlineEditableNavLink>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleAddNavLink}
-                className="h-8"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+              <HeaderNavLinks navLinks={navLinks} useLightText={useLightText} variant="desktop" />
             </nav>
 
             {/* CTA Buttons */}
@@ -226,47 +166,13 @@ const HeaderEditable = ({ config, onSave, isSaving }: HeaderEditableProps) => {
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="lg:hidden bg-card border-t border-border animate-fade-in">
-              <nav className="flex flex-col py-4">
-                {editedConfig.navLinks.map((link, index) => (
-                  <InlineEditableNavLink
-                    key={link.id}
-                    link={link}
-                    onUpdate={(updatedLink) => handleNavLinkUpdate(index, updatedLink)}
-                    onDelete={() => handleNavLinkDelete(index)}
-                    isEditMode={true}
-                  >
-                    {link.isExternal ? (
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-3 text-foreground/80 hover:text-secondary hover:bg-muted transition-colors block"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        {link.label}
-                      </a>
-                    ) : (
-                      <Link
-                        href={link.href}
-                        className="px-4 py-3 text-foreground/80 hover:text-secondary hover:bg-muted transition-colors block"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        {link.label}
-                      </Link>
-                    )}
-                  </InlineEditableNavLink>
-                ))}
-                <div className="px-4 py-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleAddNavLink}
-                    className="w-full"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Link
-                  </Button>
-                </div>
+              <nav className="flex flex-col py-2">
+                <HeaderNavLinks
+                  navLinks={navLinks}
+                  useLightText={false}
+                  variant="mobile"
+                  onNavigate={() => setIsMobileMenuOpen(false)}
+                />
               </nav>
             </div>
           )}

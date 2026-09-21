@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
+import type { HeaderConfig } from "@/shared/navigationSchema";
+import { resolveHeaderConfig } from "@/shared/resolveHeaderConfig";
 
 /**
  * Server-side Supabase client for Server Components and Route Handlers.
@@ -184,7 +186,9 @@ export async function fetchNavigationConfig() {
     ]);
 
     return {
-      headerConfig: headerResult.data?.content || null,
+      headerConfig: headerResult.data?.content
+        ? resolveHeaderConfig(headerResult.data.content as HeaderConfig)
+        : null,
       footerConfig: footerResult.data?.content || null,
     };
   } catch (error) {

@@ -8,6 +8,7 @@ import {
   defaultHeaderConfig,
   defaultFooterConfig,
 } from '@/shared/navigationSchema';
+import { resolveHeaderConfig } from '@/shared/resolveHeaderConfig';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseNavigationConfigOptions {
@@ -26,7 +27,9 @@ interface UseNavigationConfigReturn {
 
 export function useNavigationConfig(options?: UseNavigationConfigOptions): UseNavigationConfigReturn {
   const hasInitialConfig = !!(options?.initialHeaderConfig || options?.initialFooterConfig);
-  const [headerConfig, setHeaderConfig] = useState<HeaderConfig>(options?.initialHeaderConfig || defaultHeaderConfig);
+  const [headerConfig, setHeaderConfig] = useState<HeaderConfig>(
+    resolveHeaderConfig(options?.initialHeaderConfig || defaultHeaderConfig)
+  );
   const [footerConfig, setFooterConfig] = useState<FooterConfig>(options?.initialFooterConfig || defaultFooterConfig);
   const [isLoading, setIsLoading] = useState(!hasInitialConfig);
   const [isSaving, setIsSaving] = useState(false);
@@ -61,7 +64,7 @@ export function useNavigationConfig(options?: UseNavigationConfigOptions): UseNa
       if (headerResult.error) {
         console.error('Error fetching header config:', headerResult.error);
       } else if (headerResult.data?.content) {
-        setHeaderConfig(headerResult.data.content as HeaderConfig);
+        setHeaderConfig(resolveHeaderConfig(headerResult.data.content as HeaderConfig));
       }
 
       if (footerResult.error) {
