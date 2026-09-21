@@ -41,7 +41,10 @@ const nextConfig: NextConfig = {
   // Phase 2: beforeFiles so /styles/{product} is not swallowed by the [...slug] CMS catch-all.
   async rewrites() {
     return {
-      beforeFiles: productStyleRewrites(),
+      beforeFiles: [
+        ...productStyleRewrites(),
+        { source: "/.well-known/agents.txt", destination: "/agents.txt" },
+      ],
     };
   },
   // Powered-by header is unnecessary and reveals tech stack

@@ -7,6 +7,7 @@ import {
   FooterConfig,
   defaultHeaderConfig,
   defaultFooterConfig,
+  resolveFooterConfig,
 } from '@/shared/navigationSchema';
 import { resolveHeaderConfig } from '@/shared/resolveHeaderConfig';
 import { useToast } from '@/hooks/use-toast';
@@ -30,7 +31,9 @@ export function useNavigationConfig(options?: UseNavigationConfigOptions): UseNa
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>(
     resolveHeaderConfig(options?.initialHeaderConfig || defaultHeaderConfig)
   );
-  const [footerConfig, setFooterConfig] = useState<FooterConfig>(options?.initialFooterConfig || defaultFooterConfig);
+  const [footerConfig, setFooterConfig] = useState<FooterConfig>(
+    resolveFooterConfig(options?.initialFooterConfig || defaultFooterConfig)
+  );
   const [isLoading, setIsLoading] = useState(!hasInitialConfig);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -70,7 +73,7 @@ export function useNavigationConfig(options?: UseNavigationConfigOptions): UseNa
       if (footerResult.error) {
         console.error('Error fetching footer config:', footerResult.error);
       } else if (footerResult.data?.content) {
-        setFooterConfig(footerResult.data.content as FooterConfig);
+        setFooterConfig(resolveFooterConfig(footerResult.data.content as FooterConfig));
       }
     } catch (error) {
       console.error('Error fetching navigation config:', error);

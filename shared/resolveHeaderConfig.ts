@@ -2,6 +2,7 @@ import {
   HeaderConfig,
   NAV_CONFIG_VERSION,
   defaultHeaderConfig,
+  remapNavLinks,
 } from '@/shared/navigationSchema';
 
 const DEAD_LOGO_HOST = 'res.cloudinary.com/dmbzcxslt';
@@ -27,7 +28,11 @@ export function resolveHeaderConfig(
     cmsConfig.navLinks.length > 0
   ) {
     const logoImage = usableLogo(cmsConfig.logoImage) ?? defaultHeaderConfig.logoImage;
-    return { ...cmsConfig, logoImage };
+    return {
+      ...cmsConfig,
+      logoImage,
+      navLinks: remapNavLinks(cmsConfig.navLinks),
+    };
   }
 
   return {
@@ -39,5 +44,6 @@ export function resolveHeaderConfig(
     ctaButtonText: cmsConfig?.ctaButtonText || defaultHeaderConfig.ctaButtonText,
     ctaButtonLink: cmsConfig?.ctaButtonLink || defaultHeaderConfig.ctaButtonLink,
     ctaButtonIsRoute: cmsConfig?.ctaButtonIsRoute ?? defaultHeaderConfig.ctaButtonIsRoute,
+    navLinks: remapNavLinks(defaultHeaderConfig.navLinks),
   };
 }

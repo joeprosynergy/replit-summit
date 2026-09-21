@@ -7,10 +7,12 @@ import { financingDefaults, type FinancingContent } from "@/data/defaults/financ
 
 interface FinancingViewProps {
   content: FinancingContent;
+  mode?: "full" | "rent-to-own";
 }
 
-export const FinancingView = ({ content }: FinancingViewProps) => {
+export const FinancingView = ({ content, mode = "full" }: FinancingViewProps) => {
   const stepIcons = [Home, FileText, CreditCard, Key];
+  const isRentToOwn = mode === "rent-to-own";
 
   // Defensive fallbacks for nested content sections
   const hero = content.hero || financingDefaults.hero;
@@ -19,6 +21,17 @@ export const FinancingView = ({ content }: FinancingViewProps) => {
   const financing = content.financing || financingDefaults.financing;
   const financingCards = content.financingCards || financingDefaults.financingCards;
   const cta = content.cta || financingDefaults.cta;
+  const heroHeading = isRentToOwn ? rentToOwn.heading : hero.heading;
+  const heroDescription = isRentToOwn ? rentToOwn.description : hero.description;
+  const heroBadge = isRentToOwn ? rentToOwn.badge : hero.badge;
+  const heroButton1Text = isRentToOwn ? rentToOwn.buttonText : hero.button1Text;
+  const heroButton1Link = isRentToOwn ? rentToOwn.buttonLink : hero.button1Link;
+  const heroButton1NewTab = isRentToOwn
+    ? rentToOwn.buttonOpenInNewTab
+    : hero.button1OpenInNewTab;
+  const heroButton2Text = hero.button2Text;
+  const heroButton2Link = isRentToOwn ? "/financing#financing" : hero.button2Link;
+  const heroButton2NewTab = isRentToOwn ? false : hero.button2OpenInNewTab;
 
   return (
     <>
@@ -31,23 +44,23 @@ export const FinancingView = ({ content }: FinancingViewProps) => {
         <div className="container-custom relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <span className="inline-block bg-secondary text-secondary-foreground px-4 py-2 rounded-full text-sm font-semibold mb-6">
-              {hero.badge}
+              {heroBadge}
             </span>
             <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl text-primary-foreground mb-6">
-              {hero.heading}
+              {heroHeading}
             </h1>
             <p className="text-primary-foreground/90 text-xl md:text-2xl mb-4">
-              {hero.description}
+              {heroDescription}
             </p>
             <p className="text-secondary text-lg font-semibold mb-8">
               {hero.highlight}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-lg px-8 py-6" asChild>
-                <a href={hero.button1Link} target={hero.button1OpenInNewTab ? '_blank' : undefined} rel={hero.button1OpenInNewTab ? 'noopener noreferrer' : undefined}>{hero.button1Text}</a>
+                <a href={heroButton1Link} target={heroButton1NewTab ? '_blank' : undefined} rel={heroButton1NewTab ? 'noopener noreferrer' : undefined}>{heroButton1Text}</a>
               </Button>
               <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 text-lg px-8 py-6" asChild>
-                <a href={hero.button2Link} target={hero.button2OpenInNewTab ? '_blank' : undefined} rel={hero.button2OpenInNewTab ? 'noopener noreferrer' : undefined}>{hero.button2Text}</a>
+                <a href={heroButton2Link} target={heroButton2NewTab ? '_blank' : undefined} rel={heroButton2NewTab ? 'noopener noreferrer' : undefined}>{heroButton2Text}</a>
               </Button>
             </div>
           </div>
@@ -89,6 +102,7 @@ export const FinancingView = ({ content }: FinancingViewProps) => {
       <section id="rent-to-own" className="py-16 bg-muted scroll-mt-24">
         <div className="container-custom">
           <div className="max-w-5xl mx-auto">
+            {!isRentToOwn && (
             <div className="text-center mb-12">
               <span className="inline-block bg-secondary text-secondary-foreground px-4 py-2 rounded-full text-sm font-semibold mb-4">
                 {rentToOwn.badge}
@@ -100,6 +114,7 @@ export const FinancingView = ({ content }: FinancingViewProps) => {
                 {rentToOwn.description}
               </p>
             </div>
+            )}
 
             <div className="grid md:grid-cols-2 gap-8 mb-12">
               <Card className="border-2 border-secondary">
@@ -195,7 +210,7 @@ export const FinancingView = ({ content }: FinancingViewProps) => {
         </div>
       </section>
 
-      {/* Financing Section */}
+      {!isRentToOwn && (
       <section id="financing" className="py-16 bg-primary scroll-mt-24">
         <div className="container-custom">
           <div className="max-w-5xl mx-auto">
@@ -266,6 +281,7 @@ export const FinancingView = ({ content }: FinancingViewProps) => {
           </div>
         </div>
       </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-16 bg-muted">

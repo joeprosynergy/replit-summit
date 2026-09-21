@@ -10,10 +10,12 @@ const FinancingEditable = lazy(() => import("@/components/FinancingEditable"));
 
 interface FinancingPageClientProps {
   initialContent: any;
+  mode?: "full" | "rent-to-own";
 }
 
 export default function FinancingPageClient({
   initialContent,
+  mode = "full",
 }: FinancingPageClientProps) {
   const { isAdmin } = useOptionalAdminAuth();
   const { content, isLoading } = useCMSContent<FinancingContent>(
@@ -27,6 +29,10 @@ export default function FinancingPageClient({
         <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
     );
+  }
+
+  if (mode === "rent-to-own") {
+    return <FinancingView content={content} mode="rent-to-own" />;
   }
 
   if (isAdmin) {

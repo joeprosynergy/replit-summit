@@ -80,7 +80,8 @@ ${hubs}
 
 ## Company
 
-- [Financing and rent to own](${abs("/financing")}): No credit check rent to own, 90-day payoff, and financed payments.
+- [Rent to own](${abs("/rent-to-own")}): No credit check, 90 days same as cash, no early payoff, 24 to 60 month terms.
+- [Financing](${abs("/financing")}): Upgrade installment loans with approved credit. Rent to own details also live at /rent-to-own.
 - [Contact](${abs("/contact-us")}): Lot address, phone, quote form.
 - [About](${abs("/about-us")}): Company, warranties, how buildings are built.
 - [Buyers guide](${abs("/buyers-guide")}): How to choose a portable building.

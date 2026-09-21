@@ -428,6 +428,94 @@ export function getBreadcrumbJsonLd(
   };
 }
 
+function asString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/** FAQ + Offer JSON-LD from the live rent-to-own copy. No invented payments. */
+export function getRentToOwnJsonLd(content: object) {
+  const rec = content as Record<string, unknown>;
+  const rto =
+    rec.rentToOwn && typeof rec.rentToOwn === "object"
+      ? (rec.rentToOwn as Record<string, unknown>)
+      : {};
+  const heading = asString(rto.heading) || "Rent to Own";
+  const description = asString(rto.description);
+  const pageUrl = `${SITE_URL}/rent-to-own`;
+  const faqPairs: Array<{ name: string; text: string }> = [
+    { name: asString(rto.card1Title), text: asString(rto.card1Description) },
+    { name: asString(rto.card2Title), text: asString(rto.card2Description) },
+    { name: asString(rto.card3Title), text: asString(rto.card3Description) },
+    { name: asString(rto.card4Title), text: asString(rto.card4Description) },
+    {
+      name: asString(rto.term24_36Title),
+      text: [asString(rto.term24_36Description), asString(rto.term24_36Note)]
+        .filter(Boolean)
+        .join(" "),
+    },
+    {
+      name: asString(rto.term48_60Title),
+      text: [asString(rto.term48_60Description), asString(rto.term48_60Note)]
+        .filter(Boolean)
+        .join(" "),
+    },
+  ].filter((row) => row.name && row.text);
+  const benefits = Array.isArray(rto.benefits)
+    ? rto.benefits.filter(
+        (value): value is string => typeof value === "string" && value.trim().length > 0
+      )
+    : [];
+  const badge = asString(rto.badge);
+
+  return [
+    getBreadcrumbJsonLd([
+      { name: "Home", url: "/" },
+      { name: heading, url: "/rent-to-own" },
+    ]),
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: heading,
+      description,
+      url: pageUrl,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqPairs.map((row) => ({
+        "@type": "Question",
+        name: row.name,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: row.text,
+        },
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Offer",
+      name: heading,
+      description,
+      url: pageUrl,
+      ...(badge && { category: badge }),
+      availability: "https://schema.org/InStock",
+      areaServed: BUSINESS_INFO.areaServed,
+      seller: {
+        "@type": "Organization",
+        name: BUSINESS_INFO.name,
+        url: SITE_URL,
+      },
+      ...(benefits.length && {
+        additionalProperty: benefits.map((value) => ({
+          "@type": "PropertyValue",
+          name: "Term",
+          value,
+        })),
+      }),
+    },
+  ];
+}
+
 /** Helper: renders a JSON-LD script tag for use in Next.js page.tsx */
 export function JsonLdScript({ data }: { data: object | object[] }) {
   const jsonLd = Array.isArray(data) ? data : [data];

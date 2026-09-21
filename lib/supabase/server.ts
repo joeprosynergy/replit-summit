@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
-import type { HeaderConfig } from "@/shared/navigationSchema";
+import type { HeaderConfig, FooterConfig } from "@/shared/navigationSchema";
+import { resolveFooterConfig } from "@/shared/navigationSchema";
 import { resolveHeaderConfig } from "@/shared/resolveHeaderConfig";
 
 /**
@@ -189,7 +190,9 @@ export async function fetchNavigationConfig() {
       headerConfig: headerResult.data?.content
         ? resolveHeaderConfig(headerResult.data.content as HeaderConfig)
         : null,
-      footerConfig: footerResult.data?.content || null,
+      footerConfig: footerResult.data?.content
+        ? resolveFooterConfig(footerResult.data.content as FooterConfig)
+        : null,
     };
   } catch (error) {
     console.error('[SSR] Failed to fetch navigation config:', error);

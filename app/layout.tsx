@@ -90,6 +90,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="describedby" href="https://summitbuildings.com/llms.txt" type="text/markdown" />
+        <link rel="alternate" href="https://summitbuildings.com/agents.txt" type="text/plain" title="agents.txt" />
         {/* Preload the header logo so it's cached before React hydrates */}
         <link
           rel="preload"

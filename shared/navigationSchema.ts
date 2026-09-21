@@ -74,7 +74,7 @@ export const defaultHeaderConfig: HeaderConfig = {
         { id: 'animal-shelters', label: 'Animal Shelters', href: '/styles/animal-shelters', isRoute: true },
       ],
     },
-    { id: 'rent-to-own', label: 'Rent to Own', href: '/financing#rent-to-own', isRoute: true },
+    { id: 'rent-to-own', label: 'Rent to Own', href: '/rent-to-own', isRoute: true },
     {
       id: 'inventory',
       label: 'See Inventory',
@@ -138,7 +138,7 @@ export const defaultFooterConfig: FooterConfig = {
         { id: 'buyers-guide', label: 'Buyers Guide', href: '/buyers-guide', isRoute: true },
         { id: 'gallery', label: 'Gallery', href: '/gallery', isRoute: true },
         { id: 'financing', label: 'Financing', href: '/financing', isRoute: true },
-        { id: 'rent-to-own', label: 'Rent-to-Own', href: '/financing#rent-to-own', isRoute: true },
+        { id: 'rent-to-own', label: 'Rent-to-Own', href: '/rent-to-own', isRoute: true },
         { id: 'warranty', label: 'Warranty Info', href: '#', disabled: true },
       ],
     },
@@ -175,3 +175,38 @@ export const defaultFooterConfig: FooterConfig = {
   button2IsExternal: true,
   copyrightText: `© ${new Date().getFullYear()} Summit Portable Buildings. All rights reserved.`,
 };
+
+/** Hash URLs are not indexable. Point Rent to Own at the dedicated page. */
+export function canonicalNavHref(href: string): string {
+  if (typeof href !== "string") return href;
+  const path = href.replace(/^https?:\/\/(www\.)?summitbuildings\.com/i, "");
+  if (path === "/financing#rent-to-own" || path.startsWith("/financing#rent-to-own?")) {
+    return "/rent-to-own";
+  }
+  return href;
+}
+
+export function remapNavLinks(links: NavLink[] | undefined): NavLink[] {
+  if (!Array.isArray(links)) return [];
+  return links.map((link) => ({
+    ...link,
+    href: canonicalNavHref(link.href),
+    children: link.children ? remapNavLinks(link.children) : undefined,
+  }));
+}
+
+export function resolveFooterConfig(
+  cmsConfig: FooterConfig | null | undefined
+): FooterConfig {
+  const base =
+    cmsConfig && Array.isArray(cmsConfig.sections) && cmsConfig.sections.length > 0
+      ? { ...defaultFooterConfig, ...cmsConfig }
+      : defaultFooterConfig;
+  return {
+    ...base,
+    sections: (base.sections || []).map((section) => ({
+      ...section,
+      links: remapNavLinks(section.links),
+    })),
+  };
+}
