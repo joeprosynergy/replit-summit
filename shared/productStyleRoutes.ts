@@ -1,6 +1,10 @@
 /**
- * Phase 2: /styles/{slug} is the canonical product URL.
- * /types/.../product still exists; next.config rewrites the styles URL onto it.
+ * /styles/{slug} is the canonical product URL.
+ * Phase 2: next.config rewrites /styles/{slug} onto the existing /types/... page.
+ * Phase 3: next.config 301s old public URLs onto /styles/{slug}.
+ *
+ * Do not redirect /barn — that is the Traditional Shed V2 landing page,
+ * not the /styles/barn hub.
  */
 
 export const PRODUCT_STYLE_ROUTES = [
@@ -66,4 +70,47 @@ export function productStyleRewrites() {
     source: `/styles/${r.slug}`,
     destination: r.typesPath,
   }));
+}
+
+/** Legacy public aliases that are not `/{product-slug}` or the typesPath. */
+export const PRODUCT_STYLE_ALIASES = [
+  { source: "/utility-shed", destination: "/styles/pro-utility-shed" },
+  { source: "/greenhouse", destination: "/styles/greenhouse" },
+  { source: "/animal-shelters", destination: "/styles/animal-shelters" },
+  { source: "/types/greenhouse", destination: "/styles/greenhouse" },
+  { source: "/types/animal-shelters", destination: "/styles/animal-shelters" },
+  { source: "/styles-utility", destination: "/styles/utility" },
+  { source: "/styles-barn", destination: "/styles/barn" },
+  { source: "/styles-modern", destination: "/styles/modern" },
+] as const;
+
+type StyleRedirect = {
+  source: string;
+  destination: string;
+  statusCode: 301;
+};
+
+function as301(source: string, destination: string): StyleRedirect {
+  return { source, destination, statusCode: 301 };
+}
+
+/** Public 301s onto /styles/{slug}. Types category hubs stay 200. */
+export function productStyleRedirects(): StyleRedirect[] {
+  const fromProducts = PRODUCT_STYLE_ROUTES.flatMap((r) => [
+    as301(r.typesPath, `/styles/${r.slug}`),
+    as301(`/${r.slug}`, `/styles/${r.slug}`),
+  ]);
+
+  const aliases = PRODUCT_STYLE_ALIASES.map((a) => as301(a.source, a.destination));
+
+  // WordPress leftovers — specific rows before the /our-models/:path* catch-all.
+  const wordpress: StyleRedirect[] = [
+    as301("/our-models/cabin", "/styles/cabin"),
+    as301("/our-models/utility-shed", "/styles/pro-utility-shed"),
+    as301("/our-models/garage", "/styles/garage"),
+    as301("/our-models/tiny-homes", "/types/deluxe-storage-cabins#cabins-tiny-home"),
+    as301("/our-models/:path*", "/styles"),
+  ];
+
+  return [...fromProducts, ...aliases, ...wordpress];
 }

@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { productStyleRewrites } from "./shared/productStyleRoutes";
+import { productStyleRedirects, productStyleRewrites } from "./shared/productStyleRoutes";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -28,14 +28,12 @@ const nextConfig: NextConfig = {
   },
   // Preserve trailing slashes to match existing URL structure
   trailingSlash: false,
-  // 301s for pre-migration WordPress URLs that are still indexed/bookmarked
+  // Phase 3: old product URLs 301 to /styles/{slug} (single hop).
+  // WordPress /our-models rows live in productStyleRedirects so they do not
+  // chain through /cabin or /types/.../garage. Ads LPs and /barn are untouched.
   async redirects() {
     return [
-      { source: "/our-models/cabin", destination: "/cabin", permanent: true },
-      { source: "/our-models/utility-shed", destination: "/utility-shed", permanent: true },
-      { source: "/our-models/garage", destination: "/types/garages-carports/garage", permanent: true },
-      { source: "/our-models/tiny-homes", destination: "/types/deluxe-storage-cabins#cabins-tiny-home", permanent: true },
-      { source: "/our-models/:path*", destination: "/types", permanent: true },
+      ...productStyleRedirects(),
       { source: "/farmington", destination: "/farmington-mo", permanent: true },
       { source: "/home", destination: "/", permanent: true },
     ];
