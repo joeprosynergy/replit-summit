@@ -15,15 +15,11 @@ export default function AboutUsPageClient({
   initialContent,
 }: AboutUsPageClientProps) {
   const { isAdmin } = useOptionalAdminAuth();
-  const { content, isLoading } = useCMSContent("about-us", initialContent);
+  const { content } = useCMSContent("about-us", initialContent);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
+  // Render the server-provided content immediately (initialContent is already the CMS content
+  // merged with defaults), so the initial HTML contains the real page instead of "Loading...".
+  // useCMSContent still refreshes from the CMS after mount.
 
   if (isAdmin) {
     return (

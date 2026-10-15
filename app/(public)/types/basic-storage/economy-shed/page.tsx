@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { economyShedDefaults } from "@/data/defaults/economyShedDefaults";
@@ -44,9 +43,7 @@ export default async function EconomyShedPage() {
         url: "/styles/economy-shed",
         category: "Basic Storage",
       })} />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>
-        <EconomyShedPageClient initialContent={initialContent} />
-      </Suspense>
+      <EconomyShedPageClient initialContent={initialContent} />
     </>
   );
 }

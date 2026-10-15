@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { budgetProUtilityDefaults, budgetProUtilityConfig } from "@/data/defaults/budgetProUtilityDefaults";
@@ -44,9 +43,7 @@ export default async function BudgetProUtilityPage() {
         url: "/styles/budget-pro-utility",
         category: "Basic Storage",
       })} />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>
-        <BudgetProUtilityPageClient initialContent={initialContent} config={budgetProUtilityConfig} />
-      </Suspense>
+      <BudgetProUtilityPageClient initialContent={initialContent} config={budgetProUtilityConfig} />
     </>
   );
 }

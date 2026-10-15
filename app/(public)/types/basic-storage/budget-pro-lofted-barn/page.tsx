@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { budgetProLoftedBarnDefaults, budgetProLoftedBarnConfig } from "@/data/defaults/budgetProLoftedBarnDefaults";
@@ -44,9 +43,7 @@ export default async function BudgetProLoftedBarnPage() {
         url: "/styles/budget-pro-lofted-barn",
         category: "Basic Storage",
       })} />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>
-        <BudgetProLoftedBarnPageClient initialContent={initialContent} config={budgetProLoftedBarnConfig} />
-      </Suspense>
+      <BudgetProLoftedBarnPageClient initialContent={initialContent} config={budgetProLoftedBarnConfig} />
     </>
   );
 }

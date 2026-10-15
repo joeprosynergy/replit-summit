@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { utilityShedDefaults, utilityShedConfig } from "@/data/defaults/utilityShedDefaults";
@@ -44,9 +43,7 @@ export default async function ProUtilityShedPage() {
         url: "/styles/pro-utility-shed",
         category: "Deluxe Storage & Cabins",
       })} />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>
-        <UtilityShedPageClient initialContent={initialContent} config={utilityShedConfig} />
-      </Suspense>
+      <UtilityShedPageClient initialContent={initialContent} config={utilityShedConfig} />
     </>
   );
 }

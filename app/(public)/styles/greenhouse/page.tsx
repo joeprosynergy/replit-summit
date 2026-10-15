@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { greenhouseDefaults, greenhouseConfig } from "@/data/defaults/greenhouseDefaults";
@@ -44,9 +43,7 @@ export default async function GreenhousePage() {
         url: "/styles/greenhouse",
         category: "Specialty Buildings",
       })} />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>
-        <GreenhousePageClient initialContent={initialContent} config={greenhouseConfig} />
-      </Suspense>
+      <GreenhousePageClient initialContent={initialContent} config={greenhouseConfig} />
     </>
   );
 }
