@@ -4,7 +4,7 @@ import {
   TYPES_CATEGORY_PATHS,
 } from "@/shared/productStyleRoutes";
 
-const BASE = "https://summitbuildings.com";
+const BASE = "https://www.summitbuildings.com";
 
 const PRODUCT_NOTES: Record<string, string> = {
   "economy-shed": "Lowest cost per square foot. Metal siding only. Utility or lofted barn.",
@@ -68,7 +68,7 @@ export function GET() {
 
 > Portable storage sheds, barns, cabins, and garages hand-crafted in Farmington, Missouri. Free delivery within 50 miles in Missouri, Illinois, Kentucky, and Arkansas. Phone 573-747-4700.
 
-Canonical product URLs are https://summitbuildings.com/styles/{slug}. Older paths such as /economy-shed and /types/basic-storage/economy-shed redirect there. Live lot inventory is on ShedSuite, not this domain. /barn is a traditional-shed landing page, not the barn style hub.
+Canonical product URLs are https://www.summitbuildings.com/styles/{slug}. Older paths such as /economy-shed and /types/basic-storage/economy-shed redirect there. Live lot inventory is on ShedSuite, not this domain. /barn is a traditional-shed landing page, not the barn style hub.
 
 ## Products
 

@@ -1,4 +1,4 @@
-const BASE = "https://summitbuildings.com";
+const BASE = "https://www.summitbuildings.com";
 
 export function GET() {
   const body = `# Summit Portable Buildings
