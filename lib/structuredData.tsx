@@ -3,7 +3,7 @@
  * Provides schema.org structured data for Google rich results.
  */
 
-const SITE_URL = "https://summitbuildings.com";
+const SITE_URL = "https://www.summitbuildings.com";
 const LOGO_URL = "https://res.cloudinary.com/dwhwbbbev/image/upload/f_auto,q_auto,w_200/summit-buildings/summit-logo";
 
 const BUSINESS_INFO = {
