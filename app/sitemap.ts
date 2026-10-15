@@ -40,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/gallery", 0.6, "weekly", now),
     entry("/blog", 0.5, "weekly", now),
     entry("/traditional-sheds", 0.6, "weekly", now),
+    entry("/farmington-mo", 0.6, "weekly", now),
   ];
 
   const styleHubs: MetadataRoute.Sitemap = STYLE_HUB_PATHS.map((path) =>
