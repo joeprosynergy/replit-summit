@@ -16,6 +16,7 @@ import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { EditablePageWrapper } from '@/components/admin/EditablePageWrapper';
 import { stylesUtilityDefaults, StylesUtilityContent, OptionItem, OtherStyleItem } from '@/data/defaults/stylesUtilityDefaults';
 
+import { imgDims } from "@/lib/imageDimensions";
 export default function StylesUtilityPageClient({ initialContent }: { initialContent: any }) {
   const currentPath = usePathname();
 
@@ -100,7 +101,7 @@ export default function StylesUtilityPageClient({ initialContent }: { initialCon
             className="block"
           >
             <div className="aspect-[4/3] overflow-hidden bg-muted">
-              <img
+              <img {...imgDims(option.image)}
                 src={option.image}
                 alt={`${option.name} utility storage shed - Summit Portable Buildings`}
                 className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-contain bg-muted"
@@ -337,7 +338,7 @@ export default function StylesUtilityPageClient({ initialContent }: { initialCon
                               className="group block"
                             >
                               <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                                <img
+                                <img {...imgDims(style.image)}
                                   src={style.image}
                                   alt={`${style.name} storage shed style - Summit Portable Buildings`}
                                   className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-contain bg-muted"

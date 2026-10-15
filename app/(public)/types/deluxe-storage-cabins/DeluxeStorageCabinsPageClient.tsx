@@ -15,6 +15,7 @@ import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { EditablePageWrapper } from '@/components/admin/EditablePageWrapper';
 import { deluxeStorageCabinsDefaults, DeluxeStorageCabinsContent, ModelItem, QuickNavItem } from '@/data/defaults/deluxeStorageCabinsDefaults';
 
+import { imgDims } from "@/lib/imageDimensions";
 export default function DeluxeStorageCabinsPageClient({ initialContent }: { initialContent: any }) {
   useEffect(() => {
     if (window.location.hash) {
@@ -120,7 +121,7 @@ export default function DeluxeStorageCabinsPageClient({ initialContent }: { init
                           ) : (
                             <a href={`#${item.id}`} className="block">
                               <div className="aspect-square mb-3 overflow-hidden rounded-lg bg-muted">
-                                <img
+                                <img {...imgDims(item.image)}
                                   src={item.image}
                                   alt={`${item.name} deluxe storage building - Summit Portable Buildings`}
                                   className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
@@ -246,7 +247,7 @@ export default function DeluxeStorageCabinsPageClient({ initialContent }: { init
                                   imageClassName="w-full h-full object-cover"
                                 />
                               ) : (
-                                <img
+                                <img {...imgDims(model.image)}
                                   src={model.image}
                                   alt={`${model.name} deluxe cabin - Summit Portable Buildings`}
                                   className="w-full h-full object-cover"
@@ -275,7 +276,7 @@ export default function DeluxeStorageCabinsPageClient({ initialContent }: { init
                                       </button>
                                     </>
                                   ) : (
-                                    <img src={img} alt="" className="w-full h-full hover:scale-105 transition-transform cursor-pointer object-cover" />
+                                    <img {...imgDims(img)} src={img} alt="" className="w-full h-full hover:scale-105 transition-transform cursor-pointer object-cover" />
                                   )}
                                 </div>
                               ))}

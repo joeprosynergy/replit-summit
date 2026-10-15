@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { galleryDefaults, GalleryContent, GalleryImage } from '@/data/defaults/galleryDefaults';
 
+import { imgDims } from "@/lib/imageDimensions";
 export default function GalleryPageClient({ initialContent }: { initialContent: any }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
@@ -151,7 +152,7 @@ export default function GalleryPageClient({ initialContent }: { initialContent: 
                           </div>
                         ) : (
                           <>
-                            <img
+                            <img {...imgDims(image.url)}
                               src={image.url}
                               alt={image.title}
                               loading="lazy"
@@ -246,7 +247,7 @@ export default function GalleryPageClient({ initialContent }: { initialContent: 
                 </button>
                 {selectedImage && (
                   <div className="relative">
-                    <img
+                    <img {...imgDims(selectedImage.url)}
                       src={selectedImage.url}
                       alt={selectedImage.title}
                       className="w-full h-auto max-h-[80vh] object-contain"
