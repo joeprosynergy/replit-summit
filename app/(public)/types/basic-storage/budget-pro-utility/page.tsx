@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || budgetProUtilityDefaults.metaTitle },
     description: content?.metaDescription || budgetProUtilityDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/styles/budget-pro-utility",
+      canonical: "https://www.summitbuildings.com/styles/budget-pro-utility",
     },
     openGraph: {
       title: content?.metaTitle || budgetProUtilityDefaults.metaTitle,
       description: content?.metaDescription || budgetProUtilityDefaults.metaDescription,
-      url: "https://summitbuildings.com/styles/budget-pro-utility",
+      url: "https://www.summitbuildings.com/styles/budget-pro-utility",
       images: [OG_IMAGE],
     },
   };

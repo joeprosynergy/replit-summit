@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://summitbuildings.com",
+    url: "https://www.summitbuildings.com",
     siteName: "Summit Portable Buildings",
     images: [
       {
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     icon: "https://res.cloudinary.com/dwhwbbbev/image/upload/v1767270254/IMG_2791_aetiqb.png",
     apple: "https://res.cloudinary.com/dwhwbbbev/image/upload/v1767270254/IMG_2791_aetiqb.png",
   },
-  metadataBase: new URL("https://summitbuildings.com"),
+  metadataBase: new URL("https://www.summitbuildings.com"),
 };
 
 export default function RootLayout({
@@ -89,8 +89,8 @@ export default function RootLayout({
         {/* Preconnect to Cloudinary (serves logo + product images) */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        <link rel="describedby" href="https://summitbuildings.com/llms.txt" type="text/markdown" />
-        <link rel="alternate" href="https://summitbuildings.com/agents.txt" type="text/plain" title="agents.txt" />
+        <link rel="describedby" href="https://www.summitbuildings.com/llms.txt" type="text/markdown" />
+        <link rel="alternate" href="https://www.summitbuildings.com/agents.txt" type="text/plain" title="agents.txt" />
         {/* Preload the header logo so it's cached before React hydrates */}
         <link
           rel="preload"

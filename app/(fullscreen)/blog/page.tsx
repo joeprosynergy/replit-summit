@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { OG_IMAGE } from "@/lib/seo";
 import BlogPageClient from "./BlogPageClient";
 
 export const metadata: Metadata = {
@@ -7,7 +8,14 @@ export const metadata: Metadata = {
   description:
     "Read tips, ideas, and stories about storage sheds, portable buildings, tiny homes, and more from Summit Portable Buildings.",
   alternates: {
-    canonical: "https://summitbuildings.com/blog",
+    canonical: "https://www.summitbuildings.com/blog",
+  },
+  openGraph: {
+    title: "Blog | Summit Portable Buildings",
+    description:
+      "Read tips, ideas, and stories about storage sheds, portable buildings, tiny homes, and more from Summit Portable Buildings.",
+    url: "https://www.summitbuildings.com/blog",
+    images: [OG_IMAGE],
   },
 };
 

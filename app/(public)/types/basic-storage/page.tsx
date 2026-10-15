@@ -13,12 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || basicStorageDefaults.metaTitle },
     description: content?.metaDescription || basicStorageDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/types/basic-storage",
+      canonical: "https://www.summitbuildings.com/types/basic-storage",
     },
     openGraph: {
       title: content?.metaTitle || basicStorageDefaults.metaTitle,
       description: content?.metaDescription || basicStorageDefaults.metaDescription,
-      url: "https://summitbuildings.com/types/basic-storage",
+      url: "https://www.summitbuildings.com/types/basic-storage",
       images: [OG_IMAGE],
     },
   };

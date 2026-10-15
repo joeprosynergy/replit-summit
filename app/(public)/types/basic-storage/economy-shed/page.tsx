@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || economyShedDefaults.metaTitle },
     description: content?.metaDescription || economyShedDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/styles/economy-shed",
+      canonical: "https://www.summitbuildings.com/styles/economy-shed",
     },
     openGraph: {
       title: content?.metaTitle || economyShedDefaults.metaTitle,
       description: content?.metaDescription || economyShedDefaults.metaDescription,
-      url: "https://summitbuildings.com/styles/economy-shed",
+      url: "https://www.summitbuildings.com/styles/economy-shed",
       images: [OG_IMAGE],
     },
   };

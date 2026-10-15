@@ -13,12 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || stylesModernDefaults.metaTitle },
     description: content?.metaDescription || stylesModernDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/styles/modern",
+      canonical: "https://www.summitbuildings.com/styles/modern",
     },
     openGraph: {
       title: content?.metaTitle || stylesModernDefaults.metaTitle,
       description: content?.metaDescription || stylesModernDefaults.metaDescription,
-      url: "https://summitbuildings.com/styles/modern",
+      url: "https://www.summitbuildings.com/styles/modern",
       images: [OG_IMAGE],
     },
   };

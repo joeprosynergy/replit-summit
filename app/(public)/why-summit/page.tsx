@@ -15,12 +15,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: title },
     description,
     alternates: {
-      canonical: "https://summitbuildings.com/why-summit",
+      canonical: "https://www.summitbuildings.com/why-summit",
     },
     openGraph: {
       title,
       description,
-      url: "https://summitbuildings.com/why-summit",
+      url: "https://www.summitbuildings.com/why-summit",
       images: [OG_IMAGE],
     },
   };
