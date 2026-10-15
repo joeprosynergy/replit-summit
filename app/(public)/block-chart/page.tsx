@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: { absolute: "Block Chart & Site Prep Guide | Summit Portable Buildings" },
   description: "Complete guide to concrete block requirements, runner spacing, building heights, and site preparation for Summit Portable Buildings delivery.",
   alternates: {
-    canonical: "https://summitbuildings.com/block-chart",
+    canonical: "https://www.summitbuildings.com/block-chart",
   },
   robots: { index: false, follow: false },
 };

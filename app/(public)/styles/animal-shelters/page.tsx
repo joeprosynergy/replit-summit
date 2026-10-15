@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || animalSheltersDefaults.metaTitle },
     description: content?.metaDescription || animalSheltersDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/styles/animal-shelters",
+      canonical: "https://www.summitbuildings.com/styles/animal-shelters",
     },
     openGraph: {
       title: content?.metaTitle || animalSheltersDefaults.metaTitle,
       description: content?.metaDescription || animalSheltersDefaults.metaDescription,
-      url: "https://summitbuildings.com/styles/animal-shelters",
+      url: "https://www.summitbuildings.com/styles/animal-shelters",
       images: [OG_IMAGE],
     },
   };

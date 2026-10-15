@@ -28,12 +28,12 @@ export async function generateMetadata({ params }: DynamicPageProps): Promise<Me
     title: { absolute: title },
     description,
     alternates: {
-      canonical: `https://summitbuildings.com/${fullSlug}`,
+      canonical: `https://www.summitbuildings.com/${fullSlug}`,
     },
     openGraph: {
       title,
       description,
-      url: `https://summitbuildings.com/${fullSlug}`,
+      url: `https://www.summitbuildings.com/${fullSlug}`,
       images: [OG_IMAGE],
     },
   };

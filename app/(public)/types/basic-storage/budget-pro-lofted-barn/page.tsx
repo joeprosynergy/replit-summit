@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || budgetProLoftedBarnDefaults.metaTitle },
     description: content?.metaDescription || budgetProLoftedBarnDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/styles/budget-pro-lofted-barn",
+      canonical: "https://www.summitbuildings.com/styles/budget-pro-lofted-barn",
     },
     openGraph: {
       title: content?.metaTitle || budgetProLoftedBarnDefaults.metaTitle,
       description: content?.metaDescription || budgetProLoftedBarnDefaults.metaDescription,
-      url: "https://summitbuildings.com/styles/budget-pro-lofted-barn",
+      url: "https://www.summitbuildings.com/styles/budget-pro-lofted-barn",
       images: [OG_IMAGE],
     },
   };

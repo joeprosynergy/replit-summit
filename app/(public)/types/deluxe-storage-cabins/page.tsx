@@ -13,12 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: content?.metaTitle || deluxeStorageCabinsDefaults.metaTitle },
     description: content?.metaDescription || deluxeStorageCabinsDefaults.metaDescription,
     alternates: {
-      canonical: "https://summitbuildings.com/types/deluxe-storage-cabins",
+      canonical: "https://www.summitbuildings.com/types/deluxe-storage-cabins",
     },
     openGraph: {
       title: content?.metaTitle || deluxeStorageCabinsDefaults.metaTitle,
       description: content?.metaDescription || deluxeStorageCabinsDefaults.metaDescription,
-      url: "https://summitbuildings.com/types/deluxe-storage-cabins",
+      url: "https://www.summitbuildings.com/types/deluxe-storage-cabins",
       images: [OG_IMAGE],
     },
   };

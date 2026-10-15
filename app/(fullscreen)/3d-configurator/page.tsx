@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: { absolute: "3D Configurator | Summit Portable Buildings" },
   description: "Design your custom portable building with our interactive 3D configurator.",
   alternates: {
-    canonical: "https://summitbuildings.com/3d-configurator",
+    canonical: "https://www.summitbuildings.com/3d-configurator",
   },
 };
 
