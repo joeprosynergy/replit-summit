@@ -7,7 +7,8 @@ import {
   sitemapExcludedCmsSlugs,
 } from "@/shared/productStyleRoutes";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://summitbuildings.com";
+// The site is served on www (non-www redirects to it), so sitemap URLs must be www to return 200 directly.
+const BASE_URL = "https://www.summitbuildings.com";
 
 type Freq = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
 
