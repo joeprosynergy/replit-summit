@@ -18,18 +18,14 @@ export default function FinancingPageClient({
   mode = "full",
 }: FinancingPageClientProps) {
   const { isAdmin } = useOptionalAdminAuth();
-  const { content, isLoading } = useCMSContent<FinancingContent>(
+  const { content } = useCMSContent<FinancingContent>(
     "financing",
     initialContent
   );
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
+  // Render the server-provided content immediately (initialContent is already the CMS content
+  // merged with defaults), so the initial HTML contains the real page instead of "Loading...".
+  // useCMSContent still refreshes from the CMS after mount.
 
   if (mode === "rent-to-own") {
     return <FinancingView content={content} mode="rent-to-own" />;

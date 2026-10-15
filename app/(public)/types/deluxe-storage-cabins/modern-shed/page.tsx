@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { modernShedDefaults } from "@/data/defaults/modernShedDefaults";
@@ -44,9 +43,7 @@ export default async function ModernShedPage() {
         url: "/styles/modern-shed",
         category: "Deluxe Storage & Cabins",
       })} />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>
-        <ModernShedPageClient initialContent={initialContent} />
-      </Suspense>
+      <ModernShedPageClient initialContent={initialContent} />
     </>
   );
 }

@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { garageDefaults, garageConfig } from "@/data/defaults/garageDefaults";
@@ -44,9 +43,7 @@ export default async function GaragePage() {
         url: "/styles/garage",
         category: "Garages & Carports",
       })} />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>
-        <GaragePageClient initialContent={initialContent} config={garageConfig} />
-      </Suspense>
+      <GaragePageClient initialContent={initialContent} config={garageConfig} />
     </>
   );
 }

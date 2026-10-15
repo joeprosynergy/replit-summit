@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { fetchPageContent } from "@/lib/supabase/server";
 import { animalSheltersDefaults } from "@/data/defaults/animalSheltersDefaults";
@@ -44,9 +43,7 @@ export default async function AnimalSheltersPage() {
         url: "/styles/animal-shelters",
         category: "Specialty Buildings",
       })} />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Loading...</div></div>}>
-        <AnimalSheltersPageClient initialContent={initialContent} />
-      </Suspense>
+      <AnimalSheltersPageClient initialContent={initialContent} />
     </>
   );
 }
