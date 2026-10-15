@@ -13,6 +13,7 @@ import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { EditablePageWrapper } from '@/components/admin/EditablePageWrapper';
 import { stylesDefaults, StylesContent, StyleItem } from '@/data/defaults/stylesDefaults';
 
+import { imgDims } from "@/lib/imageDimensions";
 export default function StylesPageClient({ initialContent }: { initialContent: any }) {
   return (
     <EditablePageWrapper<StylesContent>
@@ -131,7 +132,7 @@ export default function StylesPageClient({ initialContent }: { initialContent: a
                               className="block group cursor-pointer"
                             >
                               <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                                <img
+                                <img {...imgDims(style.image)}
                                   src={style.image}
                                   alt={`${style.name} storage building - Summit Portable Buildings`}
                                   className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"
@@ -230,7 +231,7 @@ export default function StylesPageClient({ initialContent }: { initialContent: a
                               className="block group cursor-pointer"
                             >
                               <div className="aspect-[4/3] mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                                <img
+                                <img {...imgDims(style.image)}
                                   src={style.image}
                                   alt={`${style.name} storage building - Summit Portable Buildings`}
                                   className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-contain"

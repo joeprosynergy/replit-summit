@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { cloudinaryImages } from '@/lib/cloudinary';
 
+import { imgDims } from "@/lib/imageDimensions";
 const styles = [
   {
     id: 'utility',
@@ -80,7 +81,7 @@ const Products = () => {
                   className="group text-center"
                 >
                   <div className="aspect-square mb-4 overflow-hidden rounded-lg shadow-sm bg-muted">
-                    <img
+                    <img {...imgDims(style.image)}
                       src={style.image}
                       alt={style.alt}
                       loading="lazy"

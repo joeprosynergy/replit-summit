@@ -16,6 +16,7 @@ import InlineEditableButton from '@/components/admin/InlineEditableButton';
 import { EditablePageWrapper } from '@/components/admin/EditablePageWrapper';
 import { stylesModernDefaults, StylesModernContent, OptionItem } from '@/data/defaults/stylesModernDefaults';
 
+import { imgDims } from "@/lib/imageDimensions";
 export default function StylesModernPageClient({ initialContent }: { initialContent: any }) {
   const currentPath = usePathname();
 
@@ -157,7 +158,7 @@ export default function StylesModernPageClient({ initialContent }: { initialCont
                                 className="block"
                               >
                                 <div className="aspect-video overflow-hidden">
-                                  <img
+                                  <img {...imgDims(option.image)}
                                     src={option.image}
                                     alt={`${option.name} modern storage shed - Summit Portable Buildings`}
                                     className="w-full h-full transition-transform duration-300 group-hover:scale-105 object-cover"

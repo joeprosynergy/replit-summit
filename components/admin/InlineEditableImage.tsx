@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { authFetch } from '@/lib/authFetch';
+import { imgDims } from '@/lib/imageDimensions';
 
 interface InlineEditableImageProps {
   src: string;
@@ -160,7 +161,7 @@ const InlineEditableImage = ({
           setIsDialogOpen(true);
         } : undefined}
       >
-        <img src={normalizedSrc} alt={alt} className={imageClassName} />
+        <img src={normalizedSrc} alt={alt} className={imageClassName} {...imgDims(normalizedSrc)} />
         {/* Edit mode overlay - visibility controlled, not conditionally rendered */}
         <div 
           className={cn(
